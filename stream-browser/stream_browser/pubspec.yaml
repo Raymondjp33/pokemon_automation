@@ -1,0 +1,38 @@
+name: stream_browser
+description: 'A new Flutter project.'
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.5.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+  provider: ^6.1.2
+  socket_io_client: ^3.1.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/
+    - assets/images/
+
+  fonts:
+    - family: Minecraft
+      fonts:
+        - asset: assets/fonts/MinecraftRegular-Bmg3.otf
+
+    - family: Minecraft-Ten
+      fonts:
+        - asset: assets/fonts/MinecraftTen-VGORe.ttf

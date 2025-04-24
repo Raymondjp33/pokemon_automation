@@ -1,0 +1,6 @@
+
+twitch/
+backend/
+old_repo/
+test/
+*.pyc
