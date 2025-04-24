@@ -21,7 +21,7 @@ import os
 
 os.environ['TESSDATA_PREFIX'] = '/opt/homebrew/Cellar/tesseract/5.5.0/share/tessdata'
 pytesseract.pytesseract.tesseract_cmd = r'/opt/homebrew/Cellar/tesseract/5.5.0/bin/tesseract'
-pokemon_data_path = '/Users/raymondprice/Desktop/other/test_coding/pokemon_scripts/nintendo-microcontrollers/scripts/swsh/pokemon_data.json'
+pokemon_data_path = Path(__file__).resolve().parent / 'pokemon_data.json'
 
 
 class Color(NamedTuple):
