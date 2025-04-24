@@ -3,6 +3,7 @@ import threading
 import time
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
+from pathlib import Path
 
 class ConfigHandler(FileSystemEventHandler):
     def __init__(self, config_manager):
@@ -14,7 +15,7 @@ class ConfigHandler(FileSystemEventHandler):
 
 class ConfigManager:
     def __init__(self):
-        self.file_path = '/Users/raymondprice/Desktop/other/test_coding/pokemon_scripts/nintendo-microcontrollers/scripts/swsh/dynamax_adventures/den_config.json'
+        self.file_path = Path(__file__).parent / 'den_config.json'
         self._lock = threading.Lock()
         self._data = self._load()
 
