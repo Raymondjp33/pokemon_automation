@@ -1,6 +1,12 @@
-
+# For now until privacy is maintained
 twitch/
-backend/
+
+# Files not needed to be tracked
+backend/*.json
+/scripts/swsh/dynamax_adventures/den_config.json
+*-counter.txt
+
+# other
 old_repo/
 test/
 *.pyc

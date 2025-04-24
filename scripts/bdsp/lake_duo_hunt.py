@@ -161,7 +161,6 @@ def _shh(ser: serial.Serial) -> Generator[None]:
 
 def increment_counter(delay: float, file_prefix, frame=None):
     counter_path = Path(f'{file_prefix}-counter.txt')
-    log_path = Path(f"{file_prefix}-log.txt")
     
     # Read the existing count (default to 0 if file does not exist)
     if counter_path.exists():
@@ -176,16 +175,10 @@ def increment_counter(delay: float, file_prefix, frame=None):
     # Increment the counter
     count += 1
 
-    timestamp  = time.strftime('%Y-%m-%d %H:%M:%S')
-    log_data = None
-    if delay > 0.55 or delay < 0.45:
-        log_data = f'Count: {count} - Delay: {delay} - Timestamp {timestamp}'
 
     # Write the updated count back to the file
-    with counter_path.open("w") as file1, log_path.open("a") as file2:
+    with counter_path.open("w") as file1:
         file1.write(str(count))
-        if (log_data is not None):
-            file2.write(log_data + '\n')
     
     if frame is not None:
         cv2.imwrite(f"/Volumes/Untitled/poke screenshots/{file_prefix} - {count}.png", frame)
