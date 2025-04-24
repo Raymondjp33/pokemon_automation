@@ -1,7 +1,7 @@
 {
-    "dynamax_turns": null,
+    "dynamax_turns": 1,
     "move_index": 0,
-    "battle_index": 1,
+    "battle_index": 2,
     "selected_starter": true,
     "end_run": false,
     "keep_dungeon": false,
@@ -13,10 +13,12 @@
         "wins": 0,
         "battles": 0,
         "paths": [
+            1,
             0,
-            0
+            1
         ],
         "swaps": [
+            false,
             false
         ]
     },
