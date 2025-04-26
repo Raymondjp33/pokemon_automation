@@ -15,6 +15,7 @@ import numpy
 import serial
 import pytesseract
 import os
+import json
 
 os.environ['TESSDATA_PREFIX'] = '/opt/homebrew/Cellar/tesseract/5.5.0/share/tessdata'
 pytesseract.pytesseract.tesseract_cmd = r'/opt/homebrew/Cellar/tesseract/5.5.0/bin/tesseract'
@@ -223,10 +224,10 @@ def reset_game(ser: serial.Serial, vid: cv2.VideoCapture,):
 
     print('game reset!')
 
-def increment_counter(file_prefix, frames=None, caught_legend=False):
-    total_dens_counter_path = Path(f'{file_prefix}-total-dens-counter.txt')
-    counter_path = Path(f'{file_prefix}-counter.txt')
-    # log_path = Path(f"{file_prefix}-log.txt")
+def increment_counter(file_prefix, frames=None, caught_legend=False, shiny_legend = False):
+    total_dens_counter_path = Path(f'total-dens-counter.txt')
+    counter_path = Path(f'current-counter.txt')
+    data_path = Path(__file__).resolve().parent.parent.parent.parent / 'backend' / 'switch2_data.json'
     
     # Read the existing count (default to 0 if file does not exist)
     if counter_path.exists():
@@ -253,6 +254,21 @@ def increment_counter(file_prefix, frames=None, caught_legend=False):
     if caught_legend:
         count += 1
 
+    with data_path.open("r") as data_file:
+        data = json.load(data_file)
+
+    current_pokemon = data["pokemon"][0]
+
+    for entry in data["pokemon"]:
+        if entry["pokemon"] == file_prefix:
+            current_pokemon = entry
+            break
+    
+    current_pokemon['extra_data']['total_dens'] = current_pokemon['extra_data']['total_dens'] + 1
+    if (caught_legend):
+        current_pokemon['encounters'] = current_pokemon['encounters'] + 1
+    if (shiny_legend):
+        current_pokemon['caught_timestamp'] = int(time.time() * 1000)
     # timestamp  = time.strftime('%Y-%m-%d %H:%M:%S')
     # star = '* ' if delay > 0.53 or delay < 0.47 else ''
     # log_data = f'{star}Count: {count} - Delay: {delay} - Timestamp {timestamp}'
@@ -262,6 +278,8 @@ def increment_counter(file_prefix, frames=None, caught_legend=False):
         file1.write(str(count))
         file2.write(str(total_dens_count))
         # file2.write(log_data + '\n')
+    with open(data_path, 'w') as data_file:
+        json.dump(data, data_file, indent=4)
     
     if frames is not None:
         for x in range(frames.__len__()):
