@@ -49,7 +49,8 @@ class RightSwitchContent extends StatelessWidget {
               height: 108,
               child: Gif(
                 image: NetworkImage(
-                    'https://raw.githubusercontent.com/adamsb0303/Shiny_Hunt_Tracker/master/Images/Sprites/3d/$switch2GifNumber.gif'),
+                  'https://raw.githubusercontent.com/adamsb0303/Shiny_Hunt_Tracker/master/Images/Sprites/3d/$switch2GifNumber.gif',
+                ),
                 fit: BoxFit.contain,
                 autostart: Autostart.loop,
               ),

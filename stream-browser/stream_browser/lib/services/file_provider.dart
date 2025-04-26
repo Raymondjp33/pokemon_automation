@@ -105,7 +105,7 @@ class FileProvider with ChangeNotifier {
   //
   int switch2LegendaryShinies = 0;
   int switch2TotalDens = 0;
-  int totalDens = 0;
+  int currentTotalDens = 0;
   double switch2AverageChecks = 0;
   int switch2Encounters = 0;
 
@@ -134,6 +134,7 @@ class FileProvider with ChangeNotifier {
 
     switch2AverageChecks = totalEncounters / denPokemon.length;
     switch2Encounters = switch2CurrPokemon.encounters ?? 0;
+    currentTotalDens = switch2CurrPokemon.extraData?['total_dens'] ?? 0;
     notifyListeners();
   }
 
