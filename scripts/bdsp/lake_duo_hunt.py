@@ -14,6 +14,7 @@ import serial
 import functools
 from typing import Protocol
 import tesserocr
+import json
 
 class Color(NamedTuple):
     b: int
@@ -161,6 +162,7 @@ def _shh(ser: serial.Serial) -> Generator[None]:
 
 def increment_counter(delay: float, file_prefix, frame=None):
     counter_path = Path(f'{file_prefix}-counter.txt')
+    data_path = Path(__file__).resolve().parent.parent.parent / 'backend' / 'switch1_data.json'
     
     # Read the existing count (default to 0 if file does not exist)
     if counter_path.exists():
@@ -175,14 +177,30 @@ def increment_counter(delay: float, file_prefix, frame=None):
     # Increment the counter
     count += 1
 
-
-    # Write the updated count back to the file
     with counter_path.open("w") as file1:
         file1.write(str(count))
+
+    with data_path.open("r") as data_file:
+        data = json.load(data_file)
+
+    current_pokemon = data["pokemon"][0]
+
+    for entry in data["pokemon"]:
+        if entry["pokemon"] == file_prefix:
+            current_pokemon = entry
+            current_pokemon["encounters"] = entry["encounters"] + 1
+            break
+
+
     
     if frame is not None:
         cv2.imwrite(f"/Volumes/Untitled/poke screenshots/{file_prefix} - {count}.png", frame)
+        current_pokemon['caught_timestamp'] = int(time.time() * 1000)
   
+    with open(data_path, 'w') as data_file:
+        json.dump(data, data_file, indent=4)
+
+        
 def write_shiny_text():
     shiny_text_path = Path(f"shiny_text.txt")
     with shiny_text_path.open("w") as file1:
