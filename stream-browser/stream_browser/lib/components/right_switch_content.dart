@@ -11,21 +11,32 @@ class RightSwitchContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    int? enc = context.watch<FileProvider>().switch1Data?['pokemon_encounters']
-        ?[0]?['encounters'];
-    print('rerendering $enc');
+    int totalDens =
+        context.select((FileProvider state) => state.switch2TotalDens);
+    int enc = context.select((FileProvider state) => state.switch2Encounters);
+    int totalLegends =
+        context.select((FileProvider state) => state.switch2LegendaryShinies);
+    double switch2AverageChecks =
+        context.select((FileProvider state) => state.switch2AverageChecks);
+    String switch2GifNumber = context.select(
+      (FileProvider state) => state.streamData?.switch2GifNumber ?? '1',
+    );
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         Text(
-          'POKEMON SWORD',
-          style: AppTextStyles.minecraftTen(fontSize: 32),
+          'Shield',
+          style: AppTextStyles.minecraftTen(fontSize: 36),
         ),
         LineItem(leftText: 'Odds', rightText: '1/100'),
-        LineItem(leftText: 'Normal shinies', rightText: '60'),
-        LineItem(leftText: 'Legendary shinies', rightText: '15'),
-        LineItem(leftText: 'Total dens', rightText: '2500'),
-        LineItem(leftText: 'Average checks', rightText: '92.25'),
+        // LineItem(leftText: 'Normal shinies', rightText: '60'),
+        LineItem(leftText: 'Legendary shinies', rightText: '$totalLegends'),
+        LineItem(leftText: 'Total dens', rightText: '$totalDens'),
+        LineItem(
+          leftText: 'Average checks',
+          rightText: switch2AverageChecks.toStringAsFixed(2),
+        ),
         Spacer(),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -33,8 +44,8 @@ class RightSwitchContent extends StatelessWidget {
             Container(
               width: 150,
               height: 108,
-              child: Image.asset(
-                'assets/images/637.gif',
+              child: Image.network(
+                'https://raw.githubusercontent.com/adamsb0303/Shiny_Hunt_Tracker/master/Images/Sprites/3d/$switch2GifNumber.gif',
                 fit: BoxFit.contain,
               ),
             ),
@@ -44,34 +55,11 @@ class RightSwitchContent extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '$enc',
-                        style: AppTextStyles.minecraft(fontSize: 48),
-                      ),
-                      Spacer(),
-                      Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            'Total dens',
-                            style: AppTextStyles.minecraft(fontSize: 24),
-                          ),
-                          Text(
-                            '300',
-                            style: AppTextStyles.minecraft(fontSize: 24),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
                   Text(
-                    '1d 2h 10m 5s',
-                    style: AppTextStyles.minecraft(fontSize: 24),
+                    '$enc',
+                    style: AppTextStyles.pokePixel(fontSize: 48),
                   ),
+                  Switch2EncounterTimer(),
                 ],
               ),
             ),
@@ -80,4 +68,41 @@ class RightSwitchContent extends StatelessWidget {
       ],
     );
   }
+}
+
+class Switch2EncounterTimer extends StatelessWidget {
+  const Switch2EncounterTimer({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final fileProvider = context.watch<FileProvider>();
+    num? startTime = fileProvider.switch2CurrPokemon.startedHuntTimestamp;
+
+    DateTime now = DateTime.now();
+    if (startTime == null) {
+      return Container();
+    }
+
+    Duration timeDifference =
+        Duration(milliseconds: now.millisecondsSinceEpoch - startTime.toInt());
+    return Text(
+      formatDuration(timeDifference),
+      style: AppTextStyles.pokePixel(fontSize: 24),
+    );
+  }
+}
+
+String formatDuration(Duration duration) {
+  int days = duration.inDays;
+  int hours = duration.inHours % 24;
+  int minutes = duration.inMinutes % 60;
+  int seconds = duration.inSeconds % 60;
+
+  final parts = <String>[];
+  if (days > 0) parts.add('${days}d');
+  if (hours > 0) parts.add('${hours}h');
+  if (minutes > 0) parts.add('${minutes}m');
+  if (seconds > 0 || parts.isEmpty) parts.add('${seconds}s');
+
+  return parts.join(' ');
 }

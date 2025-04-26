@@ -5,6 +5,7 @@ import 'components/left_switch_content.dart';
 import 'components/middle_content.dart';
 import 'components/right_switch_content.dart';
 import 'services/file_provider.dart';
+import 'widgets/scrolling_background.dart';
 
 void main() {
   runApp(const App());
@@ -40,44 +41,47 @@ class Home extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Container(
-          width: 1280,
-          height: 354,
-          decoration: const BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage("assets/images/Cloud background.png"),
-              fit: BoxFit.cover,
+        child: Stack(
+          children: [
+            Container(
+              width: 1280,
+              height: 354,
+              child: InfiniteScrollBackground(),
             ),
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 487,
-                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                decoration: const BoxDecoration(
-                  border: Border(
-                    right: BorderSide(width: 5, color: Color(0xFF4C6CBF)),
+            Container(
+              width: 1280,
+              height: 354,
+              child: Row(
+                children: [
+                  Container(
+                    width: 427,
+                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                    decoration: const BoxDecoration(
+                      border: Border(
+                        right: BorderSide(width: 5, color: Color(0xFF4C6CBF)),
+                      ),
+                    ),
+                    child: LeftSwitchContent(),
                   ),
-                ),
-                child: LeftSwitchContent(),
-              ),
-              Container(
-                width: 306,
-                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 2),
-                child: MiddleContent(),
-              ),
-              Container(
-                width: 487,
-                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                decoration: const BoxDecoration(
-                  border: Border(
-                    left: BorderSide(width: 5, color: Color(0xFF4C6CBF)),
+                  Container(
+                    width: 426,
+                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 2),
+                    child: MiddleContent(),
                   ),
-                ),
-                child: RightSwitchContent(),
+                  Container(
+                    width: 427,
+                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                    decoration: const BoxDecoration(
+                      border: Border(
+                        left: BorderSide(width: 5, color: Color(0xFF4C6CBF)),
+                      ),
+                    ),
+                    child: RightSwitchContent(),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

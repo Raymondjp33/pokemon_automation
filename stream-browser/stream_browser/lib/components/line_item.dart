@@ -18,12 +18,12 @@ class LineItem extends StatelessWidget {
       children: [
         Text(
           leftText,
-          style: AppTextStyles.minecraft(fontSize: 24),
+          style: AppTextStyles.pokePixel(fontSize: 30),
         ),
         Spacer(),
         Text(
           rightText,
-          style: AppTextStyles.minecraft(fontSize: 24),
+          style: AppTextStyles.pokePixel(fontSize: 30),
         ),
       ],
     );
