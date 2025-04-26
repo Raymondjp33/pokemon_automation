@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gif/gif.dart';
 import 'package:provider/provider.dart';
 
 import '../constants/app_styles.dart';
@@ -44,9 +45,11 @@ class LeftSwitchContent extends StatelessWidget {
             Container(
               width: 150,
               height: 108,
-              child: Image.network(
-                'https://raw.githubusercontent.com/adamsb0303/Shiny_Hunt_Tracker/master/Images/Sprites/3d/$switch1GifNumber.gif',
+              child: Gif(
+                image: NetworkImage(
+                    'https://raw.githubusercontent.com/adamsb0303/Shiny_Hunt_Tracker/master/Images/Sprites/3d/$switch1GifNumber.gif'),
                 fit: BoxFit.contain,
+                autostart: Autostart.loop,
               ),
             ),
             HorizontalSpace(10),
@@ -57,7 +60,7 @@ class LeftSwitchContent extends StatelessWidget {
                 children: [
                   Text(
                     '$currentEncounters',
-                    style: AppTextStyles.pokePixel(fontSize: 48),
+                    style: AppTextStyles.pokePixel(fontSize: 60),
                   ),
                   Switch1EncounterTimer(),
                 ],

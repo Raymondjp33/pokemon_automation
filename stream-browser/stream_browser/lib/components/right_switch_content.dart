@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gif/gif.dart';
 import 'package:provider/provider.dart';
 
 import '../constants/app_styles.dart';
@@ -13,6 +14,8 @@ class RightSwitchContent extends StatelessWidget {
   Widget build(BuildContext context) {
     int totalDens =
         context.select((FileProvider state) => state.switch2TotalDens);
+    int currTotalDens =
+        context.select((FileProvider state) => state.currentTotalDens);
     int enc = context.select((FileProvider state) => state.switch2Encounters);
     int totalLegends =
         context.select((FileProvider state) => state.switch2LegendaryShinies);
@@ -44,9 +47,11 @@ class RightSwitchContent extends StatelessWidget {
             Container(
               width: 150,
               height: 108,
-              child: Image.network(
-                'https://raw.githubusercontent.com/adamsb0303/Shiny_Hunt_Tracker/master/Images/Sprites/3d/$switch2GifNumber.gif',
+              child: Gif(
+                image: NetworkImage(
+                    'https://raw.githubusercontent.com/adamsb0303/Shiny_Hunt_Tracker/master/Images/Sprites/3d/$switch2GifNumber.gif'),
                 fit: BoxFit.contain,
+                autostart: Autostart.loop,
               ),
             ),
             HorizontalSpace(10),
@@ -55,9 +60,18 @@ class RightSwitchContent extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Text(
-                    '$enc',
-                    style: AppTextStyles.pokePixel(fontSize: 48),
+                  Row(
+                    children: [
+                      Text(
+                        '$enc',
+                        style: AppTextStyles.pokePixel(fontSize: 60),
+                      ),
+                      HorizontalSpace(20),
+                      Text(
+                        '(Total dens: $currTotalDens)',
+                        style: AppTextStyles.pokePixel(fontSize: 30),
+                      ),
+                    ],
                   ),
                   Switch2EncounterTimer(),
                 ],
