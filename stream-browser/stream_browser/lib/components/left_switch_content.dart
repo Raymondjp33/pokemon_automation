@@ -31,11 +31,11 @@ class LeftSwitchContent extends StatelessWidget {
           'BRILLIANT DIAMOND',
           style: AppTextStyles.minecraftTen(fontSize: 32),
         ),
-        LineItem(leftText: 'Odds', rightText: '1/4096'),
-        LineItem(leftText: 'Total shinies', rightText: '$totalShinies'),
-        LineItem(leftText: 'Total encounters', rightText: '$totalEncounters'),
+        LineItem(leftText: 'Odds (No charm, Masuda)', rightText: '1/683'),
+        LineItem(leftText: 'Total egg shinies', rightText: '$totalShinies'),
+        LineItem(leftText: 'Total eggs hatched', rightText: '$totalEncounters'),
         LineItem(
-          leftText: 'Average encounters',
+          leftText: 'Average eggs hatched',
           rightText: averageEncounters.toStringAsFixed(2),
         ),
         Spacer(),
@@ -80,15 +80,18 @@ class Switch1EncounterTimer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final fileProvider = context.watch<FileProvider>();
-    num? startTime = fileProvider.switch1CurrPokemon.startedHuntTimestamp;
-
     DateTime now = DateTime.now();
+
+    num? startTime = fileProvider.switch1CurrPokemon.startedHuntTimestamp;
+    int endTime = fileProvider.switch1CurrPokemon.caughtTimestamp?.toInt() ??
+        now.millisecondsSinceEpoch;
+
     if (startTime == null) {
       return Container();
     }
 
     Duration timeDifference =
-        Duration(milliseconds: now.millisecondsSinceEpoch - startTime.toInt());
+        Duration(milliseconds: endTime - startTime.toInt());
     return Text(
       formatDuration(timeDifference),
       style: AppTextStyles.pokePixel(fontSize: 24),
