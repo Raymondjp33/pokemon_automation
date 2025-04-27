@@ -91,15 +91,18 @@ class Switch2EncounterTimer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final fileProvider = context.watch<FileProvider>();
-    num? startTime = fileProvider.switch2CurrPokemon.startedHuntTimestamp;
-
     DateTime now = DateTime.now();
+
+    num? startTime = fileProvider.switch2CurrPokemon.startedHuntTimestamp;
+    int endTime = fileProvider.switch2CurrPokemon.caughtTimestamp?.toInt() ??
+        now.millisecondsSinceEpoch;
+
     if (startTime == null) {
       return Container();
     }
 
     Duration timeDifference =
-        Duration(milliseconds: now.millisecondsSinceEpoch - startTime.toInt());
+        Duration(milliseconds: endTime - startTime.toInt());
     return Text(
       formatDuration(timeDifference),
       style: AppTextStyles.pokePixel(fontSize: 24),
