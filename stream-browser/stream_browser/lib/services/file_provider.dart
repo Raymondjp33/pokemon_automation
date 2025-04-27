@@ -83,19 +83,24 @@ class FileProvider with ChangeNotifier {
   //
   //        SWITCH 1
   //
+  List<PokemonData> get switch1EggPokemon => (switch1Data?.pokemon ?? [])
+      .where((e) => e.encounterMethod == 'egg')
+      .toList();
   int switch1TotalShinies = 0;
   int switch1TotalEncounters = 0;
   double switch1AverageEncounters = 0;
   int switch1Encounters = 0;
   void calculateSwitch1Variables() {
-    switch1TotalShinies = (switch1Data?.pokemon.length ?? 1) - 1;
-    switch1TotalEncounters = (switch1Data?.pokemon ?? []).fold(
+    switch1TotalShinies = switch1EggPokemon
+        .where((e) => e.caughtTimestamp != null)
+        .fold(0, (previousValue, element) => previousValue + 1);
+    switch1TotalEncounters = switch1EggPokemon.fold(
       0,
       (previousValue, element) => previousValue + (element.encounters ?? 0),
     );
 
-    switch1AverageEncounters =
-        switch1TotalEncounters / (switch1Data?.pokemon.length ?? 1);
+    switch1AverageEncounters = switch1TotalEncounters /
+        (switch1EggPokemon.isEmpty ? 1 : switch1EggPokemon.length);
     switch1Encounters = switch1CurrPokemon.encounters ?? 0;
     notifyListeners();
   }
