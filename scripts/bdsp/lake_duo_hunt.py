@@ -161,7 +161,7 @@ def _shh(ser: serial.Serial) -> Generator[None]:
         ser.write(b'.')    
 
 def increment_counter(delay: float, file_prefix, frame=None):
-    counter_path = Path(f'{file_prefix}-counter.txt')
+    counter_path = Path(f'switch1-counter.txt')
     data_path = Path(__file__).resolve().parent.parent.parent / 'backend' / 'switch1_data.json'
     
     # Read the existing count (default to 0 if file does not exist)
@@ -253,7 +253,7 @@ def main() -> int:
 
     # currently_hunting = 'Azelf'
     # currently_hunting = 'Uxie'
-    currently_hunting = 'Uxie'
+    currently_hunting = 'Heatran'
 
     x_val = 960
     y_val = 660
@@ -289,10 +289,10 @@ def main() -> int:
             # return 0
             while True:
                 frame = _getframe(vid)
-                current_text = get_text(frame=frame, top_left=Point(y=587, x=114), bottom_right=Point(y=638, x=378), invert=True)
+                current_text = get_text(frame=frame, top_left=Point(y=586, x=116), bottom_right=Point(y=641, x=413), invert=True)
                 # print(f'here and current text is ${current_text}')
-                if (current_text == 'Uxie appeared!'):
-                    print('Uxie appeared!')
+                if (current_text == 'Heatran appeared!'):
+                    print('Heatran appeared!')
                     break
                 time.sleep(0.4)
             # print(f'{currently_hunting} appeared!')
@@ -304,7 +304,7 @@ def main() -> int:
 
 
             # print(f'Test runtime: {(test_end-test_start):.3f}s')
-            # return 0
+            
             
             _await_pixel(ser, vid, x=x_val, y=y_val, pixel=(255, 255, 255))
             print('Go Breloom!')
