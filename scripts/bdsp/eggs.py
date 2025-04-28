@@ -201,7 +201,7 @@ def increment_counter(caught_index=None):
 def write_shiny_text():
     shiny_text_path = Path(f"shiny_text.txt")
     with shiny_text_path.open("w") as file1:
-        file1.write('I got the shiny! My switch\nwill be off until I am\nback. Make sure to come\nback when/after I catch it!')
+        file1.write("I got the shiny! My switch\nwill be off until I'm back.")
 
 def connect_and_go_to_game(ser: serial.Serial):
     _press(ser, 'H', sleep_time=1)
@@ -388,6 +388,18 @@ def main() -> int:
 
             if (config.get('fetched_eggs') > 4 and config.get('hatched_eggs') > 4):
                 if handle_process_eggs(ser, vid):
+                    _press(ser, 'H', duration=1)
+                    _press(ser, 's', duration=0.25)
+                    _press(ser, 'd', duration=0.25)
+                    _press(ser, 'd', duration=0.25)
+                    _press(ser, 'd', duration=0.25)
+                    _press(ser, 'd', duration=0.25)
+                    _press(ser, 'd', duration=0.25)
+                    _press(ser, 'd', duration=0.25)
+                    _press(ser, 'A', duration=1)
+                    _press(ser, 'w', duration=1)
+                    _press(ser, 'A', duration=1)
+                    write_shiny_text()
                     return 0
                 end_time = time.time()
                 print(f'Full egg run took {(end_time-start_time):.3f}s')
