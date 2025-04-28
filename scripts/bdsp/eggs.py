@@ -374,7 +374,7 @@ def main() -> int:
                 if (oh_text):
                     handle_hatch(ser, vid)
                     break
-                _press(ser, 'w', duration=0.3, write_null_byte=False)
+                _press(ser, 'w', duration=0.25, write_null_byte=False)
                 _press(ser, 'd', duration=0.1, write_null_byte=False)
                 _press(ser, 's', duration=0.35, write_null_byte=False)
                 _press(ser, 'a', duration=0.15, write_null_byte=False)
