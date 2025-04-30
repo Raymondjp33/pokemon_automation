@@ -96,7 +96,7 @@ def _press(ser: serial.Serial, s: str, duration: float = .1, count: int = 1, sle
         time.sleep(duration)
         if (write_null_byte):
             ser.write(b'0')
-        time.sleep(sleep_time)
+            time.sleep(sleep_time)
 
 def _getframe(vid: cv2.VideoCapture) -> numpy.ndarray:
     _, frame = vid.read()
@@ -194,6 +194,9 @@ def increment_counter(caught_index=None):
             current_pokemon = entry
             current_pokemon["encounters"] = entry["encounters"] + count_amount
             break
+    
+    if (caught_index is not None):
+        current_pokemon["caught_timestamp"] = int(time.time() * 1000)
   
     with open(data_path, 'w') as data_file:
         json.dump(data, data_file, indent=4)
@@ -237,30 +240,37 @@ def reset_game(ser: serial.Serial, vid: cv2.VideoCapture,):
     print('game loaded!')
 
 def handle_fetch(ser: serial.Serial, vid: cv2.VideoCapture,):
-    _press(ser, 'd', duration=0.75, sleep_time=0.2)
-    _press(ser, 'w', duration=0.45, sleep_time=0.2)
-    time.sleep(1)
-    _press(ser, '3', sleep_time=0.2)
+    _press(ser, 's', duration=0.75, sleep_time=0.2)
+    _press(ser, 'a', duration=0.75, sleep_time=0.2)
+    _press(ser, 'd', duration=0.65, sleep_time=0.2)
+    _press(ser, 'w', duration=0.40, sleep_time=0.2)
+    time.sleep(0.5)
     _press(ser, 'A', sleep_time=1)
 
     # Now stading in front of worker and talking to him
     frame = _getframe(vid)
-    current_text = get_text(frame=frame, top_left=Point(y=586, x=472), bottom_right=Point(y=635, x=612), invert=True)
     oh_text = get_text(frame=frame, top_left=Point(y=583, x=292), bottom_right=Point(y=634, x=382), invert=True) == 'Oh?'
 
     if (oh_text):
         handle_hatch(ser, vid)
         return
     
+    handle_return_from_fetch(ser, vid)
+
+def handle_return_from_fetch(ser: serial.Serial, vid: cv2.VideoCapture,):
+    frame = _getframe(vid)
+    current_text = get_text(frame=frame, top_left=Point(y=586, x=472), bottom_right=Point(y=635, x=612), invert=True)
+    
     if current_text == 'Good to':
         print('Good to see you!')
         _press(ser, 'A', count=3, sleep_time=1)
-    
-    if current_text == 'We were':
+    elif current_text == 'We were':
         fetched_eggs = config.get('fetched_eggs')
         config.update({'fetched_eggs': fetched_eggs + 1})
         print(f'We were! Fetching egg {fetched_eggs}')
         _press(ser, 'A', count=17, sleep_time=0.4)
+    else:
+        return
 
     _press(ser, 's', duration=1)
     _press(ser, 'a', duration=1)
@@ -368,6 +378,17 @@ def main() -> int:
         _press(ser, 'a', duration=1)
         while True:
 
+            # for _ in range (40):
+            #     frame = _getframe(vid)
+            #     oh_text = get_text(frame=frame, top_left=Point(y=583, x=292), bottom_right=Point(y=634, x=382), invert=True) == 'Oh?'
+            #     if (oh_text):
+            #         ser.write(b'0')
+            #         handle_hatch(ser, vid)
+            #         break
+                
+            #     for x in ['a', 'q', 'w', 'e', 'd', 'c', 's', 'z', ]:
+            #         _press(ser, x, duration=0.05, write_null_byte=False)
+
             for _ in range (14):
                 frame = _getframe(vid)
                 oh_text = get_text(frame=frame, top_left=Point(y=583, x=292), bottom_right=Point(y=634, x=382), invert=True) == 'Oh?'
@@ -379,7 +400,8 @@ def main() -> int:
                 _press(ser, 's', duration=0.35, write_null_byte=False)
                 _press(ser, 'a', duration=0.15, write_null_byte=False)
 
-            
+            handle_return_from_fetch(ser, vid)
+            # return 0
             if (config.get('fetched_eggs') < 5):
                 handle_fetch(ser, vid)
 
@@ -387,6 +409,8 @@ def main() -> int:
                 continue
 
             if (config.get('fetched_eggs') > 4 and config.get('hatched_eggs') > 4):
+                ser.write(b'0')
+                time.sleep(0.5)
                 if handle_process_eggs(ser, vid):
                     _press(ser, 'H', duration=1)
                     _press(ser, 's', duration=0.25)
@@ -404,9 +428,10 @@ def main() -> int:
                 end_time = time.time()
                 print(f'Full egg run took {(end_time-start_time):.3f}s')
                 start_time = time.time()
+                time.sleep(2)
 
             
-            time.sleep(2)
+            
 
             # return 0
 
