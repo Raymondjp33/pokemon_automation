@@ -14,7 +14,7 @@ os.environ['TESSDATA_PREFIX'] = '/opt/homebrew/Cellar/tesseract/5.5.0/share/tess
 pytesseract.pytesseract.tesseract_cmd = r'/opt/homebrew/Cellar/tesseract/5.5.0/bin/tesseract'
 pokemon_data_path = Path(__file__).resolve().parent.parent / 'pokemon_data.json'
 
-currently_hunting = 'Zekrom'
+currently_hunting = 'Celesteela'
 
 class DenHandler:
     def __init__(self, vid: cv2.VideoCapture, ser: serial.Serial, config: ConfigManager):
