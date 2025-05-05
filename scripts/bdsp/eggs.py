@@ -374,10 +374,11 @@ def main() -> int:
         # handle_process_eggs(ser, vid)
         # print(check_if_shiny(vid))
         # return 0
-        _press(ser, 's', duration=1)
-        _press(ser, 'a', duration=1)
+        # _press(ser, 's', duration=1)
+        # _press(ser, 'a', duration=1)
         while True:
 
+            # _press(ser, 'w', duration=0.1, write_null_byte=False)
             # for _ in range (40):
             #     frame = _getframe(vid)
             #     oh_text = get_text(frame=frame, top_left=Point(y=583, x=292), bottom_right=Point(y=634, x=382), invert=True) == 'Oh?'
@@ -387,7 +388,21 @@ def main() -> int:
             #         break
                 
             #     for x in ['a', 'q', 'w', 'e', 'd', 'c', 's', 'z', ]:
-            #         _press(ser, x, duration=0.05, write_null_byte=False)
+            #     # for x in ['q', 'e', 'c', 'z',]:
+            #         _press(ser, x, duration=0.06, write_null_byte=False)
+            #     _press(ser, 'a', duration=0.02, write_null_byte=False)
+
+            # return 0
+            # for _ in range (14):
+            #     frame = _getframe(vid)
+            #     oh_text = get_text(frame=frame, top_left=Point(y=583, x=292), bottom_right=Point(y=634, x=382), invert=True) == 'Oh?'
+            #     if (oh_text):
+            #         handle_hatch(ser, vid)
+            #         break
+            #     _press(ser, 'w', duration=0.25, write_null_byte=False)
+            #     _press(ser, 'd', duration=0.1, write_null_byte=False)
+            #     _press(ser, 's', duration=0.35, write_null_byte=False)
+            #     _press(ser, 'a', duration=0.15, write_null_byte=False)
 
             for _ in range (14):
                 frame = _getframe(vid)
@@ -395,10 +410,12 @@ def main() -> int:
                 if (oh_text):
                     handle_hatch(ser, vid)
                     break
-                _press(ser, 'w', duration=0.25, write_null_byte=False)
-                _press(ser, 'd', duration=0.1, write_null_byte=False)
-                _press(ser, 's', duration=0.35, write_null_byte=False)
-                _press(ser, 'a', duration=0.15, write_null_byte=False)
+                _press(ser, 'q', duration=0.35, write_null_byte=False)
+                _press(ser, 'e', duration=0.1, write_null_byte=False)
+                _press(ser, 'c', duration=0.25, write_null_byte=False)
+                _press(ser, 'z', duration=0.15, write_null_byte=False)
+
+            # return 0
 
             handle_return_from_fetch(ser, vid)
             # return 0
