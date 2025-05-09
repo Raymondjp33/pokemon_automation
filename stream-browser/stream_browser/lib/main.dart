@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'components/left_switch_content.dart';
+import 'components/left_block_content/left_switch_content.dart';
 import 'components/middle_content.dart';
 import 'components/right_switch_content.dart';
 import 'services/file_provider.dart';
@@ -55,6 +55,7 @@ class Home extends StatelessWidget {
                 children: [
                   Container(
                     width: 427,
+                    height: 354,
                     padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                     decoration: const BoxDecoration(
                       border: Border(
@@ -65,11 +66,13 @@ class Home extends StatelessWidget {
                   ),
                   Container(
                     width: 426,
+                    height: 354,
                     padding: EdgeInsets.symmetric(vertical: 10, horizontal: 2),
                     child: MiddleContent(),
                   ),
                   Container(
                     width: 427,
+                    height: 354,
                     padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                     decoration: const BoxDecoration(
                       border: Border(
