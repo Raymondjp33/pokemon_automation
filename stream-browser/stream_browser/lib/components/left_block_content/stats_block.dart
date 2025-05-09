@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:gif/gif.dart';
 import 'package:provider/provider.dart';
 
-import '../constants/app_styles.dart';
-import '../services/file_provider.dart';
-import '../widgets/spacing.dart';
-import 'line_item.dart';
+import '../../constants/app_styles.dart';
+import '../../services/file_provider.dart';
+import '../../widgets/spacing.dart';
+import '../line_item.dart';
 
-class LeftSwitchContent extends StatelessWidget {
-  const LeftSwitchContent({super.key});
+class StatsBlock extends StatelessWidget {
+  const StatsBlock({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -22,6 +22,9 @@ class LeftSwitchContent extends StatelessWidget {
         context.select((FileProvider state) => state.switch1Encounters);
     String switch1GifNumber = context.select(
       (FileProvider state) => state.streamData?.switch1GifNumber ?? '1',
+    );
+    String shinyCounts = context.select(
+      (FileProvider state) => state.shinyCounts,
     );
 
     return Column(
@@ -59,9 +62,18 @@ class LeftSwitchContent extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Text(
-                    '$currentEncounters',
-                    style: AppTextStyles.pokePixel(fontSize: 60),
+                  Row(
+                    children: [
+                      Text(
+                        '$currentEncounters',
+                        style: AppTextStyles.pokePixel(fontSize: 60),
+                      ),
+                      HorizontalSpace(30),
+                      Text(
+                        shinyCounts,
+                        style: AppTextStyles.pokePixel(fontSize: 40),
+                      ),
+                    ],
                   ),
                   Switch1EncounterTimer(),
                 ],

@@ -76,7 +76,7 @@ class FileProvider with ChangeNotifier {
       now = DateTime.now();
 
       if (now.second % 5 == 0) {
-        handleChangeScreenIndex();
+        // handleChangeScreenIndex();
       }
       notifyListeners();
     });
@@ -103,6 +103,7 @@ class FileProvider with ChangeNotifier {
   int switch1TotalEncounters = 0;
   double switch1AverageEncounters = 0;
   int switch1Encounters = 0;
+  String shinyCounts = '';
   void calculateSwitch1Variables() {
     switch1TotalShinies = switch1EggPokemon
         .where((e) => e.caughtTimestamp != null)
@@ -115,6 +116,16 @@ class FileProvider with ChangeNotifier {
     switch1AverageEncounters = switch1TotalEncounters /
         (switch1EggPokemon.isEmpty ? 1 : switch1EggPokemon.length);
     switch1Encounters = switch1CurrPokemon.encounters ?? 0;
+
+    final shiniesCaught = switch1CurrPokemon.catches?.length ?? 0;
+    final catchTarget = streamData?.switch1Target;
+
+    print('here and $shiniesCaught and $catchTarget');
+
+    if (catchTarget != null) {
+      shinyCounts = '$shiniesCaught/$catchTarget';
+    }
+
     notifyListeners();
   }
 
