@@ -120,8 +120,6 @@ class FileProvider with ChangeNotifier {
     final shiniesCaught = switch1CurrPokemon.catches?.length ?? 0;
     final catchTarget = streamData?.switch1Target;
 
-    print('here and $shiniesCaught and $catchTarget');
-
     if (catchTarget != null) {
       shinyCounts = '$shiniesCaught/$catchTarget';
     }
