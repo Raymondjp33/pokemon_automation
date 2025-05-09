@@ -18,6 +18,8 @@ class FileProvider with ChangeNotifier {
   SwitchData? switch1Data;
   SwitchData? switch2Data;
   StreamData? streamData;
+  DateTime now = DateTime.now();
+  int screenIndex = 0;
 
   void connectSocket() {
     socket = io.io(
@@ -71,8 +73,19 @@ class FileProvider with ChangeNotifier {
   late Timer timer;
   void startTimer() {
     timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      now = DateTime.now();
+
+      if (now.second % 5 == 0) {
+        handleChangeScreenIndex();
+      }
       notifyListeners();
     });
+  }
+
+  void handleChangeScreenIndex() {
+    if (++screenIndex > 2) {
+      screenIndex = 0;
+    }
   }
 
   void updateVariables() {
