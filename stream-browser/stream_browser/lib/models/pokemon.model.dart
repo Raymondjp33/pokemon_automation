@@ -1,5 +1,7 @@
 import 'package:json_annotation/json_annotation.dart';
 
+import 'catch.model.dart';
+
 part 'pokemon.model.g.dart';
 
 @JsonSerializable(explicitToJson: true)
@@ -15,6 +17,8 @@ class PokemonData {
   @JsonKey(name: 'started_hunt_timestamp')
   num? startedHuntTimestamp;
 
+  List<CatchModel>? catches;
+
   PokemonData({
     this.pokemon,
     this.encounters,
@@ -22,6 +26,7 @@ class PokemonData {
     this.extraData,
     this.caughtTimestamp,
     this.startedHuntTimestamp,
+    this.catches,
   });
 
   static PokemonData get emptyPokemon => PokemonData();

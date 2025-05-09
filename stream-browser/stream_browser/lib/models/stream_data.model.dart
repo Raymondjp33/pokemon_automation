@@ -17,6 +17,11 @@ class StreamData {
   @JsonKey(name: 'switch2_gif_number')
   String switch2GifNumber;
 
+  @JsonKey(name: 'switch1_target')
+  int? switch1Target;
+  @JsonKey(name: 'switch2_target')
+  int? switch2Target;
+
   StreamData({
     required this.switch1CurrentlyHunting,
     required this.switch2CurrentlyHunting,
@@ -24,6 +29,8 @@ class StreamData {
     required this.streamStarttime,
     required this.switch1GifNumber,
     required this.switch2GifNumber,
+    required this.switch1Target,
+    required this.switch2Target,
   });
 
   factory StreamData.fromJson(Map<String, dynamic>? json) {

@@ -13,6 +13,8 @@ StreamData _$StreamDataFromJson(Map<String, dynamic> json) => StreamData(
       streamStarttime: json['stream_starttime'] as num,
       switch1GifNumber: json['switch1_gif_number'] as String,
       switch2GifNumber: json['switch2_gif_number'] as String,
+      switch1Target: (json['switch1_target'] as num?)?.toInt(),
+      switch2Target: (json['switch2_target'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$StreamDataToJson(StreamData instance) =>
@@ -23,4 +25,6 @@ Map<String, dynamic> _$StreamDataToJson(StreamData instance) =>
       'stream_starttime': instance.streamStarttime,
       'switch1_gif_number': instance.switch1GifNumber,
       'switch2_gif_number': instance.switch2GifNumber,
+      'switch1_target': instance.switch1Target,
+      'switch2_target': instance.switch2Target,
     };
