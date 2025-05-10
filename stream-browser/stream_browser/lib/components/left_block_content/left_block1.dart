@@ -2,43 +2,44 @@ import 'package:flutter/material.dart';
 import 'package:gif/gif.dart';
 import 'package:provider/provider.dart';
 
-import '../constants/app_styles.dart';
-import '../services/file_provider.dart';
-import '../widgets/spacing.dart';
-import 'line_item.dart';
+import '../../constants/app_styles.dart';
+import '../../services/file_provider.dart';
+import '../../widgets/spacing.dart';
+import '../line_item.dart';
 
-class RightSwitchContent extends StatelessWidget {
-  const RightSwitchContent({super.key});
+class LeftBlock1 extends StatelessWidget {
+  const LeftBlock1({super.key});
 
   @override
   Widget build(BuildContext context) {
-    int totalDens =
-        context.select((FileProvider state) => state.switch2TotalDens);
-    int currTotalDens =
-        context.select((FileProvider state) => state.currentTotalDens);
-    int enc = context.select((FileProvider state) => state.switch2Encounters);
-    int totalLegends =
-        context.select((FileProvider state) => state.switch2LegendaryShinies);
-    double switch2AverageChecks =
-        context.select((FileProvider state) => state.switch2AverageChecks);
-    String switch2GifNumber = context.select(
-      (FileProvider state) => state.streamData?.switch2GifNumber ?? '1',
+    int totalShinies =
+        context.select((FileProvider state) => state.switch1TotalShinies);
+    int totalEncounters =
+        context.select((FileProvider state) => state.switch1TotalEncounters);
+    double averageEncounters =
+        context.select((FileProvider state) => state.switch1AverageEncounters);
+    int currentEncounters =
+        context.select((FileProvider state) => state.switch1Encounters);
+    String switch1GifNumber = context.select(
+      (FileProvider state) => state.streamData?.switch1GifNumber ?? '1',
+    );
+    String shinyCounts = context.select(
+      (FileProvider state) => state.shinyCounts,
     );
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.end,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Shield',
-          style: AppTextStyles.minecraftTen(fontSize: 36),
+          'BRILLIANT DIAMOND',
+          style: AppTextStyles.minecraftTen(fontSize: 32),
         ),
-        LineItem(leftText: 'Odds', rightText: '1/100'),
-        // LineItem(leftText: 'Normal shinies', rightText: '60'),
-        LineItem(leftText: 'Legendary shinies', rightText: '$totalLegends'),
-        LineItem(leftText: 'Total dens', rightText: '$totalDens'),
+        LineItem(leftText: 'Odds (No charm, Masuda)', rightText: '1/683'),
+        LineItem(leftText: 'Total egg shinies', rightText: '$totalShinies'),
+        LineItem(leftText: 'Total eggs hatched', rightText: '$totalEncounters'),
         LineItem(
-          leftText: 'Average checks',
-          rightText: switch2AverageChecks.toStringAsFixed(2),
+          leftText: 'Average eggs hatched',
+          rightText: averageEncounters.toStringAsFixed(2),
         ),
         Spacer(),
         Row(
@@ -49,7 +50,7 @@ class RightSwitchContent extends StatelessWidget {
               height: 108,
               child: Gif(
                 image: NetworkImage(
-                  'https://raw.githubusercontent.com/adamsb0303/Shiny_Hunt_Tracker/master/Images/Sprites/3d/$switch2GifNumber.gif',
+                  'https://raw.githubusercontent.com/adamsb0303/Shiny_Hunt_Tracker/master/Images/Sprites/3d/$switch1GifNumber.gif',
                 ),
                 fit: BoxFit.contain,
                 autostart: Autostart.loop,
@@ -64,17 +65,17 @@ class RightSwitchContent extends StatelessWidget {
                   Row(
                     children: [
                       Text(
-                        '$enc',
+                        '$currentEncounters',
                         style: AppTextStyles.pokePixel(fontSize: 60),
                       ),
-                      HorizontalSpace(20),
+                      HorizontalSpace(30),
                       Text(
-                        '(Total dens: $currTotalDens)',
-                        style: AppTextStyles.pokePixel(fontSize: 30),
+                        shinyCounts,
+                        style: AppTextStyles.pokePixel(fontSize: 40),
                       ),
                     ],
                   ),
-                  Switch2EncounterTimer(),
+                  Switch1EncounterTimer(),
                 ],
               ),
             ),
@@ -85,16 +86,16 @@ class RightSwitchContent extends StatelessWidget {
   }
 }
 
-class Switch2EncounterTimer extends StatelessWidget {
-  const Switch2EncounterTimer({super.key});
+class Switch1EncounterTimer extends StatelessWidget {
+  const Switch1EncounterTimer({super.key});
 
   @override
   Widget build(BuildContext context) {
     final fileProvider = context.watch<FileProvider>();
     DateTime now = DateTime.now();
 
-    num? startTime = fileProvider.switch2CurrPokemon.startedHuntTimestamp;
-    int endTime = fileProvider.switch2CurrPokemon.caughtTimestamp?.toInt() ??
+    num? startTime = fileProvider.switch1CurrPokemon.startedHuntTimestamp;
+    int endTime = fileProvider.switch1CurrPokemon.caughtTimestamp?.toInt() ??
         now.millisecondsSinceEpoch;
 
     if (startTime == null) {

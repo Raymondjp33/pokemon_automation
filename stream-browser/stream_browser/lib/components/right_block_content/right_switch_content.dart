@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../services/file_provider.dart';
-import 'left_block1.dart';
-import 'left_block2.dart';
-import 'left_block3.dart';
+import 'right_block1.dart';
+import 'right_block2.dart';
+import 'right_block3.dart';
 
-class LeftSwitchContent extends StatelessWidget {
-  const LeftSwitchContent({super.key});
+class RightSwitchContent extends StatelessWidget {
+  const RightSwitchContent({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -16,18 +16,18 @@ class LeftSwitchContent extends StatelessWidget {
     Widget child;
     switch (screenIndex) {
       case 1:
-        child = LeftBlock2(
+        child = RightBlock2(
           key: ValueKey(1),
         );
         break;
       case 2:
-        child = LeftBlock3(
+        child = RightBlock3(
           key: ValueKey(2),
         );
         break;
       case 0:
       default:
-        child = LeftBlock1(
+        child = RightBlock1(
           key: ValueKey(0),
         );
     }
