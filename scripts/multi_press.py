@@ -6,15 +6,19 @@ import time
 import serial
 
 def main() -> int:
+
+    switch1 = '/dev/tty.usbmodem1201'
+    switch2 = '/dev/tty.usbserial-110'
+
     parser = argparse.ArgumentParser()
     # parser.add_argument('--serial', default=SERIAL_DEFAULT)
-    # parser.add_argument('--serial', default='/dev/tty.usbserial-120') # Switch 2
-    parser.add_argument('--serial', default='/dev/tty.usbmodem1101') # Switch 1
+    # parser.add_argument('--serial', default=switch2) # Switch 2
+    parser.add_argument('--serial', default=switch1) # Switch 1
     parser.add_argument('--switch', type=float, default=1)
 
     args = parser.parse_args()
 
-    serial_input = '/dev/tty.usbmodem1101' if args.switch == 1 else '/dev/tty.usbserial-120'
+    serial_input = switch1 if args.switch == 1 else switch2
 
     with serial.Serial(serial_input, 9600) as ser:
         time.sleep(1)
