@@ -6,6 +6,7 @@ backend/*.json
 /scripts/swsh/dynamax_adventures/den_config.json
 *-counter.txt
 scripts/bdsp/egg_data.json
+scripts/swsh/encounter_data.json
 
 # other
 old_repo/
