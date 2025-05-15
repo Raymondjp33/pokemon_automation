@@ -247,7 +247,11 @@ def reset_game(ser: serial.Serial, vid: cv2.VideoCapture,):
 
 def get_pokemon_name(vid: cv2.VideoCapture):
     frame = _getframe(vid)
-    return get_text(frame=frame, top_left=Point(y=570, x=66), bottom_right=Point(y=607, x=221), invert=True)
+    # Switch 1
+    # return get_text(frame=frame, top_left=Point(y=570, x=89), bottom_right=Point(y=607, x=221), invert=True)
+
+    # Switch 2
+    return get_text(frame=frame, top_left=Point(y=571, x=67), bottom_right=Point(y=603, x=205), invert=True)
 
 def check_if_shiny(vid: cv2.VideoCapture):
     frame = _getframe(vid)
@@ -278,7 +282,7 @@ def load_pokemon_species_ids():
 def get_box_location(dex_num, shiny):  
     box_num = int((dex_num - 1) / 30)
     if (shiny):
-        box_num = (box_num + 1) * -1
+        box_num = 199 - box_num
     box_pos = dex_num % 30
     if (box_pos == 0):
         box_pos = 30
@@ -320,20 +324,25 @@ def move_to_box(ser: serial.Serial, old_box_pos, new_box_pos, from_old = True):
 
     _press(ser, 'A', sleep_time=1)
 
-
 def main() -> int:
 
     pokemon_map = load_pokemon_species_ids()
 
-    old_box_pos = get_box_location(43, False)
+    with open("boxed_pokemon.json", "r") as f:
+        owned_pokemon = set(json.load(f))
+
+    with open("boxed_shiny_pokemon.json", "r") as f:
+        owned_shiny_pokemon = set(json.load(f))
+
+    old_box_pos = get_box_location(153, False)
     old_pokemon_num = 1
     old_pokemon_pos = get_box_location(old_pokemon_num, False)
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--serial', default='/dev/tty.usbserial-120')
+    parser.add_argument('--serial', default='/dev/tty.usbserial-110')
     args = parser.parse_args()
 
-    vid = cv2.VideoCapture(0)
+    vid = cv2.VideoCapture(2)
     vid.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
     vid.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
     vid.set(cv2.CAP_PROP_BUFFERSIZE, 1)
@@ -345,11 +354,19 @@ def main() -> int:
         while True:
             if (old_pokemon_num > 30):
                 break
-            print(f'Pokemon name: {get_pokemon_name(vid)}')
-            print(f'Is shiny: {check_if_shiny(vid)}')
-            dex_num = pokemon_map.get(get_pokemon_name(vid).lower())
 
-            if (dex_num == None):
+            pokemon_is_shiny = check_if_shiny(vid)
+            dex_num = pokemon_map.get(get_pokemon_name(vid).lower())
+            already_there =  owned_pokemon.__contains__(dex_num) if not pokemon_is_shiny else owned_shiny_pokemon.__contains__(dex_num)
+            print(f'Pokemon name: {get_pokemon_name(vid)}')
+            print(f'Is shiny: {pokemon_is_shiny}')
+            print(f'Already in boxes: {already_there}')
+
+            # if not already_there:
+            #     print(f'{old_pokemon_num} needs home: {get_pokemon_name(vid).lower()}')
+            
+
+            if (dex_num == None or already_there ):
                 old_row = old_pokemon_pos[1]
                 old_col = old_pokemon_pos[2]
                 old_pokemon_num += 1
@@ -357,8 +374,18 @@ def main() -> int:
                 make_move(ser, curr_pos=old_col, move_pos=old_pokemon_pos[2], move_vertical=False)
                 make_move(ser, curr_pos=old_row, move_pos=old_pokemon_pos[1], move_vertical=True)
                 continue
+            
+            if  pokemon_is_shiny:
+                owned_shiny_pokemon.add(dex_num)
+                with open("boxed_shiny_pokemon.json", "w") as f:
+                    json.dump(list(owned_shiny_pokemon), f)
+            else:
+                owned_shiny_pokemon.add(dex_num)
+                with open("boxed_pokemon.json", "w") as f:
+                    json.dump(list(owned_pokemon), f)
+
             old_pokemon_pos = get_box_location(old_pokemon_num, False)
-            pokemon_pos = get_box_location(dex_num, False)
+            pokemon_pos = get_box_location(dex_num, pokemon_is_shiny)
             new_box_pos = get_box_location(pokemon_pos[0] + 1, False)
 
             # Pick up pokemon
