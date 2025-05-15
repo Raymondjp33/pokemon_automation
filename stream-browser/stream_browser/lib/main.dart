@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'components/left_block_content/left_switch_content.dart';
-import 'components/middle_content.dart';
-import 'components/right_block_content/right_switch_content.dart';
+import 'pages/stats/components/left_block_content/left_switch_content.dart';
+import 'pages/stats/components/middle_content.dart';
+import 'pages/stats/components/right_block_content/right_switch_content.dart';
 import 'services/file_provider.dart';
 import 'widgets/scrolling_background.dart';
 

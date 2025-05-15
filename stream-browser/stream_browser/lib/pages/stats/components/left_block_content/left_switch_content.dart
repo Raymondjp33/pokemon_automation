@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../services/file_provider.dart';
+import '../../../../services/file_provider.dart';
 import 'left_block1.dart';
 import 'left_block2.dart';
 import 'left_block3.dart';

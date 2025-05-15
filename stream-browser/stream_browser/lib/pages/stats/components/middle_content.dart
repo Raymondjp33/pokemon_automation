@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-import '../constants/app_styles.dart';
-import '../services/file_provider.dart';
+import '../../../constants/app_styles.dart';
+import '../../../services/file_provider.dart';
 
 class MiddleContent extends StatelessWidget {
   const MiddleContent({super.key});

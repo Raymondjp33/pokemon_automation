@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:gif/gif.dart';
 import 'package:provider/provider.dart';
 
-import '../../constants/app_styles.dart';
-import '../../services/file_provider.dart';
-import '../../widgets/spacing.dart';
+import '../../../../constants/app_styles.dart';
+import '../../../../services/file_provider.dart';
+import '../../../../widgets/spacing.dart';
 import '../line_item.dart';
 
 class RightBlock1 extends StatelessWidget {
