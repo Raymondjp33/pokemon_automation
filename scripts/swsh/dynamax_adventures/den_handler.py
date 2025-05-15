@@ -14,7 +14,6 @@ os.environ['TESSDATA_PREFIX'] = '/opt/homebrew/Cellar/tesseract/5.5.0/share/tess
 pytesseract.pytesseract.tesseract_cmd = r'/opt/homebrew/Cellar/tesseract/5.5.0/bin/tesseract'
 pokemon_data_path = Path(__file__).resolve().parent.parent / 'pokemon_data.json'
 
-currently_hunting = 'Stakataka'
 
 class DenHandler:
     def __init__(self, vid: cv2.VideoCapture, ser: serial.Serial, config: ConfigManager):
@@ -94,7 +93,7 @@ class DenHandler:
         _press(self.ser, 'B', sleep_time=4)
 
         last_key, last_value = next(reversed(name_map.items()))
-        increment_counter(currently_hunting, frames=log_frames, caught_legend=contains_legendary, shiny_legend=contains_legendary and last_value[1])
+        increment_counter(self.config.get('currently_hunting'), frames=log_frames, caught_legend=contains_legendary, shiny_legend=contains_legendary and last_value[1])
         first_true_key = next((key for key, (_, flag) in name_map.items() if flag), None)
         self.handle_den_search(contains_shiny = first_true_key is not None, beat_legend=contains_legendary)
         self.config.update({'move_index': 0, 'battle_index': 0,'dynamax_turns': None, 'selected_starter': False})
