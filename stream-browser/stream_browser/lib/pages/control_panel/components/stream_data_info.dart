@@ -17,7 +17,7 @@ class StreamDataInfo extends StatelessWidget {
     }
     return Column(
       children: [
-        for (String log in fileProvider.logs) Text(log)
+        for (String log in fileProvider.logs) Text(log),
 
         // for (MapEntry entry in streamData.entries)
         //   Container(
