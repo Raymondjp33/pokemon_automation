@@ -21,6 +21,23 @@ class FileProvider with ChangeNotifier {
   DateTime now = DateTime.now();
   int screenIndex = 0;
 
+  final List<String> logs = [
+    'test',
+    'test',
+    'test',
+  ];
+
+  void addToLogs(String line) {
+    logs.add(line);
+    if (logs.length > 5) {
+      logs.removeAt(0);
+    }
+  }
+
+  void emitProcess() {
+    socket!.emit('start_process');
+  }
+
   void connectSocket() {
     socket = io.io(
       'http://localhost:5050',
@@ -63,6 +80,15 @@ class FileProvider with ChangeNotifier {
       } catch (e) {
         print('Error with data $e');
       }
+    });
+
+    socket!.on('process_output', (data) {
+      addToLogs('Log: ${data['line']}');
+      // Update UI with log line
+    });
+
+    socket!.on('process_complete', (data) {
+      print('Process completed with code: ${data['code']}');
     });
 
     socket!.onDisconnect((_) => print('[Disconnected]'));

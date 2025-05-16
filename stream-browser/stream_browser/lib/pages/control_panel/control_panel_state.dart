@@ -88,7 +88,7 @@ class ControlPanelState extends StateProvider<ControlPanel> {
             'getUserMedia',
             [
               jsify({
-                'video': {'deviceId': e.deviceId},
+                'video': {'deviceId': e.deviceId, "width": 1280, "height": 720},
               }),
             ],
           ),
