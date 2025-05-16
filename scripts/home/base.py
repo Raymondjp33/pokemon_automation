@@ -164,54 +164,6 @@ def _shh(ser: serial.Serial) -> Generator[None]:
     finally:
         ser.write(b'.')    
 
-def increment_counter(caught_index=None):
-    counter_path = Path(f'switch1-counter.txt')
-    data_path = Path(__file__).resolve().parent.parent.parent / 'backend' / 'switch1_data.json'
-    stream_data_path = Path(__file__).resolve().parent.parent.parent / 'backend' / 'stream_data.json'
-
-    count_amount = 5 if caught_index is None else caught_index + 1
-    
-    # Read the existing count (default to 0 if file does not exist)
-    if counter_path.exists():
-        with counter_path.open("r") as file:
-            try:
-                count = int(file.read().strip())
-            except ValueError:
-                count = 0
-    else:
-        count = 0
-
-    # Increment the counter
-    count += count_amount
-
-    with counter_path.open("w") as file1:
-        file1.write(str(count))
-
-    with data_path.open("r") as data_file:
-        data = json.load(data_file)
-    
-    with stream_data_path.open("r") as stream_data_file:
-        stream_data = json.load(stream_data_file)
-
-    current_pokemon = data["pokemon"][0]
-
-    for entry in data["pokemon"]:
-        if entry["pokemon"] == stream_data['switch1_currently_hunting']:
-            current_pokemon = entry
-            current_pokemon["encounters"] = entry["encounters"] + count_amount
-            break
-    
-    if (caught_index is not None):
-        current_pokemon["caught_timestamp"] = int(time.time() * 1000)
-  
-    with open(data_path, 'w') as data_file:
-        json.dump(data, data_file, indent=4)
-      
-def write_shiny_text():
-    shiny_text_path = Path(f"shiny_text.txt")
-    with shiny_text_path.open("w") as file1:
-        file1.write("I got the shiny! My switch\nwill be off until I'm back.")
-
 def connect_and_go_to_game(ser: serial.Serial):
     _press(ser, 'H', sleep_time=1)
     _press(ser, 'H', duration=0.1)
@@ -270,7 +222,7 @@ def check_if_shiny(vid: cv2.VideoCapture):
 def load_pokemon_species_ids():
     name_to_species_id = {}
 
-    with open('/Users/raymondprice/Desktop/other/test_coding/pokemon_scripts/pokemon_automation/scripts/home/pokemon.csv', mode='r', encoding='utf-8') as file:
+    with open(Path(__file__).resolve().parent / 'pokemon.csv', mode='r', encoding='utf-8') as file:
         reader = csv.DictReader(file)
         for row in reader:
             name = row['identifier'].strip().lower()  # Normalize name
@@ -278,6 +230,11 @@ def load_pokemon_species_ids():
             name_to_species_id[name] = species_id
 
     return name_to_species_id
+
+class Position(NamedTuple):
+    col: int
+    row: int
+    boxOrPage: int
 
 def get_box_location(dex_num, shiny):  
     box_num = int((dex_num - 1) / 30)
@@ -293,10 +250,10 @@ def get_box_location(dex_num, shiny):
     else:
         col = col - 1
     
-    return (box_num, row, col)
+    return Position(col=col, row=row, boxOrPage=box_num)
 
-def make_move(ser: serial.Serial, curr_pos, move_pos, move_vertical = False,):
-    difference = move_pos - curr_pos
+def make_move(ser: serial.Serial, from_pos, to_pos, move_vertical = False,):
+    difference = to_pos - from_pos
 
     invert = True
     if (difference >= 0):
@@ -307,20 +264,20 @@ def make_move(ser: serial.Serial, curr_pos, move_pos, move_vertical = False,):
     else:
         _press(ser, '1' if not invert else '3', count=abs(difference))
 
-def move_to_box(ser: serial.Serial, old_box_pos, new_box_pos, from_old = True):
+def move_to_box(ser: serial.Serial, from_box: Position, to_box: Position, from_old = True):
     if not from_old:
-        temp = old_box_pos
-        old_box_pos = new_box_pos
-        new_box_pos = temp
+        temp = from_box
+        from_box = to_box
+        to_box = temp
     
-    page_dif = new_box_pos[0] - old_box_pos[0]
+    page_dif = to_box.boxOrPage - from_box.boxOrPage
 
     if (page_dif != 0):
         move_left = page_dif < 0
         _press(ser, 'L' if move_left else 'R', count=abs(page_dif), sleep_time=1.25)
 
-    make_move(ser, old_box_pos[1], new_box_pos[1], move_vertical=True)
-    make_move(ser, old_box_pos[2], new_box_pos[2], move_vertical=False)
+    make_move(ser, from_box.row, to_box.row, move_vertical=True)
+    make_move(ser, from_box.col, to_box.col, move_vertical=False)
 
     _press(ser, 'A', sleep_time=1)
 
@@ -334,9 +291,9 @@ def main() -> int:
     with open("boxed_shiny_pokemon.json", "r") as f:
         owned_shiny_pokemon = set(json.load(f))
 
-    old_box_pos = get_box_location(153, False)
-    old_pokemon_num = 1
-    old_pokemon_pos = get_box_location(old_pokemon_num, False)
+    from_box = get_box_location(37, False)
+    from_pokemon_num = 1
+    from_pokemon = get_box_location(from_pokemon_num, False)
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--serial', default='/dev/tty.usbserial-110')
@@ -352,70 +309,70 @@ def main() -> int:
     with serial.Serial(args.serial, 9600) as ser, _shh(ser):
         time.sleep(1)
         while True:
-            if (old_pokemon_num > 30):
+            if (from_pokemon_num > 30):
                 break
 
             pokemon_is_shiny = check_if_shiny(vid)
             dex_num = pokemon_map.get(get_pokemon_name(vid).lower())
-            already_there =  owned_pokemon.__contains__(dex_num) if not pokemon_is_shiny else owned_shiny_pokemon.__contains__(dex_num)
-            print(f'Pokemon name: {get_pokemon_name(vid)}')
+            already_boxed =  owned_pokemon.__contains__(dex_num) if not pokemon_is_shiny else owned_shiny_pokemon.__contains__(dex_num)
+            print(f'Pokemon {dex_num}: {get_pokemon_name(vid)}')
             print(f'Is shiny: {pokemon_is_shiny}')
-            print(f'Already in boxes: {already_there}')
+            print(f'Already in boxes: {already_boxed}')
 
-            # if not already_there:
+            # if not already_boxed:
             #     print(f'{old_pokemon_num} needs home: {get_pokemon_name(vid).lower()}')
             
 
-            if (dex_num == None or already_there ):
-                old_row = old_pokemon_pos[1]
-                old_col = old_pokemon_pos[2]
-                old_pokemon_num += 1
-                old_pokemon_pos = get_box_location(old_pokemon_num, False)
-                make_move(ser, curr_pos=old_col, move_pos=old_pokemon_pos[2], move_vertical=False)
-                make_move(ser, curr_pos=old_row, move_pos=old_pokemon_pos[1], move_vertical=True)
+            if (dex_num == None or already_boxed ):
+                from_row = from_pokemon.row
+                from_col = from_pokemon.col
+                from_pokemon_num += 1
+                from_pokemon = get_box_location(from_pokemon_num, False)
+                make_move(ser, from_pos=from_col, to_pos=from_pokemon.col, move_vertical=False)
+                make_move(ser, from_pos=from_row, to_pos=from_pokemon.row, move_vertical=True)
                 continue
             
             if  pokemon_is_shiny:
                 owned_shiny_pokemon.add(dex_num)
                 with open("boxed_shiny_pokemon.json", "w") as f:
-                    json.dump(list(owned_shiny_pokemon), f)
+                    json.dump(sorted(list(owned_shiny_pokemon)), f)
             else:
                 owned_shiny_pokemon.add(dex_num)
                 with open("boxed_pokemon.json", "w") as f:
-                    json.dump(list(owned_pokemon), f)
+                    json.dump(sorted(list(owned_pokemon)), f)
 
-            old_pokemon_pos = get_box_location(old_pokemon_num, False)
-            pokemon_pos = get_box_location(dex_num, pokemon_is_shiny)
-            new_box_pos = get_box_location(pokemon_pos[0] + 1, False)
+            from_pokemon = get_box_location(from_pokemon_num, False)
+            to_pokemon = get_box_location(dex_num, pokemon_is_shiny)
+            to_box = get_box_location(to_pokemon.boxOrPage + 1, False)
 
             # Pick up pokemon
             _press(ser, 'A', sleep_time = .5)
 
             # Go down to box list
-            make_move(ser, curr_pos=old_pokemon_pos[2], move_pos=3, move_vertical=False)
-            make_move(ser, curr_pos=old_pokemon_pos[1], move_pos=5, move_vertical=True)
+            make_move(ser, from_pos=from_pokemon.col, to_pos=3, move_vertical=False)
+            make_move(ser, from_pos=from_pokemon.row, to_pos=5, move_vertical=True)
             _press(ser, 'A', sleep_time = 2)
 
             # Go to new box number
-            move_to_box(ser, old_box_pos, new_box_pos, from_old=True)
+            move_to_box(ser, from_box, to_box, from_old=True)
 
             # Put pokemon in correct spot
-            make_move(ser, curr_pos=0, move_pos=pokemon_pos[1], move_vertical=True)
-            make_move(ser, curr_pos=0, move_pos=pokemon_pos[2], move_vertical=False)
+            make_move(ser, from_pos=0, to_pos=to_pokemon.row, move_vertical=True)
+            make_move(ser, from_pos=0, to_pos=to_pokemon.col, move_vertical=False)
             _press(ser, 'A', sleep_time = 1)
 
             # Go back to box list
-            make_move(ser, curr_pos=pokemon_pos[2], move_pos=3, move_vertical=False)
-            make_move(ser, curr_pos=pokemon_pos[1], move_pos=5, move_vertical=True)
+            make_move(ser, from_pos=to_pokemon.col, to_pos=3, move_vertical=False)
+            make_move(ser, from_pos=to_pokemon.row, to_pos=5, move_vertical=True)
             _press(ser, 'A', sleep_time = 2)
 
             # Go to old box number
-            move_to_box(ser, old_box_pos, new_box_pos, from_old=False)
+            move_to_box(ser, from_box, to_box, from_old=False)
 
-            old_pokemon_num += 1
-            old_pokemon_pos = get_box_location(old_pokemon_num, False)
-            make_move(ser, curr_pos=0, move_pos=old_pokemon_pos[2], move_vertical=False)
-            make_move(ser, curr_pos=0, move_pos=old_pokemon_pos[1], move_vertical=True)
+            from_pokemon_num += 1
+            from_pokemon = get_box_location(from_pokemon_num, False)
+            make_move(ser, from_pos=0, to_pos=from_pokemon.col, move_vertical=False)
+            make_move(ser, from_pos=0, to_pos=from_pokemon.row, move_vertical=True)
 
             # return 0
 
