@@ -69,7 +69,7 @@ class RightBlock1 extends StatelessWidget {
                       ),
                       HorizontalSpace(20),
                       Text(
-                        '(Total dens: $currTotalDens)',
+                        '(Total: $currTotalDens)',
                         style: AppTextStyles.pokePixel(fontSize: 30),
                       ),
                     ],
