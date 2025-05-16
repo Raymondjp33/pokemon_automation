@@ -132,9 +132,10 @@ class FileProvider with ChangeNotifier {
   String shinyCounts = '';
   void calculateSwitch1Variables() {
     switch1TotalShinies = switch1EggPokemon.fold(
-        0,
-        (previousValue, element) =>
-            previousValue + (element.catches ?? []).length);
+      0,
+      (previousValue, element) =>
+          previousValue + (element.catches ?? []).length,
+    );
     switch1TotalEncounters = switch1EggPokemon.fold(
       0,
       (previousValue, element) => previousValue + (element.encounters ?? 0),

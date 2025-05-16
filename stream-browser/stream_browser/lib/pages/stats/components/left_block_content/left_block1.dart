@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../../../constants/app_styles.dart';
 import '../../../../services/file_provider.dart';
 import '../../../../widgets/spacing.dart';
+import '../encounter_timer.dart';
 import '../line_item.dart';
 
 class LeftBlock1 extends StatelessWidget {
@@ -25,6 +26,14 @@ class LeftBlock1 extends StatelessWidget {
     );
     String shinyCounts = context.select(
       (FileProvider state) => state.shinyCounts,
+    );
+
+    int? startTime = context.select(
+      (FileProvider state) =>
+          state.switch1CurrPokemon.startedHuntTimestamp?.toInt(),
+    );
+    int? endTime = context.select(
+      (FileProvider state) => state.switch1CurrPokemon.caughtTimestamp?.toInt(),
     );
 
     return Column(
@@ -75,7 +84,10 @@ class LeftBlock1 extends StatelessWidget {
                       ),
                     ],
                   ),
-                  Switch1EncounterTimer(),
+                  EncounterTimer(
+                    startTime: startTime,
+                    endTime: endTime,
+                  ),
                 ],
               ),
             ),
@@ -84,44 +96,4 @@ class LeftBlock1 extends StatelessWidget {
       ],
     );
   }
-}
-
-class Switch1EncounterTimer extends StatelessWidget {
-  const Switch1EncounterTimer({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final fileProvider = context.watch<FileProvider>();
-    DateTime now = DateTime.now();
-
-    num? startTime = fileProvider.switch1CurrPokemon.startedHuntTimestamp;
-    int endTime = fileProvider.switch1CurrPokemon.caughtTimestamp?.toInt() ??
-        now.millisecondsSinceEpoch;
-
-    if (startTime == null) {
-      return Container();
-    }
-
-    Duration timeDifference =
-        Duration(milliseconds: endTime - startTime.toInt());
-    return Text(
-      formatDuration(timeDifference),
-      style: AppTextStyles.pokePixel(fontSize: 24),
-    );
-  }
-}
-
-String formatDuration(Duration duration) {
-  int days = duration.inDays;
-  int hours = duration.inHours % 24;
-  int minutes = duration.inMinutes % 60;
-  int seconds = duration.inSeconds % 60;
-
-  final parts = <String>[];
-  if (days > 0) parts.add('${days}d');
-  if (hours > 0) parts.add('${hours}h');
-  if (minutes > 0) parts.add('${minutes}m');
-  if (seconds > 0 || parts.isEmpty) parts.add('${seconds}s');
-
-  return parts.join(' ');
 }
