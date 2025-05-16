@@ -4,6 +4,8 @@ import os, json, time
 from threading import Thread
 import eventlet
 from pathlib import Path
+import subprocess
+import threading
 
 eventlet.monkey_patch()
 app = Flask(__name__, static_folder=Path(__file__).resolve().parent.parent / 'stream-browser'/ 'stream_browser' / 'build' / 'web')
@@ -18,7 +20,6 @@ modified_vars = {
     'switch2_last_modified' : 0,
     'stream_data_last_modified' : 0
     }
-
 
 @app.route('/')
 def index():
@@ -48,7 +49,6 @@ def handle_connect():
         except Exception as e:
                 print(f"Error reading file: {e}")
 
-
 def watch_files():
     global last_modified, file_data
     while True:
@@ -74,6 +74,28 @@ def handle_file_update(file_path, modified_var, emit_variable):
         socketio.emit(emit_variable, file_data)
     except Exception as e:
             print(f"Error reading file: {e}")
+
+@socketio.on('start_process')
+def start_process():
+    def run_and_stream():
+        print(f"Beginning process")
+        process = subprocess.Popen(
+            ["python3.9", "-u", "process_test.py"],  # Replace with your command
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True
+        )
+
+        for line in process.stdout:
+            socketio.emit('process_output', {'line': line})
+
+        process.stdout.close()
+        process.wait()
+        socketio.emit('process_complete', {'code': process.returncode})
+        print(f"Process complete")
+    threading.Thread(target=run_and_stream).start()
+     
+
 
 # http://0.0.0.0:5050/
 if __name__ == '__main__':
