@@ -1,21 +1,16 @@
 @JS()
 library media_devices_interop;
 
-import 'dart:convert';
-
 import 'package:js/js.dart';
 import 'package:js/js_util.dart';
 import '../../widgets/state_view_widget.dart';
 import 'control_panel_view.dart';
-import 'dart:html' as html;
+import 'package:web/web.dart' as web;
 
-import 'dart:ui' as ui;
+import 'dart:ui_web' as ui_web;
 
 @JS('navigator.mediaDevices.getUserMedia')
 external dynamic _getUserMedia(dynamic constraints);
-
-@JS('navigator.mediaDevices.enumerateDevices')
-external dynamic _enumerateDevices();
 
 @JS()
 @anonymous
@@ -46,7 +41,7 @@ class ControlPanelState extends StateProvider<ControlPanel> {
     loadDevices();
   }
 
-  html.VideoElement? video;
+  web.HTMLVideoElement? video;
   String? viewType;
 
   List<String> videoDevices = [];
@@ -60,7 +55,7 @@ class ControlPanelState extends StateProvider<ControlPanel> {
     try {
       await promiseToFuture(
         callMethod(
-          getProperty(html.window.navigator, 'mediaDevices'),
+          getProperty(web.window.navigator, 'mediaDevices'),
           'getUserMedia',
           [
             jsify({
@@ -79,26 +74,17 @@ class ControlPanelState extends StateProvider<ControlPanel> {
 
     List<dynamic> devices = await promiseToFuture<List<dynamic>>(
       callMethod(
-        getProperty(html.window.navigator, 'mediaDevices'),
+        getProperty(web.window.navigator, 'mediaDevices'),
         'enumerateDevices',
         [],
       ),
     );
 
     devices = devices.map((e) async {
-      // try {
-      //   devices
-      //       .cast<InputDeviceInfo>()
-      //       .where((d) => d.kind == 'videoinput')
-      //       .toList();
-      // } catch (e) {
-      //   print('here and error $e');
-      // }
-
       if (e.label == 'USB Video (534d:2109)') {
         final mediaStream = await promiseToFuture(
           callMethod(
-            getProperty(html.window.navigator, 'mediaDevices'),
+            getProperty(web.window.navigator, 'mediaDevices'),
             'getUserMedia',
             [
               jsify({
@@ -107,7 +93,7 @@ class ControlPanelState extends StateProvider<ControlPanel> {
             ],
           ),
         );
-        video = html.VideoElement()
+        video = web.HTMLVideoElement()
           ..autoplay = true
           ..muted = true
           ..style.width = '100%'
@@ -116,8 +102,7 @@ class ControlPanelState extends StateProvider<ControlPanel> {
           ..srcObject = mediaStream;
 
         viewType = 'video-element-${DateTime.now().millisecondsSinceEpoch}';
-        // ignore: undefined_prefixed_name
-        ui.platformViewRegistry
+        ui_web.platformViewRegistry
             .registerViewFactory(viewType!, (int viewId) => video!);
         notifyListeners();
       }
