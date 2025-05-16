@@ -131,16 +131,16 @@ class FileProvider with ChangeNotifier {
   int switch1Encounters = 0;
   String shinyCounts = '';
   void calculateSwitch1Variables() {
-    switch1TotalShinies = switch1EggPokemon
-        .where((e) => e.caughtTimestamp != null)
-        .fold(0, (previousValue, element) => previousValue + 1);
+    switch1TotalShinies = switch1EggPokemon.fold(
+        0,
+        (previousValue, element) =>
+            previousValue + (element.catches ?? []).length);
     switch1TotalEncounters = switch1EggPokemon.fold(
       0,
       (previousValue, element) => previousValue + (element.encounters ?? 0),
     );
 
-    switch1AverageEncounters = switch1TotalEncounters /
-        (switch1EggPokemon.isEmpty ? 1 : switch1EggPokemon.length);
+    switch1AverageEncounters = switch1TotalEncounters / switch1TotalShinies;
     switch1Encounters = switch1CurrPokemon.encounters ?? 0;
 
     final shiniesCaught = switch1CurrPokemon.catches?.length ?? 0;
