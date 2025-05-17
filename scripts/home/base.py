@@ -291,7 +291,7 @@ def main() -> int:
     with open("boxed_shiny_pokemon.json", "r") as f:
         owned_shiny_pokemon = set(json.load(f))
 
-    from_box = get_box_location(37, False)
+    from_box = get_box_location(44, False)
     from_pokemon_num = 1
     from_pokemon = get_box_location(from_pokemon_num, False)
 
@@ -315,9 +315,12 @@ def main() -> int:
             pokemon_is_shiny = check_if_shiny(vid)
             dex_num = pokemon_map.get(get_pokemon_name(vid).lower())
             already_boxed =  owned_pokemon.__contains__(dex_num) if not pokemon_is_shiny else owned_shiny_pokemon.__contains__(dex_num)
-            print(f'Pokemon {dex_num}: {get_pokemon_name(vid)}')
-            print(f'Is shiny: {pokemon_is_shiny}')
-            print(f'Already in boxes: {already_boxed}')
+
+            if dex_num != None:
+                if not already_boxed:
+                    print(f'{from_pokemon_num} - {get_pokemon_name(vid)} - {dex_num} - {"Boxed" if already_boxed else "Not Boxed"} - {"Shiny" if pokemon_is_shiny else "Not Shiny"}')
+            else:
+                print(f"{from_pokemon_num} - Could not find pokemon, read name: {get_pokemon_name(vid)}")
 
             # if not already_boxed:
             #     print(f'{old_pokemon_num} needs home: {get_pokemon_name(vid).lower()}')
@@ -332,12 +335,12 @@ def main() -> int:
                 make_move(ser, from_pos=from_row, to_pos=from_pokemon.row, move_vertical=True)
                 continue
             
-            if  pokemon_is_shiny:
+            if pokemon_is_shiny:
                 owned_shiny_pokemon.add(dex_num)
                 with open("boxed_shiny_pokemon.json", "w") as f:
                     json.dump(sorted(list(owned_shiny_pokemon)), f)
             else:
-                owned_shiny_pokemon.add(dex_num)
+                owned_pokemon.add(dex_num)
                 with open("boxed_pokemon.json", "w") as f:
                     json.dump(sorted(list(owned_pokemon)), f)
 
