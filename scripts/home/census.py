@@ -322,28 +322,35 @@ def move_to_box(ser: serial.Serial, old_box_pos, new_box_pos, from_old = True):
 
 def check_if_pokemon(vid: cv2.VideoCapture):
     frame = _getframe(vid)
-    return _color_near(frame[580][1216], (195, 199, 189))
+    # Switch 1
+    # return _color_near(frame[580][1216], (195, 199, 189))
+    # Switch 2
+    return _color_near(frame[588][1240], (201, 201, 201))
 
 
 def main() -> int:
 
     pokemon_map = load_pokemon_species_ids()
     owned_pokemon = set()
+    shiny_census = False
 
     count = 0
     dex_num = 1
     old_pokemon_pos = get_box_location(dex_num, False)
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--serial', default='/dev/tty.usbmodem1201')
+    parser.add_argument('--serial', default='/dev/tty.usbserial-110')
     args = parser.parse_args()
 
-    vid = cv2.VideoCapture(1)
+    vid = cv2.VideoCapture(2)
     vid.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
     vid.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
     vid.set(cv2.CAP_PROP_BUFFERSIZE, 1)
  
     start_time = time.time()
+
+    # print(check_if_pokemon(vid))
+    # return 0
   
     with serial.Serial(args.serial, 9600) as ser, _shh(ser):
         time.sleep(1)
@@ -367,7 +374,7 @@ def main() -> int:
             old_pokemon_pos = new_pokemon_pos
 
             if (count % 30 == 0):
-                _press(ser, 'R', sleep_time = 2)
+                _press(ser, 'L' if shiny_census else 'R', sleep_time = 2)
 
 
     with open("personal_data.json", "w") as f:
