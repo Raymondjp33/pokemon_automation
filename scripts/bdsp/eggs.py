@@ -162,8 +162,6 @@ def increment_counter(caught_index=None):
     counter_path = Path(f'switch1-counter.txt')
     data_path = Path(__file__).resolve().parent.parent.parent / 'backend' / 'switch1_data.json'
     stream_data_path = Path(__file__).resolve().parent.parent.parent / 'backend' / 'stream_data.json'
-
-    count_amount = 5 if caught_index is None else caught_index + 1
     
     # Read the existing count (default to 0 if file does not exist)
     if counter_path.exists():
@@ -176,7 +174,7 @@ def increment_counter(caught_index=None):
         count = 0
 
     # Increment the counter
-    count += count_amount
+    count += 5
 
     with counter_path.open("w") as file1:
         file1.write(str(count))
@@ -192,11 +190,21 @@ def increment_counter(caught_index=None):
     for entry in data["pokemon"]:
         if entry["pokemon"] == stream_data['switch1_currently_hunting']:
             current_pokemon = entry
-            current_pokemon["encounters"] = entry["encounters"] + count_amount
+            current_pokemon["encounters"] = entry["encounters"] + 5
             break
     
     if (caught_index is not None):
-        current_pokemon["caught_timestamp"] = int(time.time() * 1000)
+        catches = current_pokemon["catches"]
+        previous_encounters = 0
+
+        for catch in catches:
+            previous_encounters = previous_encounters + catch["encounters"]
+        count_difference = current_pokemon["encounters"] - previous_encounters
+
+        catches.append(  {
+                    "caught_timestamp": int(time.time() * 1000),
+                    "encounters": count_difference
+                })
   
     with open(data_path, 'w') as data_file:
         json.dump(data, data_file, indent=4)
@@ -374,8 +382,6 @@ def main() -> int:
         # handle_process_eggs(ser, vid)
         # print(check_if_shiny(vid))
         # return 0
-        # _press(ser, 's', duration=1)
-        # _press(ser, 'a', duration=1)
         while True:
 
             # _press(ser, 'w', duration=0.1, write_null_byte=False)
@@ -428,6 +434,7 @@ def main() -> int:
             if (config.get('fetched_eggs') > 4 and config.get('hatched_eggs') > 4):
                 ser.write(b'0')
                 time.sleep(0.5)
+
                 if handle_process_eggs(ser, vid):
                     _press(ser, 'H', duration=1)
                     _press(ser, 's', duration=0.25)
