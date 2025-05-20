@@ -43,7 +43,7 @@ class LeftBlock1 extends StatelessWidget {
           'BRILLIANT DIAMOND',
           style: AppTextStyles.minecraftTen(fontSize: 32),
         ),
-        LineItem(leftText: 'Odds (No charm, Masuda)', rightText: '1/683'),
+        LineItem(leftText: 'Odds (Shiny charm, Masuda)', rightText: '1/512'),
         LineItem(leftText: 'Total egg shinies', rightText: '$totalShinies'),
         LineItem(leftText: 'Total eggs hatched', rightText: '$totalEncounters'),
         LineItem(
