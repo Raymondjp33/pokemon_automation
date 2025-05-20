@@ -62,6 +62,7 @@ class RightBlock1 extends StatelessWidget {
                 ),
                 fit: BoxFit.contain,
                 autostart: Autostart.loop,
+                useCache: false,
               ),
             ),
             HorizontalSpace(10),
