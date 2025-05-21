@@ -21,8 +21,8 @@ import pytesseract
 import os
 import csv
 
-os.environ['TESSDATA_PREFIX'] = '/opt/homebrew/Cellar/tesseract/5.5.0/share/tessdata'
-pytesseract.pytesseract.tesseract_cmd = r'/opt/homebrew/Cellar/tesseract/5.5.0/bin/tesseract'
+os.environ['TESSDATA_PREFIX'] = '/opt/homebrew/Cellar/tesseract/5.5.0_1/share/tessdata'
+pytesseract.pytesseract.tesseract_cmd = r'/opt/homebrew/Cellar/tesseract/5.5.0_1/bin/tesseract'
 
 class Color(NamedTuple):
     b: int
@@ -50,7 +50,7 @@ NORM = Point(y=720, x=1280)
 @functools.lru_cache
 def _tessapi() -> tesserocr.PyTessBaseAPI:
     return tesserocr.PyTessBaseAPI(
-        #/opt/homebrew/Cellar/tesseract/5.5.0/share/
+        #/opt/homebrew/Cellar/tesseract/5.5.0_1/share/
         '/opt/homebrew/share/tessdata',
         'eng',
         psm=tesserocr.PSM.SINGLE_LINE,
@@ -257,8 +257,8 @@ def handle_encounter_pokemon():
 
 
 
-encounter_config = ConfigManager(Path(__file__).parent / 'encounter_data.json')
-catch_config = ConfigManager(Path(__file__).parent.parent.parent / 'backend' / 'switch1_data.json')
+# encounter_config = ConfigManager(Path(__file__).parent / 'encounter_data.json')
+# catch_config = ConfigManager(Path(__file__).parent.parent.parent / 'backend' / 'switch1_data.json')
 
 def main() -> int:
     print(extract_encounter_text())
