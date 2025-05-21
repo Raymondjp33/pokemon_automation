@@ -111,7 +111,7 @@ def _shh(ser: serial.Serial) -> Generator[None]:
 @functools.lru_cache
 def _tessapi() -> tesserocr.PyTessBaseAPI:
     return tesserocr.PyTessBaseAPI(
-        #/opt/homebrew/Cellar/tesseract/5.5.0/share/
+        #/opt/homebrew/Cellar/tesseract/5.5.0_1/share/
         '/opt/homebrew/share/tessdata',
         'eng',
         psm=tesserocr.PSM.SINGLE_LINE,

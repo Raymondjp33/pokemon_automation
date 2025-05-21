@@ -17,8 +17,8 @@ import pytesseract
 import os
 import json
 
-os.environ['TESSDATA_PREFIX'] = '/opt/homebrew/Cellar/tesseract/5.5.0/share/tessdata'
-pytesseract.pytesseract.tesseract_cmd = r'/opt/homebrew/Cellar/tesseract/5.5.0/bin/tesseract'
+os.environ['TESSDATA_PREFIX'] = '/opt/homebrew/Cellar/tesseract/5.5.0_1/share/tessdata'
+pytesseract.pytesseract.tesseract_cmd = r'/opt/homebrew/Cellar/tesseract/5.5.0_1/bin/tesseract'
 
 class Color(NamedTuple):
     b: int
@@ -113,7 +113,7 @@ def _shh(ser: serial.Serial) -> Generator[None]:
 @functools.lru_cache
 def _tessapi() -> tesserocr.PyTessBaseAPI:
     return tesserocr.PyTessBaseAPI(
-        #/opt/homebrew/Cellar/tesseract/5.5.0/share/
+        #/opt/homebrew/Cellar/tesseract/5.5.0_1/share/
         '/opt/homebrew/share/tessdata',
         'eng',
         psm=tesserocr.PSM.SINGLE_LINE,
