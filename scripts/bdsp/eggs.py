@@ -191,7 +191,7 @@ def increment_counter(caught_index=None):
             current_pokemon = entry
             break
          
-    
+    end_program = False
     if (caught_index is not None):
         catches = current_pokemon["catches"]
         previous_encounters = 0
@@ -204,6 +204,9 @@ def increment_counter(caught_index=None):
                     "caught_timestamp": int(time.time() * 1000),
                     "encounters": count_difference
                 })
+        
+        if len(catches) >= stream_data["switch1_target"]:
+            end_program = True
     else:
         current_pokemon["encounters"] = entry["encounters"] + 5
         with counter_path.open("w") as file1:
@@ -211,11 +214,13 @@ def increment_counter(caught_index=None):
             
     with open(data_path, 'w') as data_file:
         json.dump(data, data_file, indent=4)
+
+    return end_program
       
 def write_shiny_text():
     shiny_text_path = Path(f"shiny_text.txt")
     with shiny_text_path.open("w") as file1:
-        file1.write("I got the shiny! My switch\nwill be off until I'm back.")
+        file1.write("I got the target amount of\nshinies! My switch will be\noff until I'm back.")
 
 def connect_and_go_to_game(ser: serial.Serial):
     _press(ser, 'H', sleep_time=1)
@@ -343,13 +348,14 @@ def handle_process_eggs(ser: serial.Serial, vid: cv2.VideoCapture,):
 
     line_count = 5
 
+    end_program = False
     # Check for any shiny
     for x in range(5):
         _press(ser, 's', sleep_time=.75)
         is_shiny = check_if_shiny(vid)
         if (is_shiny):
             print(f'We have a shiny at index {x}!')
-            increment_counter(caught_index=x)
+            end_program = increment_counter(caught_index=x)
             line_count = line_count - 1
             # Pick shiny up 
             print('Picking shiny up')
@@ -403,6 +409,8 @@ def handle_process_eggs(ser: serial.Serial, vid: cv2.VideoCapture,):
     time.sleep(1)
     _press(ser, 's', duration=1)
     _press(ser, 'a', duration=1)
+
+    return end_program
 
 def check_if_shiny(vid: cv2.VideoCapture):
     frame = _getframe(vid)
@@ -492,7 +500,20 @@ def main() -> int:
                 ser.write(b'0')
                 time.sleep(0.5)
 
-                handle_process_eggs(ser, vid)
+                if handle_process_eggs(ser, vid):
+                    _press(ser, 'H', duration=1)
+                    _press(ser, 's', duration=0.25)
+                    _press(ser, 'd', duration=0.25)
+                    _press(ser, 'd', duration=0.25)
+                    _press(ser, 'd', duration=0.25)
+                    _press(ser, 'd', duration=0.25)
+                    _press(ser, 'd', duration=0.25)
+                    _press(ser, 'd', duration=0.25)
+                    _press(ser, 'A', duration=1)
+                    _press(ser, 'w', duration=1)
+                    _press(ser, 'A', duration=1)
+                    write_shiny_text()
+                    return 0
 
                 end_time = time.time()
                 print(f'Full egg run took {(end_time-start_time):.3f}s')
