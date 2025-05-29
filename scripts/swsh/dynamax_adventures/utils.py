@@ -257,18 +257,18 @@ def increment_counter(file_prefix, frames=None, caught_legend=False, shiny_legen
     with data_path.open("r") as data_file:
         data = json.load(data_file)
 
-    current_pokemon = data["pokemon"][0]
+    current_pokemon = None
 
     for entry in data["pokemon"]:
         if entry["pokemon"] == file_prefix:
             current_pokemon = entry
             break
-    
-    current_pokemon['extra_data']['total_dens'] = current_pokemon['extra_data']['total_dens'] + 1
-    if (caught_legend):
-        current_pokemon['encounters'] = current_pokemon['encounters'] + 1
-    if (shiny_legend):
-        current_pokemon['caught_timestamp'] = int(time.time() * 1000)
+    if current_pokemon != None:
+        current_pokemon['extra_data']['total_dens'] = current_pokemon['extra_data']['total_dens'] + 1
+        if (caught_legend):
+            current_pokemon['encounters'] = current_pokemon['encounters'] + 1
+        if (shiny_legend):
+            current_pokemon['caught_timestamp'] = int(time.time() * 1000)
     # timestamp  = time.strftime('%Y-%m-%d %H:%M:%S')
     # star = '* ' if delay > 0.53 or delay < 0.47 else ''
     # log_data = f'{star}Count: {count} - Delay: {delay} - Timestamp {timestamp}'
