@@ -176,12 +176,8 @@ def increment_counter(caught_index=None):
     # Increment the counter
     count += 5
 
- 
-
-    with data_path.open("r") as data_file:
+    with data_path.open("r") as data_file, stream_data_path.open("r") as stream_data_file:
         data = json.load(data_file)
-    
-    with stream_data_path.open("r") as stream_data_file:
         stream_data = json.load(stream_data_file)
 
     current_pokemon = data["pokemon"][0]
@@ -198,7 +194,7 @@ def increment_counter(caught_index=None):
 
         for catch in catches:
             previous_encounters = previous_encounters + catch["encounters"]
-        count_difference = current_pokemon["encounters"] - previous_encounters
+        count_difference = current_pokemon["encounters"] - previous_encounters - (4 - caught_index)
 
         catches.append(  {
                     "caught_timestamp": int(time.time() * 1000),
@@ -339,6 +335,7 @@ def handle_hatch(ser: serial.Serial, vid: cv2.VideoCapture,):
 
 def handle_process_eggs(ser: serial.Serial, vid: cv2.VideoCapture,):
     print('Processing eggs!')
+    increment_counter(caught_index=None)
     config.update({'fetched_eggs': 0, 'hatched_eggs': 0})
     _press(ser, 'X', sleep_time=1.5)
     _press(ser, 'A', sleep_time=1.5)
@@ -382,7 +379,6 @@ def handle_process_eggs(ser: serial.Serial, vid: cv2.VideoCapture,):
         else:   
             print(f'Pokemon at index {x} is not shiny')
 
-    increment_counter(caught_index=None)
     _press(ser, 'w', count=line_count - 1, sleep_time=0.25)
 
     # Delete all non shiny
@@ -501,6 +497,7 @@ def main() -> int:
                 time.sleep(0.5)
 
                 if handle_process_eggs(ser, vid):
+                    # We have reached our target for the current pokemon
                     _press(ser, 'H', duration=1)
                     _press(ser, 's', duration=0.25)
                     _press(ser, 'd', duration=0.25)
