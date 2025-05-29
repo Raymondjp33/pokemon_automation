@@ -1,11 +1,11 @@
 import cv2
 from ultralytics import YOLO
 
-model = YOLO("models/best_11.pt")  
+model = YOLO("models/0.0.2 (11n).pt")  
 
 cap = cv2.VideoCapture(2)
-cap.set(cv2.CAP_PROP_FRAME_WIDTH, 680)
-cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 383)
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
 
 if not cap.isOpened():
     print("Error: Cannot open webcam")
@@ -17,7 +17,7 @@ while True:
         break
 
     # Run YOLOv8 detection with stream=True to optimize memory/performance
-    results = model(frame, stream=True, verbose=False)
+    results = model(frame, stream=True, verbose=False, conf=0.4)
 
     # Draw detections on frame
     for r in results:
