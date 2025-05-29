@@ -152,7 +152,7 @@ def get_to_statue(ser: serial.Serial):
 
 def increment_day(ser: serial.Serial):
     _press(ser, 's',sleep_time=0.3)
-    _press(ser, 'd', count=5)
+    _press(ser, 'd', count=7)
     _press(ser, 'A', sleep_time=1.25)
     _press(ser, 's', count=17)
     _press(ser, 'd')
@@ -172,7 +172,7 @@ def run_away(ser: serial.Serial):
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument('--serial', default='/dev/tty.usbserial-120')
+    parser.add_argument('--serial', default='/dev/tty.usbserial-110')
     args = parser.parse_args()
 
     vid = cv2.VideoCapture(2)
@@ -183,7 +183,6 @@ def main() -> int:
     x_val = 1143
     y_val = 640
 
-    currently_hunting = 'Regidrago'
   
     with serial.Serial(args.serial, 9600) as ser, _shh(ser):
         time.sleep(1)
@@ -195,9 +194,16 @@ def main() -> int:
         # return 0
         while True:
            
+           # From the loading screen of den after invite others
            _press(ser, 'H', sleep_time=1)
+
+           # Increment to next day
            increment_day(ser)
+
+           # Go back to game
            _press(ser, 'H', count=2, sleep_time=1)
+
+           # Exit and then start den again
            _press(ser, 's')
            _press(ser, 'A', sleep_time=0.75, count=5)
            _press(ser, 'A', sleep_time=3.5)
