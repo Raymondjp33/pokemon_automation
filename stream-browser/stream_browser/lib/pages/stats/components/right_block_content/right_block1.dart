@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:gif/gif.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../constants/app_styles.dart';
+import '../../../../models/pokemon.model.dart';
+import '../../../../models/target.model.dart';
 import '../../../../services/file_provider.dart';
-import '../../../../widgets/spacing.dart';
-import '../encounter_timer.dart';
+import '../../../../widgets/pokemon_gif_image.dart';
+import '../../../../widgets/scrolling_widget.dart';
 import '../line_item.dart';
 
 class RightBlock1 extends StatelessWidget {
@@ -13,25 +14,21 @@ class RightBlock1 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    int totalDens =
-        context.select((FileProvider state) => state.switch2TotalDens);
-    int currTotalDens =
-        context.select((FileProvider state) => state.currentTotalDens);
-    int enc = context.select((FileProvider state) => state.switch2Encounters);
-    int totalLegends =
-        context.select((FileProvider state) => state.switch2LegendaryShinies);
-    double switch2AverageChecks =
-        context.select((FileProvider state) => state.switch2AverageChecks);
-    String switch2GifNumber = context.select(
-      (FileProvider state) => state.streamData?.switch2GifNumber ?? '1',
+    final fileProvider = context.watch<FileProvider>();
+
+    final phaseEncounters =
+        (fileProvider.streamData?.switch2Targets ?? []).fold(
+      0,
+      (previousValue, element) =>
+          previousValue +
+          (fileProvider.switch2PokemonData(element.name)?.encounters ?? 0),
     );
 
-    int? startTime = context.select(
-      (FileProvider state) =>
-          state.switch2CurrPokemon.startedHuntTimestamp?.toInt(),
-    );
-    int? endTime = context.select(
-      (FileProvider state) => state.switch2CurrPokemon.caughtTimestamp?.toInt(),
+    final phaseShinies = (fileProvider.streamData?.switch2Targets ?? []).fold(
+      0,
+      (previousValue, element) =>
+          previousValue +
+          (fileProvider.switch2PokemonData(element.name)?.catches?.length ?? 0),
     );
 
     return Column(
@@ -41,57 +38,56 @@ class RightBlock1 extends StatelessWidget {
           'Shield',
           style: AppTextStyles.minecraftTen(fontSize: 36),
         ),
-        LineItem(leftText: 'Odds', rightText: '1/100'),
-        // LineItem(leftText: 'Normal shinies', rightText: '60'),
-        LineItem(leftText: 'Legendary shinies', rightText: '$totalLegends'),
-        LineItem(leftText: 'Total dens', rightText: '$totalDens'),
-        LineItem(
-          leftText: 'Average checks',
-          rightText: switch2AverageChecks.toStringAsFixed(2),
-        ),
-        Spacer(),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 150,
-              height: 108,
-              child: Gif(
-                image: NetworkImage(
-                  'https://raw.githubusercontent.com/adamsb0303/Shiny_Hunt_Tracker/master/Images/Sprites/3d/$switch2GifNumber.gif',
-                ),
-                fit: BoxFit.contain,
-                autostart: Autostart.loop,
-                useCache: false,
-              ),
-            ),
-            HorizontalSpace(10),
-            Flexible(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Text(
-                        '$enc',
-                        style: AppTextStyles.pokePixel(fontSize: 60),
-                      ),
-                      HorizontalSpace(20),
-                      Text(
-                        '(Total: $currTotalDens)',
-                        style: AppTextStyles.pokePixel(fontSize: 30),
-                      ),
-                    ],
+        LineItem(leftText: 'Odds (Shiny charm)', rightText: '1/1365'),
+        LineItem(leftText: 'Phase encounters', rightText: '$phaseEncounters'),
+        LineItem(leftText: 'Phase shinies', rightText: '$phaseShinies'),
+        Container(
+          height: 175,
+          child: ScrollingWidget(
+            scrollSpeed: 30,
+            child: Row(
+              children: [
+                for (TargetModel target
+                    in fileProvider.streamData?.switch2Targets ?? [])
+                  Builder(
+                    builder: (context) {
+                      PokemonData? pokemonData =
+                          fileProvider.switch2PokemonData(target.name);
+
+                      if (pokemonData == null) {
+                        return Container();
+                      }
+
+                      return Container(
+                        padding: EdgeInsets.symmetric(horizontal: 10),
+                        decoration: BoxDecoration(
+                          border: Border.symmetric(
+                            vertical: BorderSide(color: Colors.black54),
+                          ),
+                        ),
+                        child: Column(
+                          children: [
+                            PokemonGifImage(
+                              width: 100,
+                              height: 100,
+                              dexNum: target.dexNum,
+                            ),
+                            Text(
+                              '${pokemonData.encounters}',
+                              style: AppTextStyles.pokePixel(fontSize: 40),
+                            ),
+                            Text(
+                              '${pokemonData.catches?.length ?? 0}/${target.target} ${target.mainTarget ? "(Target)" : ''}',
+                              style: AppTextStyles.pokePixel(fontSize: 24),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
                   ),
-                  EncounterTimer(
-                    startTime: startTime,
-                    endTime: endTime,
-                  ),
-                ],
-              ),
+              ],
             ),
-          ],
+          ),
         ),
       ],
     );

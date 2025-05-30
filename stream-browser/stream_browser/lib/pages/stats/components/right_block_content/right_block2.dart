@@ -6,43 +6,31 @@ import '../../../../constants/app_styles.dart';
 import '../../../../services/file_provider.dart';
 import '../../../../widgets/spacing.dart';
 import '../encounter_timer.dart';
+import '../line_item.dart';
 
 class RightBlock2 extends StatelessWidget {
   const RightBlock2({super.key});
 
   @override
   Widget build(BuildContext context) {
+    int totalDens =
+        context.select((FileProvider state) => state.switch2TotalDens);
     int currTotalDens =
         context.select((FileProvider state) => state.currentTotalDens);
-    int currEnc =
-        context.select((FileProvider state) => state.switch2Encounters);
-
+    int enc = context.select((FileProvider state) => state.switch2Encounters);
+    int totalLegends =
+        context.select((FileProvider state) => state.switch2LegendaryShinies);
+    double switch2AverageChecks =
+        context.select((FileProvider state) => state.switch2AverageChecks);
     String switch2GifNumber = context.select(
       (FileProvider state) => state.streamData?.switch2GifNumber ?? '1',
     );
 
-    int? currStartTime = context.select(
+    int? startTime = context.select(
       (FileProvider state) =>
           state.switch2CurrPokemon.startedHuntTimestamp?.toInt(),
     );
-    int? currEndTime = context.select(
-      (FileProvider state) => state.switch2CurrPokemon.caughtTimestamp?.toInt(),
-    );
-
-    int lastTotalDens =
-        context.select((FileProvider state) => state.currentTotalDens);
-    int lastEnc =
-        context.select((FileProvider state) => state.switch2Encounters);
-
-    String switch2GifNumberLast = context.select(
-      (FileProvider state) => state.streamData?.switch2GifNumber ?? '1',
-    );
-
-    int? lastStartTime = context.select(
-      (FileProvider state) =>
-          state.switch2CurrPokemon.startedHuntTimestamp?.toInt(),
-    );
-    int? lastEndTime = context.select(
+    int? endTime = context.select(
       (FileProvider state) => state.switch2CurrPokemon.caughtTimestamp?.toInt(),
     );
 
@@ -53,56 +41,13 @@ class RightBlock2 extends StatelessWidget {
           'Shield',
           style: AppTextStyles.minecraftTen(fontSize: 36),
         ),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Last Shiny',
-              style: AppTextStyles.pokePixel(fontSize: 36),
-            ),
-            Row(
-              children: [
-                Container(
-                  width: 120,
-                  height: 80,
-                  child: Gif(
-                    image: NetworkImage(
-                      'https://raw.githubusercontent.com/adamsb0303/Shiny_Hunt_Tracker/master/Images/Sprites/3d/$switch2GifNumberLast.gif',
-                    ),
-                    fit: BoxFit.contain,
-                    autostart: Autostart.loop,
-                  ),
-                ),
-                HorizontalSpace(10),
-                Flexible(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            '$lastEnc',
-                            style: AppTextStyles.pokePixel(fontSize: 48),
-                          ),
-                          HorizontalSpace(20),
-                          Text(
-                            '(Total: $lastTotalDens)',
-                            style: AppTextStyles.pokePixel(fontSize: 20),
-                          ),
-                        ],
-                      ),
-                      EncounterTimer(
-                        startTime: lastStartTime,
-                        endTime: lastEndTime,
-                        fontSize: 20,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ],
+        LineItem(leftText: 'Odds (Shiny charm)', rightText: '1/1365'),
+        // LineItem(leftText: 'Normal shinies', rightText: '60'),
+        LineItem(leftText: 'Legendary shinies', rightText: '$totalLegends'),
+        LineItem(leftText: 'Total dens', rightText: '$totalDens'),
+        LineItem(
+          leftText: 'Average checks',
+          rightText: switch2AverageChecks.toStringAsFixed(2),
         ),
         Spacer(),
         Row(
@@ -117,6 +62,7 @@ class RightBlock2 extends StatelessWidget {
                 ),
                 fit: BoxFit.contain,
                 autostart: Autostart.loop,
+                useCache: false,
               ),
             ),
             HorizontalSpace(10),
@@ -128,7 +74,7 @@ class RightBlock2 extends StatelessWidget {
                   Row(
                     children: [
                       Text(
-                        '$currEnc',
+                        '$enc',
                         style: AppTextStyles.pokePixel(fontSize: 60),
                       ),
                       HorizontalSpace(20),
@@ -139,8 +85,8 @@ class RightBlock2 extends StatelessWidget {
                     ],
                   ),
                   EncounterTimer(
-                    startTime: currStartTime,
-                    endTime: currEndTime,
+                    startTime: startTime,
+                    endTime: endTime,
                   ),
                 ],
               ),

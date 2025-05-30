@@ -163,6 +163,17 @@ class FileProvider with ChangeNotifier {
   double switch2AverageChecks = 0;
   int switch2Encounters = 0;
 
+  PokemonData? switch2PokemonData(String pokemonName) {
+    PokemonData? pokemonData;
+
+    for (PokemonData pokemon in switch2Data?.pokemon ?? []) {
+      if (pokemon.pokemon == pokemonName) {
+        pokemonData = pokemon;
+      }
+    }
+    return pokemonData;
+  }
+
   void calculateSwitch2Variables() {
     switch2LegendaryShinies = (switch2Data?.pokemon.length ?? 1) - 1;
     switch2TotalDens = (switch2Data?.pokemon ?? []).fold(
