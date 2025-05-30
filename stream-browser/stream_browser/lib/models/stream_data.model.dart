@@ -1,5 +1,7 @@
 import 'package:json_annotation/json_annotation.dart';
 
+import 'target.model.dart';
+
 part 'stream_data.model.g.dart';
 
 @JsonSerializable(explicitToJson: true)
@@ -22,6 +24,9 @@ class StreamData {
   @JsonKey(name: 'switch2_target')
   int? switch2Target;
 
+  @JsonKey(name: 'switch2_targets')
+  List<TargetModel> switch2Targets;
+
   StreamData({
     required this.switch1CurrentlyHunting,
     required this.switch2CurrentlyHunting,
@@ -31,6 +36,7 @@ class StreamData {
     required this.switch2GifNumber,
     required this.switch1Target,
     required this.switch2Target,
+    this.switch2Targets = const [],
   });
 
   factory StreamData.fromJson(Map<String, dynamic>? json) {
