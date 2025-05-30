@@ -159,9 +159,9 @@ def _shh(ser: serial.Serial) -> Generator[None]:
         ser.write(b'.')    
 
 def increment_counter(caught_index=None):
-    counter_path = Path(f'switch1-counter.txt')
-    data_path = Path(__file__).resolve().parent.parent.parent / 'backend' / 'switch1_data.json'
-    stream_data_path = Path(__file__).resolve().parent.parent.parent / 'backend' / 'stream_data.json'
+    counter_path = Path(f'egg-counter.txt')
+    data_path = Path(__file__).resolve().parent.parent.parent.parent / 'backend' / 'switch2_data.json'
+    stream_data_path = Path(__file__).resolve().parent.parent.parent.parent  / 'backend' / 'stream_data.json'
     
     # Read the existing count (default to 0 if file does not exist)
     if counter_path.exists():
@@ -176,34 +176,33 @@ def increment_counter(caught_index=None):
     # Increment the counter
     count += 5
 
- 
-
-    with data_path.open("r") as data_file:
+    with data_path.open("r") as data_file, stream_data_path.open("r") as stream_data_file:
         data = json.load(data_file)
-    
-    with stream_data_path.open("r") as stream_data_file:
         stream_data = json.load(stream_data_file)
 
-    current_pokemon = data["pokemon"][0]
+    current_pokemon = None
 
     for entry in data["pokemon"]:
-        if entry["pokemon"] == stream_data['switch1_currently_hunting']:
+        if entry["pokemon"] == stream_data['switch2_currently_hunting']:
             current_pokemon = entry
             break
          
-    
+    end_program = False
     if (caught_index is not None):
         catches = current_pokemon["catches"]
         previous_encounters = 0
 
         for catch in catches:
             previous_encounters = previous_encounters + catch["encounters"]
-        count_difference = current_pokemon["encounters"] - previous_encounters
+        count_difference = current_pokemon["encounters"] - previous_encounters - (5 - caught_index)
 
         catches.append(  {
                     "caught_timestamp": int(time.time() * 1000),
                     "encounters": count_difference
                 })
+        
+        if len(catches) >= stream_data["switch2_target"]:
+            end_program = True
     else:
         current_pokemon["encounters"] = entry["encounters"] + 5
         with counter_path.open("w") as file1:
@@ -212,6 +211,7 @@ def increment_counter(caught_index=None):
     with open(data_path, 'w') as data_file:
         json.dump(data, data_file, indent=4)
 
+    return end_program
 class Position(NamedTuple):
     col: int
     row: int
@@ -297,6 +297,7 @@ def handle_hatch(ser: serial.Serial, vid: cv2.VideoCapture,):
 
 def handle_process_eggs(ser: serial.Serial, vid: cv2.VideoCapture,):
     print('Processing eggs!')
+    increment_counter(caught_index=None)
     config.update({'fetched_eggs': 0, 'hatched_eggs': 0})
     _press(ser, 'X', sleep_time=1.5)
     _press(ser, 'A', sleep_time=1.5)
@@ -333,9 +334,9 @@ def handle_process_eggs(ser: serial.Serial, vid: cv2.VideoCapture,):
             # Come back
             make_move(ser, from_pos=move_location.row, to_pos=0, move_vertical=True)
             make_move(ser, from_pos=move_location.col, to_pos=0, move_vertical=False)
+            _press(ser, 'L', sleep_time=2)
             _press(ser, 'a', sleep_time=0.5)
             _press(ser, 's', count = x, sleep_time=0.5)
-            _press(ser, 'L', sleep_time=2)
         else:   
             print(f'Pokemon at index {x} is not shiny')
 
@@ -346,9 +347,9 @@ def handle_process_eggs(ser: serial.Serial, vid: cv2.VideoCapture,):
     for _ in range(line_count):
         _press(ser, 'A', sleep_time=.75)
         _press(ser, 'w', count=2, sleep_time=0.25)
-        _press(ser, 'A', sleep_time=.75)
+        _press(ser, 'A', sleep_time=1.25)
         _press(ser, 'w', sleep_time=0.25)
-        _press(ser, 'A', count=2, sleep_time=.75)
+        _press(ser, 'A', count=2, sleep_time=2)
 
     # Bring over next batch
     _press(ser, 'd', sleep_time=.5)
@@ -364,15 +365,13 @@ def handle_process_eggs(ser: serial.Serial, vid: cv2.VideoCapture,):
     print('Exiting eggs')
     _press(ser, 'B', count=3, sleep_time=3)
     time.sleep(1)
-    _press(ser, 's', duration=1)
-    _press(ser, 'a', duration=1)
 
 def check_if_shiny(vid: cv2.VideoCapture):
     frame = _getframe(vid)
 
-    y1, x1, y2, x2 = 112, 1185, 151, 1253
+    y1, x1, y2, x2 = 105, 1240, 135, 1273
     roi = frame[y1:y2, x1:x2]
-    target_color = (64, 63, 255)
+    target_color = (111, 111, 106)
 
     found = any(_color_near(pixel, target_color) for row in roi for pixel in row)
 
@@ -394,9 +393,7 @@ def main() -> int:
     vid.set(cv2.CAP_PROP_BUFFERSIZE, 1)
 
     start_time = time.time()
-
     # print(get_text(frame=_getframe(vid), top_left=Point(y=586, x=262), bottom_right=Point(y=641, x=495), invert=True))
-    # return 0
     with serial.Serial(args.serial, 9600) as ser, _shh(ser):
         time.sleep(1)
         # go_to_change_grip(ser)
@@ -436,9 +433,9 @@ def main() -> int:
                 start_time = time.time()
                 time.sleep(2)
 
-            
-            
+                return 0
 
+            
             # return 0
 
     vid.release()
