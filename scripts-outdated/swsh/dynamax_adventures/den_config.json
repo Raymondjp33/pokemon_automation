@@ -1,0 +1,39 @@
+{
+    "currently_hunting": "Kartana",
+    "dynamax_turns": null,
+    "move_index": 0,
+    "battle_index": 0,
+    "selected_starter": false,
+    "end_run": false,
+    "keep_dungeon": false,
+    "ball_index": 3,
+    "pokemon_den_index": 0,
+    "streak_data": {
+        "search_dens": false,
+        "win_ratio_threshold": 0.66,
+        "wins": 0,
+        "battles": 0,
+        "paths": [],
+        "swaps": []
+    },
+    "type_order": [
+        "fire",
+        "flying",
+        "bug",
+        "grass",
+        "poison",
+        "fighting",
+        "ice",
+        "ghost",
+        "dark",
+        "steel",
+        "dragon",
+        "normal",
+        "electric",
+        "psychic",
+        "fairy",
+        "ground",
+        "water",
+        "rock"
+    ]
+}
