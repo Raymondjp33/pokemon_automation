@@ -19,6 +19,7 @@ import pytesseract
 import os
 import re
 
+from config_manager import ConfigManager
 
 os.environ['TESSDATA_PREFIX'] = '/opt/homebrew/Cellar/tesseract/5.5.0_1/share/tessdata'
 pytesseract.pytesseract.tesseract_cmd = r'/opt/homebrew/Cellar/tesseract/5.5.0_1/bin/tesseract'
