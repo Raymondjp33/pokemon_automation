@@ -200,10 +200,10 @@ def reset_game(ser: serial.Serial, vid: cv2.VideoCapture,):
 def get_pokemon_name(vid: cv2.VideoCapture):
     frame = _getframe(vid)
     # Switch 1
-    return get_text(frame=frame, top_left=Point(y=570, x=89), bottom_right=Point(y=607, x=221), invert=True)
+    # return get_text(frame=frame, top_left=Point(y=570, x=89), bottom_right=Point(y=607, x=221), invert=True)
 
     # Switch 2
-    # return get_text(frame=frame, top_left=Point(y=571, x=67), bottom_right=Point(y=603, x=205), invert=True)
+    return get_text(frame=frame, top_left=Point(y=571, x=67), bottom_right=Point(y=603, x=205), invert=True)
 
 def check_if_shiny(vid: cv2.VideoCapture):
     frame = _getframe(vid)
@@ -291,20 +291,20 @@ def main() -> int:
     with open("boxed_shiny_pokemon.json", "r") as f:
         owned_shiny_pokemon = set(json.load(f))
 
-    from_box = get_box_location(42, False)
+    from_box = get_box_location(157, False)
     from_pokemon_num = 1
     from_pokemon = get_box_location(from_pokemon_num, False)
 
     parser = argparse.ArgumentParser()
 
     # Switch 1
-    parser.add_argument('--serial', default='/dev/tty.usbmodem1201')
+    # parser.add_argument('--serial', default='/dev/tty.usbmodem1201')
 
     # Switch 2
-    # parser.add_argument('--serial', default='/dev/tty.usbserial-110')
+    parser.add_argument('--serial', default='/dev/tty.usbserial-110')
     args = parser.parse_args()
 
-    vid = cv2.VideoCapture(1)
+    vid = cv2.VideoCapture(2)
     vid.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
     vid.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
     vid.set(cv2.CAP_PROP_BUFFERSIZE, 1)
