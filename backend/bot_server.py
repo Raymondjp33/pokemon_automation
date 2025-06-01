@@ -70,17 +70,18 @@ def handle_file_update(file_path, modified_var, emit_variable):
         with open(file_path) as f:
             file_data = json.load(f)
         modified_vars[modified_var] = mtime
-        print(f"[WebSocket] Emitting update: {file_data}")
+        print(f"[WebSocket] Emitting update")
         socketio.emit(emit_variable, file_data)
     except Exception as e:
             print(f"Error reading file: {e}")
 
 @socketio.on('start_process')
-def start_process():
+def start_process(data):
     def run_and_stream():
+        scripts_path = Path(__file__).resolve().parent.parent / 'scripts-new' 
         print(f"Beginning process")
         process = subprocess.Popen(
-            ["python3.9", "-u", "process_test.py"],  # Replace with your command
+            ["python3.9", "-u", str(scripts_path / data["file"])],  # Replace with your command
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             text=True
@@ -102,3 +103,18 @@ if __name__ == '__main__':
     socketio.start_background_task(target=watch_files)
     socketio.run(app, host='0.0.0.0', port=5050)
 
+
+# import sqlite3
+
+# DB_FILE = "my_pokemon.db"
+
+# def get_pokemon_data():
+#     conn = sqlite3.connect(DB_FILE)
+#     cur = conn.cursor()
+#     cur.execute("""
+#     SELECT c.caught_timestamp, c.encounters, c.encounter_method
+#     FROM pokemon p JOIN catch c ON p.id = c.pokemon_id
+#     WHERE p.name = ?
+#     """, (pokemon_name,))
+
+# print(get_pokemon_data)
