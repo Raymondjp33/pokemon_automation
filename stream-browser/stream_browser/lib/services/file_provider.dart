@@ -21,13 +21,19 @@ class FileProvider with ChangeNotifier {
   DateTime now = DateTime.now();
   int screenIndex = 0;
 
-  final List<String> logs = [
+  final List<String> logs1 = [
     'test',
     'test',
     'test',
   ];
 
-  void addToLogs(String line) {
+  final List<String> logs2 = [
+    'test',
+    'test',
+    'test',
+  ];
+
+  void addToLogs(String line, List<String> logs) {
     logs.add(line);
     if (logs.length > 5) {
       logs.removeAt(0);
@@ -35,7 +41,7 @@ class FileProvider with ChangeNotifier {
   }
 
   void emitProcess() {
-    socket!.emit('start_process');
+    socket!.emit('start_process', {'file': 'process_test.py'});
   }
 
   void connectSocket() {
@@ -83,7 +89,7 @@ class FileProvider with ChangeNotifier {
     });
 
     socket!.on('process_output', (data) {
-      addToLogs('Log: ${data['line']}');
+      addToLogs('Log: ${data['line']}', logs1);
       // Update UI with log line
     });
 

@@ -9,25 +9,6 @@ import 'package:web/web.dart' as web;
 
 import 'dart:ui_web' as ui_web;
 
-@JS('navigator.mediaDevices.getUserMedia')
-external dynamic _getUserMedia(dynamic constraints);
-
-@JS()
-@anonymous
-class MediaDeviceInfo {
-  external String get deviceId;
-  external String get kind;
-  external String get label;
-}
-
-@JS()
-@anonymous
-class InputDeviceInfo {
-  external String get deviceId;
-  external String get kind;
-  external String get label;
-}
-
 class ControlPanel extends StateView<ControlPanelState> {
   ControlPanel({super.key})
       : super(
@@ -38,17 +19,20 @@ class ControlPanel extends StateView<ControlPanelState> {
 
 class ControlPanelState extends StateProvider<ControlPanel> {
   ControlPanelState(super.context) {
-    loadDevices();
+    loadControlPanel();
   }
 
-  web.HTMLVideoElement? video;
-  String? viewType;
+  web.HTMLVideoElement? video1;
+  String? viewType1;
 
-  List<String> videoDevices = [];
+  web.HTMLVideoElement? video2;
+  String? viewType2;
 
-  Future<void> loadDevices() async {
-    getDevices();
-    // videoDevices = await getVideoInputDevices();
+  List<dynamic> videoDevices = [];
+
+  Future<void> loadControlPanel() async {
+    await getDevices();
+    loadDevices();
   }
 
   Future<void> requestPermission() async {
@@ -69,10 +53,56 @@ class ControlPanelState extends StateProvider<ControlPanel> {
     }
   }
 
-  Future<List<dynamic>> getDevices() async {
+  Future<void> loadDevices() async {
+    for (final device in videoDevices) {
+      if (device.label != 'USB Video (534d:2109)' &&
+          device.label != 'USB3.0 Capture (345f:2130)') {
+        continue;
+      }
+
+      final mediaStream = await promiseToFuture(
+        callMethod(
+          getProperty(web.window.navigator, 'mediaDevices'),
+          'getUserMedia',
+          [
+            jsify({
+              'video': {
+                'deviceId': device.deviceId,
+                "width": 1280,
+                "height": 720,
+              },
+            }),
+          ],
+        ),
+      );
+      final video = web.HTMLVideoElement()
+        ..autoplay = true
+        ..muted = true
+        ..style.width = '100%'
+        ..style.height = '100%'
+        ..style.objectFit = 'contain'
+        ..srcObject = mediaStream;
+
+      final viewType = 'video-element-${DateTime.now().millisecondsSinceEpoch}';
+      ui_web.platformViewRegistry
+          .registerViewFactory(viewType, (int viewId) => video);
+
+      if (device.label != 'USB Video (534d:2109)') {
+        video2 = video;
+        viewType2 = viewType;
+      } else {
+        video1 = video;
+        viewType1 = viewType;
+      }
+    }
+
+    notifyListeners();
+  }
+
+  Future<void> getDevices() async {
     await requestPermission();
 
-    List<dynamic> devices = await promiseToFuture<List<dynamic>>(
+    videoDevices = await promiseToFuture<List<dynamic>>(
       callMethod(
         getProperty(web.window.navigator, 'mediaDevices'),
         'enumerateDevices',
@@ -80,43 +110,6 @@ class ControlPanelState extends StateProvider<ControlPanel> {
       ),
     );
 
-    devices = devices.map((e) async {
-      if (e.label == 'USB Video (534d:2109)') {
-        final mediaStream = await promiseToFuture(
-          callMethod(
-            getProperty(web.window.navigator, 'mediaDevices'),
-            'getUserMedia',
-            [
-              jsify({
-                'video': {'deviceId': e.deviceId, "width": 1280, "height": 720},
-              }),
-            ],
-          ),
-        );
-        video = web.HTMLVideoElement()
-          ..autoplay = true
-          ..muted = true
-          ..style.width = '100%'
-          ..style.height = '100%'
-          ..style.objectFit = 'contain'
-          ..srcObject = mediaStream;
-
-        viewType = 'video-element-${DateTime.now().millisecondsSinceEpoch}';
-        ui_web.platformViewRegistry
-            .registerViewFactory(viewType!, (int viewId) => video!);
-        notifyListeners();
-      }
-
-      return e.label;
-    }).toList();
-
-    return devices;
-  }
-
-  Future<dynamic> getUserMedia(String deviceId) {
-    final constraints = {
-      'video': {'deviceId': deviceId},
-    };
-    return promiseToFuture<dynamic>(_getUserMedia(jsify(constraints)));
+    notifyListeners();
   }
 }
