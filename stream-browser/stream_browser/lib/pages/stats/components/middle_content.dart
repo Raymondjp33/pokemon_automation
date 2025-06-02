@@ -12,11 +12,10 @@ class MiddleContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final fileProvider = context.watch<FileProvider>();
     DateTime now = DateTime.now();
-    int? startTime = fileProvider.streamData?.streamStarttime.toInt();
 
+    // Random int is stream starttime in ms
     Duration timeDifference = Duration(
-      milliseconds: now.millisecondsSinceEpoch -
-          (startTime ?? now.millisecondsSinceEpoch),
+      milliseconds: now.millisecondsSinceEpoch - 1741255200000,
     );
 
     return Column(
