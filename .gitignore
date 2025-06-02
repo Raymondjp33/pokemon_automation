@@ -6,6 +6,7 @@ outdated/old_data_files
 
 # Files not needed to be tracked
 backend/*.json
+backend/my_pokemon.db
 scripts/configs/
 
 
