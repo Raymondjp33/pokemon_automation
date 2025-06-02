@@ -5,15 +5,18 @@ part 'catch.model.g.dart';
 @JsonSerializable(explicitToJson: true)
 class CatchModel {
   int? encounters;
+  @JsonKey(name: 'switch')
+  int switchUsed;
+  @JsonKey(name: 'encounter_method')
+  String? encounterMethod;
   @JsonKey(name: 'caught_timestamp')
   num? caughtTimestamp;
-  @JsonKey(name: 'started_hunt_timestamp')
-  num? startedHuntTimestamp;
 
   CatchModel({
     this.encounters,
     this.caughtTimestamp,
-    this.startedHuntTimestamp,
+    this.encounterMethod,
+    this.switchUsed = 1,
   });
 
   factory CatchModel.fromJson(Map<String, dynamic>? json) {

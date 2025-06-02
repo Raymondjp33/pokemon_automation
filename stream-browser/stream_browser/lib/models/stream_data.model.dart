@@ -6,36 +6,16 @@ part 'stream_data.model.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 class StreamData {
-  @JsonKey(name: 'switch1_currently_hunting')
-  String switch1CurrentlyHunting;
-  @JsonKey(name: 'switch2_currently_hunting')
-  String switch2CurrentlyHunting;
   bool away;
-  @JsonKey(name: 'stream_starttime')
-  num streamStarttime;
 
-  @JsonKey(name: 'switch1_gif_number')
-  String switch1GifNumber;
-  @JsonKey(name: 'switch2_gif_number')
-  String switch2GifNumber;
-
-  @JsonKey(name: 'switch1_target')
-  int? switch1Target;
-  @JsonKey(name: 'switch2_target')
-  int? switch2Target;
-
+  @JsonKey(name: 'switch1_targets')
+  List<TargetModel> switch1Targets;
   @JsonKey(name: 'switch2_targets')
   List<TargetModel> switch2Targets;
 
   StreamData({
-    required this.switch1CurrentlyHunting,
-    required this.switch2CurrentlyHunting,
     required this.away,
-    required this.streamStarttime,
-    required this.switch1GifNumber,
-    required this.switch2GifNumber,
-    required this.switch1Target,
-    required this.switch2Target,
+    this.switch1Targets = const [],
     this.switch2Targets = const [],
   });
 

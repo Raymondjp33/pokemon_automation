@@ -5,43 +5,35 @@ import 'catch.model.dart';
 part 'pokemon.model.g.dart';
 
 @JsonSerializable(explicitToJson: true)
-class PokemonData {
-  String? pokemon;
-  @JsonKey(name: 'encounter_method')
-  String? encounterMethod;
-  int? encounters;
-  @JsonKey(name: 'extra_data')
-  Map<String, dynamic>? extraData;
-  @JsonKey(name: 'caught_timestamp')
-  num? caughtTimestamp;
-  @JsonKey(name: 'started_hunt_timestamp')
+class PokemonModel {
+  String? name;
+  @JsonKey(name: 'encounters_total')
+  int? totalEncounters;
+  @JsonKey(name: 'started_hunt_ts')
   num? startedHuntTimestamp;
 
   List<CatchModel>? catches;
 
-  PokemonData({
-    this.pokemon,
-    this.encounters,
-    this.encounterMethod,
-    this.extraData,
-    this.caughtTimestamp,
+  PokemonModel({
+    this.name,
+    this.totalEncounters,
     this.startedHuntTimestamp,
     this.catches,
   });
 
-  static PokemonData get emptyPokemon => PokemonData();
+  static PokemonModel get emptyPokemon => PokemonModel();
 
-  factory PokemonData.fromJson(Map<String, dynamic>? json) {
-    if (json == null) throw Exception('PokemonData: json was null');
+  factory PokemonModel.fromJson(Map<String, dynamic>? json) {
+    if (json == null) throw Exception('PokemonModel: json was null');
     try {
-      return _$PokemonDataFromJson(json);
+      return _$PokemonModelFromJson(json);
     } catch (e, stack) {
-      throw 'PokemonData.fromJson: $e, $stack';
+      throw 'PokemonModel.fromJson: $e, $stack';
     }
   }
 
   Map<String, dynamic> toJson() {
-    Map<String, dynamic> json = _$PokemonDataToJson(this);
+    Map<String, dynamic> json = _$PokemonModelToJson(this);
     return json;
   }
 }
