@@ -13,29 +13,20 @@ class LeftBlock1 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    int totalShinies =
-        context.select((FileProvider state) => state.switch1TotalShinies);
-    int totalEncounters =
-        context.select((FileProvider state) => state.switch1TotalEncounters);
-    double averageEncounters =
-        context.select((FileProvider state) => state.switch1AverageEncounters);
     int currentEncounters =
-        context.select((FileProvider state) => state.switch1Encounters);
-    String switch1GifNumber = context.select(
-      (FileProvider state) => state.streamData?.switch1GifNumber ?? '1',
-    );
-    String shinyCounts = context.select(
-      (FileProvider state) => state.shinyCounts,
-    );
+        context.select((FileProvider e) => e.switch1CurrentEncounters);
+    String shinyCounts =
+        context.select((FileProvider e) => e.switch1ShinyCounts);
+    String switch1GifNumber =
+        context.select((FileProvider e) => e.switch1GifNumber);
+    int totalShinies =
+        context.select((FileProvider e) => e.switch1TotalShinies);
+    int totalEncounters = context.select((FileProvider e) => e.switch1TotalEnc);
+    double averageEncounters =
+        context.select((FileProvider e) => e.switch1AverageEnc);
+    int? startTime = context.select((FileProvider e) => e.switch1StartTime);
 
-    int? startTime = context.select(
-      (FileProvider state) =>
-          state.switch1CurrPokemon.startedHuntTimestamp?.toInt(),
-    );
-    int? endTime = context.select(
-      (FileProvider state) => state.switch1CurrPokemon.caughtTimestamp?.toInt(),
-    );
-
+    print('Rebuilding');
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -86,7 +77,7 @@ class LeftBlock1 extends StatelessWidget {
                   ),
                   EncounterTimer(
                     startTime: startTime,
-                    endTime: endTime,
+                    endTime: null,
                   ),
                 ],
               ),

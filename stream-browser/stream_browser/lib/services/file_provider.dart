@@ -5,7 +5,7 @@ import 'package:socket_io_client/socket_io_client.dart' as io;
 
 import '../models/pokemon.model.dart';
 import '../models/stream_data.model.dart';
-import '../models/switch_data.model.dart';
+import '../models/pokemon_data.model.dart';
 
 class FileProvider with ChangeNotifier {
   FileProvider() {
@@ -15,23 +15,14 @@ class FileProvider with ChangeNotifier {
 
   io.Socket? socket;
 
-  SwitchData? switch1Data;
-  SwitchData? switch2Data;
+  PokemonData? pokemonData;
   StreamData? streamData;
   DateTime now = DateTime.now();
   int screenIndex = 0;
 
-  final List<String> logs1 = [
-    'test',
-    'test',
-    'test',
-  ];
+  final List<String> logs1 = [];
 
-  final List<String> logs2 = [
-    'test',
-    'test',
-    'test',
-  ];
+  final List<String> logs2 = [];
 
   void addToLogs(String line, List<String> logs) {
     logs.add(line);
@@ -61,27 +52,15 @@ class FileProvider with ChangeNotifier {
     socket!.on('stream_data', (data) {
       try {
         streamData = StreamData.fromJson(data);
-        updateVariables();
         notifyListeners();
       } catch (e) {
         print('Error with data $e');
       }
     });
 
-    socket!.on('switch1_data', (data) {
+    socket!.on('pokemon_data', (data) {
       try {
-        switch1Data = SwitchData.fromJson(data);
-        calculateSwitch1Variables();
-        notifyListeners();
-      } catch (e) {
-        print('Error with data $e');
-      }
-    });
-
-    socket!.on('switch2_data', (data) {
-      try {
-        switch2Data = SwitchData.fromJson(data);
-        calculateSwitch2Variables();
+        pokemonData = PokemonData.fromJson(data);
         notifyListeners();
       } catch (e) {
         print('Error with data $e');
@@ -120,106 +99,92 @@ class FileProvider with ChangeNotifier {
     }
   }
 
-  void updateVariables() {
-    calculateSwitch1Variables();
-    calculateSwitch2Variables();
-  }
-
-  //
-  //        SWITCH 1
-  //
-  List<PokemonData> get switch1EggPokemon => (switch1Data?.pokemon ?? [])
-      .where((e) => e.encounterMethod == 'egg')
-      .toList();
-  int switch1TotalShinies = 0;
-  int switch1TotalEncounters = 0;
-  double switch1AverageEncounters = 0;
-  int switch1Encounters = 0;
-  String shinyCounts = '';
-  void calculateSwitch1Variables() {
-    switch1TotalShinies = switch1EggPokemon.fold(
-      0,
-      (previousValue, element) =>
-          previousValue + (element.catches ?? []).length,
-    );
-    switch1TotalEncounters = switch1EggPokemon.fold(
-      0,
-      (previousValue, element) => previousValue + (element.encounters ?? 0),
-    );
-
-    switch1AverageEncounters = switch1TotalEncounters / switch1TotalShinies;
-    switch1Encounters = switch1CurrPokemon.encounters ?? 0;
-
-    final shiniesCaught = switch1CurrPokemon.catches?.length ?? 0;
-    final catchTarget = streamData?.switch1Target;
-
-    if (catchTarget != null) {
-      shinyCounts = '$shiniesCaught/$catchTarget';
+  PokemonModel? getPokemonModel(String pokemonName) {
+    if (pokemonData == null) {
+      return null;
     }
 
-    notifyListeners();
-  }
-
-  //
-  //        SWITCH 2
-  //
-  int switch2LegendaryShinies = 0;
-  int switch2TotalDens = 0;
-  int currentTotalDens = 0;
-  double switch2AverageChecks = 0;
-  int switch2Encounters = 0;
-
-  PokemonData? switch2PokemonData(String pokemonName) {
-    PokemonData? pokemonData;
-
-    for (PokemonData pokemon in switch2Data?.pokemon ?? []) {
-      if (pokemon.pokemon == pokemonName) {
-        pokemonData = pokemon;
+    for (final pokemon in pokemonData!.pokemon) {
+      if (pokemonName == pokemon.name) {
+        return pokemon;
       }
     }
-    return pokemonData;
+    return null;
   }
 
-  void calculateSwitch2Variables() {
-    switch2LegendaryShinies = (switch2Data?.pokemon.length ?? 1) - 1;
-    switch2TotalDens = (switch2Data?.pokemon ?? []).fold(
-      0,
-      (previousValue, element) {
-        if (element.extraData == null ||
-            element.extraData?['total_dens'] is! int) {
-          return previousValue + 0;
-        }
+  List<PokemonModel> get switch1EggPokemon {
+    if (streamData == null || pokemonData == null) {
+      return [];
+    }
 
-        return previousValue + (element.extraData!['total_dens'] as int);
-      },
-    );
-
-    List<PokemonData> denPokemon = (switch2Data?.pokemon ?? [])
-        .where((e) => e.extraData?['total_dens'] != null)
+    return pokemonData!.pokemon
+        .where(
+          (e) =>
+              (streamData?.switch1Targets.map((e) => e.name) ?? [])
+                  .contains(e.name ?? '') ||
+              (e.catches ?? [])
+                  .any((e) => e.switchUsed == 1 && e.encounterMethod == 'egg'),
+        )
         .toList();
-
-    int totalEncounters = denPokemon.fold(
-      0,
-      (previousValue, element) => previousValue + (element.encounters ?? 0),
-    );
-
-    switch2AverageChecks = totalEncounters / denPokemon.length;
-    switch2Encounters = switch2CurrPokemon.encounters ?? 0;
-    currentTotalDens = switch2CurrPokemon.extraData?['total_dens'] ?? 0;
-    notifyListeners();
   }
 
-  PokemonData get switch1CurrPokemon =>
-      switch1Data?.pokemon.firstWhere(
-        (element) => element.pokemon == streamData?.switch1CurrentlyHunting,
-        orElse: () => PokemonData.emptyPokemon,
-      ) ??
-      PokemonData.emptyPokemon;
+  int get switch1TotalShinies =>
+      switch1EggPokemon.fold(
+        0,
+        (prev, element) => prev + (element.catches?.length ?? 0),
+      ) -
+      1;
+  int get switch1TotalEnc => switch1EggPokemon.fold(
+        0,
+        (previousValue, element) =>
+            previousValue + (element.totalEncounters ?? 0),
+      );
+  double get switch1AverageEnc => switch1TotalEnc / switch1TotalShinies;
 
-  PokemonData get switch2CurrPokemon =>
-      switch2Data?.pokemon.firstWhere(
-        (element) => element.pokemon == streamData?.switch2CurrentlyHunting,
-        orElse: () => PokemonData.emptyPokemon,
-      ) ??
-      PokemonData.emptyPokemon;
+  int? get switch1StartTime {
+    return switch1PokemonData.firstOrNull?.startedHuntTimestamp?.toInt();
+  }
+
+  String get switch1GifNumber =>
+      streamData?.switch1Targets.firstOrNull?.dexNum ?? '1';
+
+  int get switch1CurrentEncounters =>
+      switch1PokemonData.firstOrNull?.totalEncounters ?? 0;
+
+  String get switch1ShinyCounts {
+    int? catches = switch1PokemonData.firstOrNull?.catches?.length;
+    int? target = streamData?.switch1Targets.firstOrNull?.target;
+
+    if (catches == null || target == null) {
+      return '';
+    }
+
+    return '$catches/$target';
+  }
+
+  List<PokemonModel> get switch1PokemonData {
+    if (streamData == null || pokemonData == null) {
+      return [];
+    }
+
+    return pokemonData!.pokemon
+        .where(
+          (e) => (streamData?.switch1Targets.map((e) => e.name) ?? [])
+              .contains(e.name ?? ''),
+        )
+        .toList();
+  }
+
+  List<PokemonModel> get switch2PokemonData {
+    if (streamData == null || pokemonData == null) {
+      return [];
+    }
+
+    return pokemonData!.pokemon
+        .where(
+          (e) => (streamData?.switch2Targets.map((e) => e.name) ?? [])
+              .contains(e.name ?? ''),
+        )
+        .toList();
+  }
 }

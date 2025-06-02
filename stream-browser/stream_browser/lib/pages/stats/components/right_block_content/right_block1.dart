@@ -21,14 +21,14 @@ class RightBlock1 extends StatelessWidget {
       0,
       (previousValue, element) =>
           previousValue +
-          (fileProvider.switch2PokemonData(element.name)?.encounters ?? 0),
+          (fileProvider.getPokemonModel(element.name)?.totalEncounters ?? 0),
     );
 
     final phaseShinies = (fileProvider.streamData?.switch2Targets ?? []).fold(
       0,
       (previousValue, element) =>
           previousValue +
-          (fileProvider.switch2PokemonData(element.name)?.catches?.length ?? 0),
+          (fileProvider.getPokemonModel(element.name)?.catches?.length ?? 0),
     );
 
     return Column(
@@ -51,10 +51,10 @@ class RightBlock1 extends StatelessWidget {
                     in fileProvider.streamData?.switch2Targets ?? [])
                   Builder(
                     builder: (context) {
-                      PokemonData? pokemonData =
-                          fileProvider.switch2PokemonData(target.name);
+                      PokemonModel? pokemonModel =
+                          fileProvider.getPokemonModel(target.name);
 
-                      if (pokemonData == null) {
+                      if (pokemonModel == null) {
                         return Container();
                       }
 
@@ -73,11 +73,11 @@ class RightBlock1 extends StatelessWidget {
                               dexNum: target.dexNum,
                             ),
                             Text(
-                              '${pokemonData.encounters}',
+                              '${pokemonModel.totalEncounters}',
                               style: AppTextStyles.pokePixel(fontSize: 40),
                             ),
                             Text(
-                              '${pokemonData.catches?.length ?? 0}/${target.target} ${target.mainTarget ? "(Target)" : ''}',
+                              '${pokemonModel.catches?.length ?? 0}/${target.target} ${target.mainTarget ? "(Target)" : ''}',
                               style: AppTextStyles.pokePixel(fontSize: 24),
                             ),
                           ],
