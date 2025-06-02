@@ -20,7 +20,7 @@ enum ERoute {
 
 final GoRouter router = GoRouter(
   navigatorKey: NavKeyService.globalNavigationKey,
-  initialLocation: ERoute.controlPanel.path,
+  initialLocation: ERoute.stats.path,
   restorationScopeId: 'router',
   routes: <RouteBase>[
     GoRoute(
