@@ -2,13 +2,11 @@
 twitch/
 
 outdated/old_repo
+outdated/old_data_files
 
 # Files not needed to be tracked
 backend/*.json
-/scripts/swsh/dynamax_adventures/den_config.json
-*-counter.txt
-scripts/bdsp/egg_data.json
-scripts/swsh/encounter_data.json
+scripts/configs/
 
 
 
