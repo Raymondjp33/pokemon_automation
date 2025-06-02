@@ -16,6 +16,15 @@ import json
 
 
 
+SWITCH1_COUNTER_PATH = Path(__file__).resolve().parent.parent / 'configs' / 'switch1-counter.txt'
+SWITCH2_COUNTER_PATH = Path(__file__).resolve().parent.parent / 'configs' / 'switch2-counter.txt'
+SWITCH1_SHINY_TEXT_PATH = Path(__file__).resolve().parent.parent / 'configs' / 'switch1-shiny-text.txt'
+SWITCH2_SHINY_TEXT_PATH = Path(__file__).resolve().parent.parent / 'configs' / 'switch2-shiny-text.txt'
+STREAM_DATA_PATH = Path(__file__).resolve().parent.parent.parent / 'backend' / 'stream_data.json'
+
+DB_FILE = Path(__file__).resolve().parent.parent.parent / 'backend' / 'my_pokemon.db'
+REDIS_CHANNEL = "update_data"
+
 SWITCH1_SERIAL = '/dev/tty.usbmodem1201'
 SWITCH2_SERIAL = '/dev/tty.usbserial-110'
 
