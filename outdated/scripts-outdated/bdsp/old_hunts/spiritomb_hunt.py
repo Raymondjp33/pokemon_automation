@@ -112,7 +112,7 @@ def increment_counter(frame: numpy.ndarray, delay: float, file_path="spiritomb-c
         file1.write(str(count))
         file2.write(log_data + '\n')
     
-    cv2.imwrite(f"/Volumes/Untitled/poke screenshots/spiritomb - {count}.png", frame)
+    cv2.imwrite(f"/Volumes/DexDrive/poke screenshots/spiritomb - {count}.png", frame)
     
 def connect_and_go_to_game(ser: serial.Serial):
     _press(ser, 'H', sleep_time=1)

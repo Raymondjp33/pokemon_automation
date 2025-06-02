@@ -185,7 +185,7 @@ def increment_counter(frame: numpy.ndarray, delay: float, file_path="cress-count
         file1.write(str(count))
         file2.write(log_data + '\n')
     
-    cv2.imwrite(f"/Volumes/Untitled/poke screenshots/{count}.png", frame)
+    cv2.imwrite(f"/Volumes/DexDrive/poke screenshots/{count}.png", frame)
 
 def get_roamer_on_route(ser: serial.Serial, vid: cv2.VideoCapture,):
          

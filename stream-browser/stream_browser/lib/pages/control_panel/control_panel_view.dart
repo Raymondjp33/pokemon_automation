@@ -49,15 +49,6 @@ class ControlPanelView extends StatelessWidget {
                         ),
                       ],
                     ),
-                    GestureDetector(
-                      onTap: () => fileProvider.emitProcess(),
-                      child: Container(
-                        width: 100,
-                        height: 50,
-                        color: Colors.grey,
-                        child: Center(child: Text('press')),
-                      ),
-                    ),
                   ],
                 ),
               ],

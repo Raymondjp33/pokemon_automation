@@ -212,7 +212,7 @@ def increment_counter(pokemon_name, log_frame=None):
         if len(catches) >= stream_data["switch2_target"]:
             end_program = True
 
-        cv2.imwrite(f"/Volumes/Untitled/shield/{pokemon_name}-{int(time.time() * 1000)}.png", log_frame)
+        cv2.imwrite(f"/Volumes/DexDrive/shield/{pokemon_name}-{int(time.time() * 1000)}.png", log_frame)
     else:
         current_pokemon["encounters"] = current_pokemon["encounters"] + 1
         with counter_path.open("w") as file1:

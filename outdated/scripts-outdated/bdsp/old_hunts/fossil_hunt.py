@@ -186,7 +186,7 @@ def increment_counter(frame: numpy.ndarray,current_color, file_path="fossil-coun
         file1.write(str(count))
         file2.write(log_data + '\n')
     
-    cv2.imwrite(f"/Volumes/Untitled/poke screenshots/{count}.png", frame)
+    cv2.imwrite(f"/Volumes/DexDrive/poke screenshots/{count}.png", frame)
 
 def get_outside(ser: serial.Serial):
     print('Going outside')

@@ -24,7 +24,7 @@ def main() -> int:
             break
 
         frame = getframe(vid)
-        cv2.imwrite(f"/Volumes/Untitled/Dataset Incoming/{uuid.uuid4()}.png", frame)  
+        cv2.imwrite(f"/Volumes/DexDrive/Dataset Incoming/{uuid.uuid4()}.png", frame)  
         print("Screenshot saved!")
     return 0
 

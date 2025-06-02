@@ -78,7 +78,7 @@ def increment_counter(pokemon_name, log_frame=None):
             )
         )
 
-        cv2.imwrite(f"/Volumes/Untitled/shield/{pokemon_name}-{int(time.time() * 1000)}.png", log_frame)
+        cv2.imwrite(f"/Volumes/DexDrive/shield/{pokemon_name}-{int(time.time() * 1000)}.png", log_frame)
     else:
         cursor.execute("""
             UPDATE pokemon

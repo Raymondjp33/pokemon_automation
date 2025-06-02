@@ -211,7 +211,7 @@ def increment_counter(file_prefix, frames=None, caught_legend=False):
     
     if frames is not None:
         for x in range(frames.__len__()):
-            cv2.imwrite(f"/Volumes/Untitled/dynamax/{file_prefix} - {count} - {x}.png", frames[x])
+            cv2.imwrite(f"/Volumes/DexDrive/dynamax/{file_prefix} - {count} - {x}.png", frames[x])
   
 def write_shiny_text():
     shiny_text_path = Path(f"shiny_text_switch2.txt")

@@ -59,7 +59,7 @@ def increment_counter(frame=None):
             )
         )
 
-        cv2.imwrite(f"/Volumes/Untitled/poke screenshots/Unown - {count}.png", frame)
+        cv2.imwrite(f"/Volumes/DexDrive/poke screenshots/Unown - {count}.png", frame)
   
     cursor.execute("""
             UPDATE pokemon

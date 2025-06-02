@@ -194,7 +194,7 @@ def increment_counter(delay: float, file_prefix, frame=None):
 
     
     if frame is not None:
-        cv2.imwrite(f"/Volumes/Untitled/poke screenshots/{file_prefix} - {count}.png", frame)
+        cv2.imwrite(f"/Volumes/DexDrive/poke screenshots/{file_prefix} - {count}.png", frame)
         current_pokemon['caught_timestamp'] = int(time.time() * 1000)
   
     with open(data_path, 'w') as data_file:

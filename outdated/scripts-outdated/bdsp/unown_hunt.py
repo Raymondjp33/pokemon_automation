@@ -193,7 +193,7 @@ def increment_counter(frame=None):
                     "caught_timestamp": int(time.time() * 1000),
                     "encounters": current_pokemon["encounters"]
                 })
-        cv2.imwrite(f"/Volumes/Untitled/poke screenshots/Unown - {count}.png", frame)
+        cv2.imwrite(f"/Volumes/DexDrive/poke screenshots/Unown - {count}.png", frame)
   
     with counter_path.open("w") as file1:
         file1.write(str(count))

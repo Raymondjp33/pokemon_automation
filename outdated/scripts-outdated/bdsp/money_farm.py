@@ -188,7 +188,7 @@ def increment_counter(delay: float, file_prefix, frame=None):
             file2.write(log_data + '\n')
     
     if frame is not None:
-        cv2.imwrite(f"/Volumes/Untitled/poke screenshots/{file_prefix} - {count}.png", frame)
+        cv2.imwrite(f"/Volumes/DexDrive/poke screenshots/{file_prefix} - {count}.png", frame)
   
 def write_shiny_text():
     shiny_text_path = Path(f"shiny_text.txt")
