@@ -15,13 +15,24 @@ import functools
 from typing import Protocol
 import tesserocr
 import json
+import sqlite3
+import redis
 
 from services.common import *
 from services.config_manager import ConfigManager
 
+redis_client = redis.StrictRedis(host='localhost', port=6379, decode_responses=True)
+
+def write_shiny_text():
+    shiny_text_path = SWITCH1_SHINY_TEXT_PATH
+    with shiny_text_path.open("w") as file1:
+        file1.write("I got the target amount of\nshinies! My switch will be\noff until I'm back.")
+
 def increment_counter(caught_index=None):
-    counter_path = Path(f'switch1-counter.txt')
-    data_path = Path(__file__).resolve().parent.parent / 'backend' / 'switch1_data.json'
+    conn = sqlite3.connect(DB_FILE)
+    cursor = conn.cursor()
+
+    counter_path = Path(__file__).resolve().parent / 'configs' / 'switch1-counter.txt' 
     stream_data_path = Path(__file__).resolve().parent.parent / 'backend' / 'stream_data.json'
     
     # Read the existing count (default to 0 if file does not exist)
@@ -37,40 +48,53 @@ def increment_counter(caught_index=None):
     # Increment the counter
     count += 5
 
-    with data_path.open("r") as data_file, stream_data_path.open("r") as stream_data_file:
-        data = json.load(data_file)
+    with stream_data_path.open("r") as stream_data_file:
         stream_data = json.load(stream_data_file)
 
-    current_pokemon = data["pokemon"][0]
+    pokemon_name = stream_data['switch1_targets'][0]["name"]
+    pokemon_target = stream_data['switch1_targets'][0]["target"]
 
-    for entry in data["pokemon"]:
-        if entry["pokemon"] == stream_data['switch1_currently_hunting']:
-            current_pokemon = entry
-            break
-         
     end_program = False
     if (caught_index is not None):
-        catches = current_pokemon["catches"]
+        cursor.execute("SELECT * FROM pokemon WHERE name = ?", (pokemon_name,))
+        pokemon_row = cursor.fetchone()
+        cursor.execute("SELECT * FROM catches WHERE name = ?", (pokemon_name,))
+        catch_rows = cursor.fetchall()
+        catches = [{"caught_timestamp": ts, "encounters": enc, "encounter_method": method, "total_dens": tdens} for _, _, ts, enc, method, _, _, tdens in catch_rows]
         previous_encounters = 0
 
         for catch in catches:
             previous_encounters = previous_encounters + catch["encounters"]
-        count_difference = current_pokemon["encounters"] - previous_encounters - (4 - caught_index)
+        count_difference = pokemon_row[2] - previous_encounters - (4 - caught_index)
 
-        catches.append(  {
-                    "caught_timestamp": int(time.time() * 1000),
-                    "encounters": count_difference
-                })
+        cursor.execute(
+            "INSERT INTO catches (pokemon_id, caught_timestamp, encounters, encounter_method, switch, name, total_dens) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (
+                pokemon_row[0],
+                int(time.time() * 1000),
+                count_difference,
+                "egg",
+                1,
+                pokemon_name,
+                None
+            )
+        )
         
         if len(catches) >= stream_data["switch1_target"]:
             end_program = True
     else:
-        current_pokemon["encounters"] = entry["encounters"] + 5
-        with counter_path.open("w") as file1:
-            file1.write(str(count))
-            
-    with open(data_path, 'w') as data_file:
-        json.dump(data, data_file, indent=4)
+        cursor.execute("""
+            UPDATE pokemon
+            SET encounters_total = encounters_total + 5
+            WHERE name = ?
+        """, (pokemon_name,))
+
+    with counter_path.open("w") as file1:
+        file1.write(str(count))
+    
+    redis_client.publish(REDIS_CHANNEL, json.dumps({"update_data":True}))
+    conn.commit()
+    conn.close()
 
     return end_program
 
@@ -217,7 +241,7 @@ def check_if_shiny(vid: cv2.VideoCapture):
     return False
 
 
-config = ConfigManager(Path(__file__).resolve().parent / 'configs' / 'egg_data.json')
+config = ConfigManager(Path(__file__).resolve().parent / 'configs' / 'egg_data1.json')
 
 def main() -> int:
     ser_str = SWITCH1_SERIAL
@@ -298,7 +322,7 @@ def main() -> int:
                     press(ser, 'A', duration=1)
                     press(ser, 'w', duration=1)
                     press(ser, 'A', duration=1)
-                    # write_shiny_text()
+                    write_shiny_text()
                     return 0
 
                 end_time = time.time()

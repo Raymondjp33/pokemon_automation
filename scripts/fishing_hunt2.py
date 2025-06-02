@@ -18,18 +18,24 @@ import json
 import pytesseract
 import os
 import re
+import sqlite3
+import redis
 
 from services.common import *
 
+redis_client = redis.StrictRedis(host='localhost', port=6379, decode_responses=True)
+
 def write_shiny_text():
-    shiny_text_path = Path(f"shiny_text_switch2.txt")
+    shiny_text_path = SWITCH2_SHINY_TEXT_PATH
     with shiny_text_path.open("w") as file1:
          file1.write('I got the shiny! My switch\nwill be off until I am\nback. Make sure to come\nback when/after I catch it!')
 
 def increment_counter(pokemon_name, log_frame=None):
-    counter_path = Path(f'current-counter.txt')
-    data_path = Path(__file__).resolve().parent.parent / 'backend' / 'switch2_data.json'
-    stream_data_path = Path(__file__).resolve().parent.parent  / 'backend' / 'stream_data.json'
+    conn = sqlite3.connect(DB_FILE)
+    cursor = conn.cursor()
+
+    counter_path = SWITCH2_COUNTER_PATH
+    stream_data_path = STREAM_DATA_PATH
     
     # Read the existing count (default to 0 if file does not exist)
     if counter_path.exists():
@@ -44,40 +50,48 @@ def increment_counter(pokemon_name, log_frame=None):
     # Increment the counter
     count += 1
 
-    with data_path.open("r") as data_file, stream_data_path.open("r") as stream_data_file:
-        data = json.load(data_file)
+    with stream_data_path.open("r") as stream_data_file:
         stream_data = json.load(stream_data_file)
 
-    current_pokemon = None
-
-    for entry in data["pokemon"]:
-        if entry["pokemon"] == pokemon_name:
-            current_pokemon = entry
-            break
-         
-    end_program = False
     if (log_frame is not None):
-        catches = current_pokemon["catches"]
+        cursor.execute("SELECT * FROM pokemon WHERE name = ?", (pokemon_name,))
+        pokemon_row = cursor.fetchone()
+        cursor.execute("SELECT * FROM catches WHERE name = ?", (pokemon_name,))
+        catch_rows = cursor.fetchall()
+        catches = [{"caught_timestamp": ts, "encounters": enc, "encounter_method": method, "total_dens": tdens} for _, _, ts, enc, method, _, _, tdens in catch_rows]
+        previous_encounters = 0
 
-        catches.append(  {
-                    "caught_timestamp": int(time.time() * 1000),
-                    "encounters": current_pokemon["encounters"] + 1,
-                    "encounter_method": "fishing",
-                })
-        
-        if len(catches) >= stream_data["switch2_target"]:
-            end_program = True
+        for catch in catches:
+            previous_encounters = previous_encounters + catch["encounters"]
+        count_difference = pokemon_row[2] - previous_encounters
+
+        cursor.execute(
+            "INSERT INTO catches (pokemon_id, caught_timestamp, encounters, encounter_method, switch, name, total_dens) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (
+                pokemon_row[0],
+                int(time.time() * 1000),
+                count_difference,
+                "fishing",
+                2,
+                pokemon_name,
+                None
+            )
+        )
 
         cv2.imwrite(f"/Volumes/Untitled/shield/{pokemon_name}-{int(time.time() * 1000)}.png", log_frame)
     else:
-        current_pokemon["encounters"] = current_pokemon["encounters"] + 1
-        with counter_path.open("w") as file1:
-            file1.write(str(count))
-            
-    with open(data_path, 'w') as data_file:
-        json.dump(data, data_file, indent=4)
+        cursor.execute("""
+            UPDATE pokemon
+            SET encounters_total = encounters_total + 1
+            WHERE name = ?
+        """, (pokemon_name,))
 
-    return end_program
+    with counter_path.open("w") as file1:
+        file1.write(str(count))
+            
+    redis_client.publish(REDIS_CHANNEL, json.dumps({"update_data":True}))
+    conn.commit()
+    conn.close()
 
 def extract_encounter_text(vid: cv2.VideoCapture) -> str:
     frame = getframe(vid)
