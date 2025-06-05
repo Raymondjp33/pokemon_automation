@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import 'pages/control_panel/control_panel_state.dart';
 import 'pages/stats/stats_state.dart';
+import 'pages/three_switch/three_switch_state.dart';
 
 class NavKeyService {
   static GlobalKey<NavigatorState> globalNavigationKey =
@@ -11,6 +12,7 @@ class NavKeyService {
 
 enum ERoute {
   controlPanel(name: 'controlPanel', path: '/'),
+  threeSwitch(name: 'threeSwitch', path: '/threeSwitch'),
   stats(name: 'stats', path: '/stats');
 
   final String name;
@@ -35,6 +37,13 @@ final GoRouter router = GoRouter(
       path: ERoute.stats.path,
       builder: (BuildContext context, GoRouterState state) {
         return Stats();
+      },
+    ),
+    GoRoute(
+      name: ERoute.threeSwitch.name,
+      path: ERoute.threeSwitch.path,
+      builder: (BuildContext context, GoRouterState state) {
+        return ThreeSwitch();
       },
     ),
   ],
