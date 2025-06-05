@@ -32,10 +32,23 @@ cursor = conn.cursor()
         #     )
         # )
 
-cursor.execute(
-"INSERT INTO pokemon (name, encounters_total, started_hunt_ts) VALUES (?, ?, ?)",
-("Burmy", 0, int(time.time() * 1000))
-)
+# cursor.execute(
+# "INSERT INTO pokemon (name, encounters_total, started_hunt_ts) VALUES (?, ?, ?)",
+# ("Glameow", 0, int(time.time() * 1000))
+# )
+
+# cursor.execute(
+# "INSERT INTO catches (pokemon_id, caught_timestamp, encounters, encounter_method, switch, name, total_dens) VALUES (?, ?, ?, ?, ?, ?, ?)",
+# (
+# 74,
+# int(time.time() * 1000),
+# 318,
+# "egg",
+# 1,
+# pokemon_name,
+# None
+# )
+# )
 
 conn.commit()
 conn.close()

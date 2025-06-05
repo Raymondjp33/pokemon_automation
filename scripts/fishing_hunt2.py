@@ -128,8 +128,15 @@ def main() -> int:
             # Wait to reel
             bad_reel = False
             frame = getframe(vid)
-            while not color_near(frame[241][720], (240, 240, 240)) and timeout < 200:
+            while not color_near(frame[250][659], (245, 245, 245)) and timeout < 200:
                 # print(frame[241][720])
+                # cv2.rectangle(
+                #         frame,
+                #         (650, 210),
+                #         (730, 290),
+                #         Color(b=255, g=0, r=0),
+                #         1,
+                #     )
                 time.sleep(0.1)
                 frame = getframe(vid)
                 timeout += 1

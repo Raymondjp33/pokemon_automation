@@ -80,7 +80,7 @@ def increment_counter(caught_index=None):
             )
         )
         
-        if len(catches) >= stream_data["switch1_target"]:
+        if len(catches) - 1 >= pokemon_target:
             end_program = True
     else:
         cursor.execute("""

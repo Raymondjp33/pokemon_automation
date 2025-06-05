@@ -28,8 +28,9 @@ REDIS_CHANNEL = "update_data"
 SWITCH1_SERIAL = '/dev/tty.usbmodem1201'
 SWITCH2_SERIAL = '/dev/tty.usbserial-110'
 
-SWITCH1_VID_NUM = 1
-SWITCH2_VID_NUM = 2
+SWITCH1_VID_NUM = 2
+SWITCH2_VID_NUM = 3
+SWITCH3_VID_NUM = 0
 
 def make_vid(switch_num) -> cv2.VideoCapture:
     vid = cv2.VideoCapture(switch_num)

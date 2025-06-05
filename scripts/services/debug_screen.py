@@ -9,9 +9,9 @@ from common import Color
 from common import get_text
 from common import make_vid
 from common import Point
-from common import SWITCH1_VID_NUM, SWITCH2_VID_NUM
+from common import SWITCH1_VID_NUM, SWITCH2_VID_NUM, SWITCH3_VID_NUM
 
-SWITCH_NUM = 1
+SWITCH_NUM = SWITCH1_VID_NUM
 
 def main() -> int:
     parser = argparse.ArgumentParser()
@@ -23,7 +23,7 @@ def main() -> int:
         def getframe() -> numpy.ndarray:
             return cv2.imread(args.image)
     else:
-        vid = make_vid(SWITCH1_VID_NUM if SWITCH_NUM == 1 else SWITCH2_VID_NUM)
+        vid = make_vid(SWITCH_NUM)
 
         def getframe() -> numpy.ndarray:
             return vid.read()[1]
