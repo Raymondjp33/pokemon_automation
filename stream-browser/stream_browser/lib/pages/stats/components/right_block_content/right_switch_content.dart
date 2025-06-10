@@ -16,7 +16,7 @@ class RightSwitchContent extends StatelessWidget {
     Widget child;
     switch (screenIndex) {
       case 1:
-        child = RightBlock2(
+        child = RightBlock1(
           key: ValueKey(1),
         );
         break;
@@ -27,7 +27,7 @@ class RightSwitchContent extends StatelessWidget {
         break;
       case 0:
       default:
-        child = RightBlock1(
+        child = RightBlock2(
           key: ValueKey(0),
         );
     }

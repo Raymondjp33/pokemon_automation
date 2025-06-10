@@ -1,64 +1,64 @@
 import 'package:flutter/material.dart';
+import 'package:gif/gif.dart';
 import 'package:provider/provider.dart';
 
 import '../../../constants/app_styles.dart';
-import '../../../models/pokemon.model.dart';
-import '../../../models/target.model.dart';
 import '../../../services/file_provider.dart';
-import '../../../widgets/pokemon_gif_image.dart';
-import '../../../widgets/scrolling_widget.dart';
+import '../../../widgets/spacing.dart';
+import '../../stats/components/encounter_timer.dart';
 
 class Switch2Content extends StatelessWidget {
   const Switch2Content({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final fileProvider = context.watch<FileProvider>();
+    int currentEncounters =
+        context.select((FileProvider e) => e.switch2CurrentEncounters);
+    String shinyCounts =
+        context.select((FileProvider e) => e.switch2ShinyCounts);
+    String switch2GifNumber =
+        context.select((FileProvider e) => e.switch2GifNumber);
+    int? startTime = context.select((FileProvider e) => e.switch2StartTime);
 
-    return ScrollingWidget(
-      scrollSpeed: 30,
-      child: Row(
-        children: [
-          for (TargetModel target
-              in fileProvider.streamData?.switch2Targets ?? [])
-            Builder(
-              builder: (context) {
-                PokemonModel? pokemonModel =
-                    fileProvider.getPokemonModel(target.name);
-
-                if (pokemonModel == null) {
-                  return Container();
-                }
-
-                return Container(
-                  padding: EdgeInsets.symmetric(horizontal: 10),
-                  decoration: BoxDecoration(
-                    border: Border.symmetric(
-                      vertical: BorderSide(color: Colors.black54),
-                    ),
-                  ),
-                  child: Column(
-                    children: [
-                      PokemonGifImage(
-                        width: 90,
-                        height: 90,
-                        dexNum: target.dexNum,
-                      ),
-                      Text(
-                        '${pokemonModel.totalEncounters}',
-                        style: AppTextStyles.pokePixel(fontSize: 40),
-                      ),
-                      Text(
-                        '${pokemonModel.catches?.length ?? 0}/${target.target} ${target.mainTarget ? "(Target)" : ''}',
-                        style: AppTextStyles.pokePixel(fontSize: 24),
-                      ),
-                    ],
-                  ),
-                );
-              },
+    return Row(
+      children: [
+        Container(
+          width: 120,
+          height: 108,
+          child: Gif(
+            image: NetworkImage(
+              'https://raw.githubusercontent.com/adamsb0303/Shiny_Hunt_Tracker/master/Images/Sprites/3d/$switch2GifNumber.gif',
             ),
-        ],
-      ),
+            fit: BoxFit.contain,
+            autostart: Autostart.loop,
+          ),
+        ),
+        HorizontalSpace(10),
+        Flexible(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Row(
+                children: [
+                  Text(
+                    '$currentEncounters',
+                    style: AppTextStyles.pokePixel(fontSize: 52),
+                  ),
+                  HorizontalSpace(30),
+                  Text(
+                    shinyCounts,
+                    style: AppTextStyles.pokePixel(fontSize: 32),
+                  ),
+                ],
+              ),
+              EncounterTimer(
+                startTime: startTime,
+                endTime: null,
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

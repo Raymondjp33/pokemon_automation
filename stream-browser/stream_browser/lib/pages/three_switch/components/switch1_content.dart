@@ -24,7 +24,7 @@ class Switch1Content extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            width: 150,
+            width: 120,
             height: 108,
             child: Gif(
               image: NetworkImage(
@@ -45,14 +45,14 @@ class Switch1Content extends StatelessWidget {
                     Text(
                       '$currentEncounters',
                       style: AppTextStyles.pokePixel(
-                        fontSize: 60,
+                        fontSize: 52,
                       ),
                     ),
                     HorizontalSpace(30),
                     Text(
                       shinyCounts,
                       style: AppTextStyles.pokePixel(
-                        fontSize: 40,
+                        fontSize: 32,
                       ),
                     ),
                   ],

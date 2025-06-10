@@ -26,7 +26,6 @@ class LeftBlock1 extends StatelessWidget {
         context.select((FileProvider e) => e.switch1AverageEnc);
     int? startTime = context.select((FileProvider e) => e.switch1StartTime);
 
-    print('Rebuilding');
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
