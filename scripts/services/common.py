@@ -132,7 +132,6 @@ def wait_and_render(vid: cv2.VideoCapture, t: float) -> None:
         getframe(vid)
 
 def await_pixel(
-        ser: serial.Serial,
         vid: cv2.VideoCapture,
         *,
         x: int,
@@ -150,7 +149,6 @@ def await_pixel(
         frame = getframe(vid)
 
 def await_not_pixel(
-        ser: serial.Serial,
         vid: cv2.VideoCapture,
         *,
         x: int,
