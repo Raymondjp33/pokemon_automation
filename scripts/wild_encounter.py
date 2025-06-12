@@ -30,7 +30,7 @@ def write_shiny_text():
     with shiny_text_path.open("w") as file1:
          file1.write('I got the shiny! My switch\nwill be off until I am\nback. Make sure to come\nback when/after I catch it!')
 
-def increment_counter(pokemon_name, log_frame=None):
+def increment_counter(pokemon_name, log_frame=None, caught_shiny=False):
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
 
@@ -53,7 +53,10 @@ def increment_counter(pokemon_name, log_frame=None):
     with stream_data_path.open("r") as stream_data_file:
         stream_data = json.load(stream_data_file)
 
-    if (log_frame is not None):
+    if log_frame is not None:
+        cv2.imwrite(f"/Volumes/DexDrive/shield/{pokemon_name}-{count}.png", log_frame)
+
+    if caught_shiny:
         cursor.execute("SELECT * FROM pokemon WHERE name = ?", (pokemon_name,))
         pokemon_row = cursor.fetchone()
         cursor.execute("SELECT * FROM catches WHERE name = ?", (pokemon_name,))
@@ -78,7 +81,6 @@ def increment_counter(pokemon_name, log_frame=None):
             )
         )
 
-        cv2.imwrite(f"/Volumes/DexDrive/shield/{pokemon_name}-{int(time.time() * 1000)}.png", log_frame)
     else:
         cursor.execute("""
             UPDATE pokemon
@@ -174,7 +176,7 @@ def main() -> int:
                 press(ser, 'A', duration=1)
                 press(ser, 'w', duration=1)
                 press(ser, 'A', duration=1)
-                increment_counter(pokemon_name=pokemon, log_frame=log_frame)
+                increment_counter(pokemon_name=pokemon, log_frame=log_frame, caught_shiny=True)
                 write_shiny_text()
                 return 0
 
