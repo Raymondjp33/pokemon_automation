@@ -18,7 +18,7 @@ class FileProvider with ChangeNotifier {
   PokemonData? pokemonData;
   StreamData? streamData;
   DateTime now = DateTime.now();
-  int screenIndex = 0;
+  int get rightScreenIndex => streamData?.switch2Content ?? 0;
 
   final List<String> logs1 = [];
 
@@ -93,11 +93,7 @@ class FileProvider with ChangeNotifier {
     });
   }
 
-  void handleChangeScreenIndex() {
-    if (++screenIndex > 2) {
-      screenIndex = 0;
-    }
-  }
+  void handleChangeScreenIndex() {}
 
   PokemonModel? getPokemonModel(String pokemonName) {
     if (pokemonData == null) {
@@ -209,6 +205,22 @@ class FileProvider with ChangeNotifier {
         .toList();
   }
 
+  List<PokemonModel> get switch2EggPokemon {
+    if (streamData == null || pokemonData == null) {
+      return [];
+    }
+
+    return pokemonData!.pokemon
+        .where(
+          (e) =>
+              (streamData?.switch2Targets.map((e) => e.name) ?? [])
+                  .contains(e.name ?? '') ||
+              (e.catches ?? [])
+                  .any((e) => e.switchUsed == 2 && e.encounterMethod == 'egg'),
+        )
+        .toList();
+  }
+
   int get switch2TotalEnc => switch2WildPokemon.fold(
         0,
         (previousValue, element) =>
@@ -232,6 +244,21 @@ class FileProvider with ChangeNotifier {
 
   int get switch2CurrentEncounters =>
       switch2PokemonData.firstOrNull?.totalEncounters ?? 0;
+
+  int get switch2TotalEggs => switch2EggPokemon.fold(
+        0,
+        (previousValue, element) =>
+            previousValue + (element.totalEncounters ?? 0),
+      );
+
+  int get switch2TotalEggShinies => switch2EggPokemon.fold(
+        0,
+        (prev, element) => prev + (element.catches?.length ?? 0),
+      );
+
+  double get switch2AverageEggs =>
+      switch2TotalEggs /
+      (switch2TotalEggShinies == 0 ? 1 : switch2TotalEggShinies);
 
   String get switch2ShinyCounts {
     int? catches = switch2PokemonData.firstOrNull?.catches?.length;

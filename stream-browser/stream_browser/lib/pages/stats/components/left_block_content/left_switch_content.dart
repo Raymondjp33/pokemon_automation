@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
-import '../../../../services/file_provider.dart';
 import 'left_block1.dart';
 import 'left_block2.dart';
 import 'left_block3.dart';
@@ -11,7 +9,7 @@ class LeftSwitchContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    int screenIndex = context.select((FileProvider state) => state.screenIndex);
+    int screenIndex = 0;
 
     Widget child;
     switch (screenIndex) {

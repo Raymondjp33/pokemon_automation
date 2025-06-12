@@ -13,6 +13,11 @@ class StreamData {
   @JsonKey(name: 'switch2_targets')
   List<TargetModel> switch2Targets;
 
+  @JsonKey(name: 'left_content')
+  int? switch1Content;
+  @JsonKey(name: 'right_content')
+  int? switch2Content;
+
   StreamData({
     required this.away,
     this.switch1Targets = const [],

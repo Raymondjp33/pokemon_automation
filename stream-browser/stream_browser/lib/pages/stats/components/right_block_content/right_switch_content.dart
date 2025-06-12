@@ -11,7 +11,8 @@ class RightSwitchContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    int screenIndex = context.select((FileProvider state) => state.screenIndex);
+    int screenIndex =
+        context.select((FileProvider state) => state.rightScreenIndex);
 
     Widget child;
     switch (screenIndex) {
@@ -21,13 +22,13 @@ class RightSwitchContent extends StatelessWidget {
         );
         break;
       case 2:
-        child = RightBlock3(
+        child = RightBlock2(
           key: ValueKey(2),
         );
         break;
       case 0:
       default:
-        child = RightBlock2(
+        child = RightBlock3(
           key: ValueKey(0),
         );
     }

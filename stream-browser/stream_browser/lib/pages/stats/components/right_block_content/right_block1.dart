@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:gif/gif.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../constants/app_styles.dart';
-import '../../../../models/pokemon.model.dart';
-import '../../../../models/target.model.dart';
 import '../../../../services/file_provider.dart';
-import '../../../../widgets/pokemon_gif_image.dart';
-import '../../../../widgets/scrolling_widget.dart';
+import '../../../../widgets/spacing.dart';
+import '../encounter_timer.dart';
 import '../line_item.dart';
 
 class RightBlock1 extends StatelessWidget {
@@ -14,22 +13,19 @@ class RightBlock1 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fileProvider = context.watch<FileProvider>();
+    final totalEggs = context.select((FileProvider e) => e.switch2TotalEggs);
+    final totalEggShinies =
+        context.select((FileProvider e) => e.switch2TotalEggShinies);
+    final averageEggs =
+        context.select((FileProvider e) => e.switch2AverageEggs);
 
-    final phaseEncounters =
-        (fileProvider.streamData?.switch2Targets ?? []).fold(
-      0,
-      (previousValue, element) =>
-          previousValue +
-          (fileProvider.getPokemonModel(element.name)?.totalEncounters ?? 0),
-    );
-
-    final phaseShinies = (fileProvider.streamData?.switch2Targets ?? []).fold(
-      0,
-      (previousValue, element) =>
-          previousValue +
-          (fileProvider.getPokemonModel(element.name)?.catches?.length ?? 0),
-    );
+    final switch2GifNumber =
+        context.select((FileProvider e) => e.switch2GifNumber);
+    final currentEnc =
+        context.select((FileProvider e) => e.switch2CurrentEncounters);
+    final shinyCounts =
+        context.select((FileProvider e) => e.switch2ShinyCounts);
+    final startTime = context.select((FileProvider e) => e.switch2StartTime);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
@@ -38,56 +34,52 @@ class RightBlock1 extends StatelessWidget {
           'Shield',
           style: AppTextStyles.minecraftTen(fontSize: 36),
         ),
-        LineItem(leftText: 'Odds (Shiny charm)', rightText: '1/1365'),
-        LineItem(leftText: 'Phase encounters', rightText: '$phaseEncounters'),
-        LineItem(leftText: 'Phase shinies', rightText: '$phaseShinies'),
-        Container(
-          height: 175,
-          child: ScrollingWidget(
-            scrollSpeed: 30,
-            child: Row(
-              children: [
-                for (TargetModel target
-                    in fileProvider.streamData?.switch2Targets ?? [])
-                  Builder(
-                    builder: (context) {
-                      PokemonModel? pokemonModel =
-                          fileProvider.getPokemonModel(target.name);
-
-                      if (pokemonModel == null) {
-                        return Container();
-                      }
-
-                      return Container(
-                        padding: EdgeInsets.symmetric(horizontal: 10),
-                        decoration: BoxDecoration(
-                          border: Border.symmetric(
-                            vertical: BorderSide(color: Colors.black54),
-                          ),
-                        ),
-                        child: Column(
-                          children: [
-                            PokemonGifImage(
-                              width: 100,
-                              height: 100,
-                              dexNum: target.dexNum,
-                            ),
-                            Text(
-                              '${pokemonModel.totalEncounters}',
-                              style: AppTextStyles.pokePixel(fontSize: 40),
-                            ),
-                            Text(
-                              '${pokemonModel.catches?.length ?? 0}/${target.target} ${target.mainTarget ? "(Target)" : ''}',
-                              style: AppTextStyles.pokePixel(fontSize: 24),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-              ],
+        LineItem(leftText: 'Odds (Shiny charm, Masuda)', rightText: '1/512'),
+        LineItem(leftText: 'Total egg shinies', rightText: '$totalEggShinies'),
+        LineItem(leftText: 'Total eggs hatched', rightText: '$totalEggs'),
+        LineItem(leftText: 'Average eggs hatched', rightText: '$averageEggs'),
+        Spacer(),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 150,
+              height: 108,
+              child: Gif(
+                image: NetworkImage(
+                  'https://raw.githubusercontent.com/adamsb0303/Shiny_Hunt_Tracker/master/Images/Sprites/3d/$switch2GifNumber.gif',
+                ),
+                fit: BoxFit.contain,
+                autostart: Autostart.loop,
+              ),
             ),
-          ),
+            HorizontalSpace(10),
+            Flexible(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        '$currentEnc',
+                        style: AppTextStyles.pokePixel(fontSize: 60),
+                      ),
+                      HorizontalSpace(30),
+                      Text(
+                        shinyCounts,
+                        style: AppTextStyles.pokePixel(fontSize: 40),
+                      ),
+                    ],
+                  ),
+                  EncounterTimer(
+                    startTime: startTime,
+                    endTime: null,
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ],
     );
