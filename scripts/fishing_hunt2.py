@@ -28,7 +28,7 @@ redis_client = redis.StrictRedis(host='localhost', port=6379, decode_responses=T
 def write_shiny_text():
     shiny_text_path = SWITCH2_SHINY_TEXT_PATH
     with shiny_text_path.open("w") as file1:
-         file1.write('I got the shiny! My switch\nwill be off until I am\nback. Make sure to come\nback when/after I catch it!')
+        file1.write("I got the target amount of\nshinies! My switch will be\noff until I'm back.")
 
 def increment_counter(pokemon_name, log_frame=None):
     conn = sqlite3.connect(DB_FILE)
@@ -128,7 +128,7 @@ def main() -> int:
             # Wait to reel
             bad_reel = False
             frame = getframe(vid)
-            while not color_near(frame[250][659], (245, 245, 245)) and timeout < 200:
+            while not color_near(frame[290][639], (236, 236, 236)) and timeout < 200:
                 # print(frame[241][720])
                 # cv2.rectangle(
                 #         frame,
