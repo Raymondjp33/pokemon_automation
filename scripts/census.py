@@ -16,7 +16,7 @@ SWITCH_VID = SWITCH2_VID_NUM
 SWITCH_SERIAL = SWITCH2_SERIAL
 
 def get_pokemon_spots(box_num, vid: cv2.VideoCapture,):
-    template = cv2.imread('templates/icon.png', cv2.IMREAD_COLOR)
+    template = cv2.imread('templates/home_empty_spot.png', cv2.IMREAD_COLOR)
     threshold = 0.9
     num_cols = 6
     cell_width = 50   # Adjust to your grid cell width
