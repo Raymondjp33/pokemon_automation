@@ -156,7 +156,6 @@ def handle_encoutner_check(vid: cv2.VideoCapture, stop_event, mon_que, delay_que
     t1 = time.time()
 
     delay = t1 - t0
-    print(f'dialog delay: {delay:.3f}s')
 
     mon_que.put(pokemon)
     delay_que.put(delay)
@@ -191,6 +190,7 @@ def main() -> int:
             delay = delay_que.get()
             log_frame = frame_que.get()
 
+            print(f'dialog delay: {delay:.3f}s')
             if (delay) > 0.5:
                 print('SHINY!!!')
                 press(ser, 'C', duration=2)
