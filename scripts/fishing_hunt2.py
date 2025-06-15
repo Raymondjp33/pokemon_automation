@@ -186,13 +186,13 @@ def main() -> int:
             timeout = 0
 
             # Wait for encounter text to go away, noting delay
-            await_pixel(ser, vid, x=x_val, y=y_val, pixel=(58, 58, 58))
+            await_pixel(vid, x=x_val, y=y_val, pixel=(58, 58, 58))
             print(f'{pokemon} appeared!')
-            await_not_pixel(ser, vid, x=x_val, y=y_val, pixel=(58, 58, 58))
+            await_not_pixel(vid, x=x_val, y=y_val, pixel=(58, 58, 58))
             log_frame = getframe(vid)
             t0 = time.time()
 
-            await_pixel(ser, vid, x=x_val, y=y_val, pixel=(58, 58, 58))
+            await_pixel(vid, x=x_val, y=y_val, pixel=(58, 58, 58))
             t1 = time.time()
 
             delay = t1 - t0
