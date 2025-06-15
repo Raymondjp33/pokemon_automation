@@ -11,11 +11,13 @@ class PokemonRow extends StatelessWidget {
   const PokemonRow({
     required this.targets,
     this.pokemonGifSize = 100,
+    this.smallFont = false,
     super.key,
   });
 
   final List<TargetModel> targets;
   final double pokemonGifSize;
+  final bool smallFont;
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +47,9 @@ class PokemonRow extends StatelessWidget {
                     ),
                     Text(
                       '${pokemonModel.totalEncounters}',
-                      style: AppTextStyles.pokePixel(fontSize: 40),
+                      style: AppTextStyles.pokePixel(
+                        fontSize: smallFont ? 32 : 40,
+                      ),
                     ),
                     Text(
                       '${pokemonModel.catches?.length ?? 0}/${target.target} ${target.mainTarget ? "(Target)" : ''}',
