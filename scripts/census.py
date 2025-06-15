@@ -68,6 +68,7 @@ def get_pokemon_spots(box_num, vid: cv2.VideoCapture,):
 
     return matched_indices
 
+boxed_pokemon_path = Path(__file__).resolve().parent / 'configs' / 'boxed_pokemon.json'
 
 def main() -> int:
     ser_str = SWITCH_SERIAL
@@ -77,12 +78,15 @@ def main() -> int:
     shiny_census = True
 
     box_num = 1
- 
+
+    with open(boxed_pokemon_path, "r") as f:
+        boxed_pokemon = json.load(f)
+
     start_time = time.time()
 
     with serial.Serial(ser_str, 9600) as ser, shh(ser):
         time.sleep(1)
-        while box_num < 35:
+        while box_num <= 35:
             pokemon = get_pokemon_spots(box_num, vid)
             owned_pokemon.update(pokemon)
         
@@ -90,8 +94,12 @@ def main() -> int:
             box_num += 1
 
 
-    with open("personal_data.json", "w") as f:
-        json.dump(sorted(list(owned_pokemon)), f)
+    with open(boxed_pokemon_path, "w") as f:
+        if shiny_census:
+            boxed_pokemon['shiny'] = sorted(list(owned_pokemon))
+        else:
+            boxed_pokemon['normal'] = sorted(list(owned_pokemon))
+        json.dump(boxed_pokemon, f)
 
     end_time = time.time()
 
