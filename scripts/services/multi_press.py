@@ -4,11 +4,12 @@ import argparse
 import time
 
 import serial
+from common import *
 
 def main() -> int:
 
-    switch1 = '/dev/tty.usbmodem1201'
-    switch2 = '/dev/tty.usbserial-110'
+    switch1 = SWITCH1_SERIAL
+    switch2 = SWITCH2_SERIAL
 
     parser = argparse.ArgumentParser()
     # parser.add_argument('--serial', default=SERIAL_DEFAULT)

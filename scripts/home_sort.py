@@ -13,10 +13,12 @@ import bisect
 
 from services.common import *
 
+
+
 def get_pokemon_name(vid: cv2.VideoCapture):
     frame = getframe(vid)
     # Switch 1
-    # return get_text(frame=frame, top_left=Point(y=570, x=89), bottom_right=Point(y=607, x=221), invert=True)
+    return get_text(frame=frame, top_left=Point(y=570, x=89), bottom_right=Point(y=607, x=221), invert=True)
 
     # Switch 2
     return get_text(frame=frame, top_left=Point(y=571, x=67), bottom_right=Point(y=603, x=205), invert=True)
@@ -100,9 +102,14 @@ def move_to_box(ser: serial.Serial, from_box: Position, to_box: Position, from_o
 boxed_pokemon_path = Path(__file__).resolve().parent / 'configs' / 'boxed_pokemon.json'
 
 def main() -> int:
-    ser_str = SWITCH2_SERIAL
-    vid = make_vid(SWITCH2_VID_NUM)
-    starting_box = 158
+    parser = argparse.ArgumentParser(
+        description='')
+    parser.add_argument('--starting_box', type=int, required=True)
+    args = parser.parse_args()
+
+    ser_str = SWITCH1_SERIAL
+    vid = make_vid(SWITCH1_VID_NUM)
+    starting_box = args.starting_box
 
     pokemon_map = load_pokemon_species_ids()
 

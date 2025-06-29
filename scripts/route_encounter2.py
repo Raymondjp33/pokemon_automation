@@ -30,7 +30,7 @@ redis_client = redis.StrictRedis(host='localhost', port=6379, decode_responses=T
 def write_shiny_text():
     shiny_text_path = SWITCH2_SHINY_TEXT_PATH
     with shiny_text_path.open("w") as file1:
-        file1.write("I got the target amount of\nshinies! My switch will be\noff until I'm back.")
+        file1.write("I got a shiny! My switch\nwill be off until I can\ncome catch it!")
 
 def increment_counter(pokemon_name, log_frame=None):
     conn = sqlite3.connect(DB_FILE)
@@ -191,7 +191,7 @@ def main() -> int:
             log_frame = frame_que.get()
 
             print(f'dialog delay: {delay:.3f}s')
-            if (delay) > 0.5:
+            if (delay) > 0.6:
                 print('SHINY!!!')
                 press(ser, 'C', duration=2)
                 press(ser, 'H', duration=1)

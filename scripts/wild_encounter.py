@@ -28,7 +28,7 @@ redis_client = redis.StrictRedis(host='localhost', port=6379, decode_responses=T
 def write_shiny_text():
     shiny_text_path = SWITCH2_SHINY_TEXT_PATH
     with shiny_text_path.open("w") as file1:
-         file1.write('I got the shiny! My switch\nwill be off until I am\nback. Make sure to come\nback when/after I catch it!')
+        file1.write("I got a shiny! My switch\nwill be off until I can\ncome catch it!")
 
 def increment_counter(pokemon_name, log_frame=None, caught_shiny=False):
     conn = sqlite3.connect(DB_FILE)
@@ -109,7 +109,7 @@ def extract_pokemon_name(text):
         return match.group(1)
     return None
 
-def reset_game(vid: cv2.VideoCapture, ser: serial.Serial):
+def reset_game(ser: serial.Serial):
     press(ser, 'H', sleep_time=1.25)
     press(ser, 'X', sleep_time=1.25)
     press(ser, 'A', sleep_time=1.75)
@@ -131,10 +131,9 @@ def main() -> int:
         time.sleep(2)
         while True:
 
-            reset_game(vid, ser)
+            reset_game(ser)
 
             while timeout < 120:
-                frame = getframe(vid)
                 current_text = extract_encounter_text(vid)
                 # print(f'here and current text is {current_text}')
                 timeout += 1
@@ -150,13 +149,13 @@ def main() -> int:
             timeout = 0
 
             # Wait for encounter text to go away, noting delay
-            await_pixel(ser, vid, x=x_val, y=y_val, pixel=(58, 58, 58))
+            await_pixel(vid, x=x_val, y=y_val, pixel=(58, 58, 58))
             print(f'{pokemon} appeared!')
-            await_not_pixel(ser, vid, x=x_val, y=y_val, pixel=(58, 58, 58))
+            await_not_pixel(vid, x=x_val, y=y_val, pixel=(58, 58, 58))
             log_frame = getframe(vid)
             t0 = time.time()
 
-            await_pixel(ser, vid, x=x_val, y=y_val, pixel=(58, 58, 58))
+            await_pixel(vid, x=x_val, y=y_val, pixel=(58, 58, 58))
             t1 = time.time()
 
             delay = t1 - t0
