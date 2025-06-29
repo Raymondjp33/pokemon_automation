@@ -46,7 +46,7 @@ def increment_counter(caught_index=None):
     pokemon_name = stream_data['switch1_targets'][0]["name"]
     pokemon_target = stream_data['switch1_targets'][0]["target"]
 
-    end_program = False
+    target_met = False
     if (caught_index is not None):
         cursor.execute("SELECT * FROM pokemon WHERE name = ?", (pokemon_name,))
         pokemon_row = cursor.fetchone()
@@ -73,7 +73,7 @@ def increment_counter(caught_index=None):
         )
         
         if len(catches) + 1 >= pokemon_target:
-            end_program = True
+            target_met = True
     else:
         cursor.execute("""
             UPDATE pokemon
@@ -88,9 +88,9 @@ def increment_counter(caught_index=None):
     conn.commit()
     conn.close()
 
-    return end_program
+    return target_met
 
-def handle_fetch(ser: serial.Serial, vid: cv2.VideoCapture,):
+def handle_fetch(ser: serial.Serial, vid: cv2.VideoCapture, refuse_egg = False):
     press(ser, 's', duration=0.75, sleep_time=0.2)
     press(ser, 'a', duration=0.75, sleep_time=0.2)
     press(ser, 'd', duration=0.65, sleep_time=0.2)
@@ -106,20 +106,23 @@ def handle_fetch(ser: serial.Serial, vid: cv2.VideoCapture,):
         handle_hatch(ser, vid)
         return
     
-    handle_return_from_fetch(ser, vid)
+    handle_return_from_fetch(ser, vid, refuse_egg=refuse_egg)
 
-def handle_return_from_fetch(ser: serial.Serial, vid: cv2.VideoCapture,):
+def handle_return_from_fetch(ser: serial.Serial, vid: cv2.VideoCapture, refuse_egg = False):
     frame = getframe(vid)
     current_text = get_text(frame=frame, top_left=Point(y=586, x=472), bottom_right=Point(y=635, x=612), invert=True)
     
     if current_text == 'Good to':
         print('Good to see you!')
         press(ser, 'A', count=3, sleep_time=1)
-    elif current_text == 'We were':
+    elif current_text == 'We were' and not refuse_egg:
         fetched_eggs = config.get('fetched_eggs')
         config.update({'fetched_eggs': fetched_eggs + 1})
         print(f'We were! Fetching egg {fetched_eggs}')
-        press(ser, 'A', count=17, sleep_time=0.4)
+        press(ser, 'A' , count=17, sleep_time=0.4)
+    elif current_text == 'We were' and refuse_egg:
+        print('Refusing egg')
+        press(ser, 'B' , count=8, sleep_time=1.5)
     else:
         return
 
@@ -155,14 +158,14 @@ def handle_process_eggs(ser: serial.Serial, vid: cv2.VideoCapture,):
 
     line_count = 5
 
-    end_program = False
+    target_met = False
     # Check for any shiny
     for x in range(5):
         press(ser, 's', sleep_time=.75)
         is_shiny = check_if_shiny(vid)
         if (is_shiny):
             print(f'We have a shiny at index {x}!')
-            end_program = increment_counter(caught_index=x)
+            target_met = increment_counter(caught_index=x)
             line_count = line_count - 1
             # Pick shiny up 
             print('Picking shiny up')
@@ -216,7 +219,7 @@ def handle_process_eggs(ser: serial.Serial, vid: cv2.VideoCapture,):
     press(ser, 's', duration=1)
     press(ser, 'a', duration=1)
 
-    return end_program
+    return target_met
 
 def check_if_shiny(vid: cv2.VideoCapture):
     frame = getframe(vid)
@@ -232,6 +235,111 @@ def check_if_shiny(vid: cv2.VideoCapture):
     
     return False
 
+def handle_target_met(ser: serial.Serial, vid: cv2.VideoCapture,):
+
+    next_pokemon = config.get('next_pokemon', default=[])
+    if len(next_pokemon) == 0:
+        print('No new target, aborting!')
+        return True
+    
+    new_target = next_pokemon[0]
+
+    # Get rid of last egg so that new pokemon can be given
+    handle_fetch(ser, vid, refuse_egg=True)
+
+    # Get into the nursery and talk to lady
+    press(ser, 'd', duration=0.45)
+    press(ser, 'w', duration=1)
+    time.sleep(3.5)
+    press(ser, 'w', duration=1, sleep_time=0.5)
+    press(ser, 'A', sleep_time=1.5)
+
+    frame = getframe(vid)
+    current_text = get_text(frame=frame, top_left=Point(y=585, x=733), bottom_right=Point(y=637, x=907), invert=True)
+    if current_text != 'Now, about':
+        print('Unknown location, aborting!')
+        return True
+    
+    # Take back pokemon
+    press(ser, 'A', count=3, sleep_time=0.7)
+    press(ser, 's', sleep_time=0.7)
+    press(ser, 'A', sleep_time=1)
+    press(ser, 'B', count=11, sleep_time=0.5)
+
+    # Put old pokemon in correct box spot
+    press(ser, 'X', sleep_time=1.5)
+    press(ser, 'A', sleep_time=1.5)
+    press(ser, 'R', sleep_time=2)
+    press(ser, 'A', count=2, sleep_time=1)
+    press(ser, 'R', count=2, sleep_time=2)
+
+    move_location = get_location(config.get('take_back_slot'))
+    config.update({'take_back_slot': config.get('take_back_slot') + 1})
+    make_move(ser, from_pos=0, to_pos=move_location.row, move_vertical=True)
+    make_move(ser, from_pos=0, to_pos=move_location.col, move_vertical=False)
+
+    press(ser, 'A', sleep_time=2)
+    press(ser, 'B', count=3, sleep_time=3)
+    time.sleep(1)
+
+    # Give new pokemon
+    print('Giving new pokemon')
+    press(ser, 'A', count=5, sleep_time=1)
+    time.sleep(2)
+
+    move_location = get_location(new_target['slot'])
+    make_move(ser, from_pos=0, to_pos=move_location.row, move_vertical=True)
+    make_move(ser, from_pos=0, to_pos=move_location.col, move_vertical=False)
+
+    press(ser, 'A', count=5, sleep_time=1.5)
+    press(ser, 'B', count=3, sleep_time=0.5)
+
+    press(ser, 'X', sleep_time=1.5)
+    press(ser, 'A', sleep_time=1.5)
+    press(ser, 'R', sleep_time=2)
+    press(ser, 'L', count=2, sleep_time=2)
+    press(ser, 'B', count=3, sleep_time=3)
+
+    # Leave nursery, get on bike
+    press(ser, 's', duration=1)
+    time.sleep(4)
+    press(ser, '+', sleep_time=1)
+    press(ser, 'd', sleep_time=1)
+    press(ser, 's', duration=1)
+    press(ser, 'a', duration=1)
+    return False
+    
+def handle_update_target():
+    next_pokemon = config.get('next_pokemon', default=[])
+    if len(next_pokemon) == 0:
+        print('No new target, aborting!')
+        return
+    
+    new_target = next_pokemon[0]
+    next_pokemon.remove(new_target)
+
+    config.update({'next_pokemon': next_pokemon})
+
+    switch1_targets = [{ "name": new_target['name'], "target": new_target['target'], "dexNum": new_target['dexNum'] }]
+    with open(STREAM_DATA_PATH, 'r') as f:
+        data = json.load(f)
+    data['switch1_targets'] = switch1_targets
+    with open(STREAM_DATA_PATH, 'w') as f:
+        json.dump(data, f, indent=4)
+
+    conn = sqlite3.connect(DB_FILE)
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT 1 FROM pokemon WHERE name = ?", (new_target['name'],))
+    if cursor.fetchone() is None:
+        cursor.execute(
+        "INSERT INTO pokemon (name, encounters_total, started_hunt_ts) VALUES (?, ?, ?)",
+        (new_target['name'], 0, int(time.time() * 1000))
+        )
+
+    redis_client.publish(REDIS_CHANNEL, json.dumps({"update_data":True}))
+    conn.commit()
+    conn.close()
 
 config = ConfigManager(Path(__file__).resolve().parent / 'configs' / 'egg_data1.json')
 
@@ -243,39 +351,13 @@ def main() -> int:
     start_time = time.time()
     with serial.Serial(ser_str, 9600) as ser, shh(ser):
         time.sleep(1)
-        # go_to_change_grip(ser)
-        # connect_and_go_to_game(ser)
         # handle_process_eggs(ser, vid)
         # print(check_if_shiny(vid))
+        # handle_target_met(ser, vid)
         # return 0
         while True:
 
-            # press(ser, 'w', duration=0.1, write_null_byte=False)
-            # for _ in range (40):
-            #     frame = getframe(vid)
-            #     oh_text = get_text(frame=frame, top_left=Point(y=583, x=292), bottom_right=Point(y=634, x=382), invert=True) == 'Oh?'
-            #     if (oh_text):
-            #         ser.write(b'0')
-            #         handle_hatch(ser, vid)
-            #         break
-                
-            #     for x in ['a', 'q', 'w', 'e', 'd', 'c', 's', 'z', ]:
-            #     # for x in ['q', 'e', 'c', 'z',]:
-            #         press(ser, x, duration=0.06, write_null_byte=False)
-            #     press(ser, 'a', duration=0.02, write_null_byte=False)
-
-            # return 0
-            # for _ in range (14):
-            #     frame = getframe(vid)
-            #     oh_text = get_text(frame=frame, top_left=Point(y=583, x=292), bottom_right=Point(y=634, x=382), invert=True) == 'Oh?'
-            #     if (oh_text):
-            #         handle_hatch(ser, vid)
-            #         break
-            #     press(ser, 'w', duration=0.25, write_null_byte=False)
-            #     press(ser, 'd', duration=0.1, write_null_byte=False)
-            #     press(ser, 's', duration=0.35, write_null_byte=False)
-            #     press(ser, 'a', duration=0.15, write_null_byte=False)
-
+            # Handle movement while checking for egg hatch
             for _ in range (14):
                 frame = getframe(vid)
                 oh_text = get_text(frame=frame, top_left=Point(y=583, x=292), bottom_right=Point(y=634, x=382), invert=True) == 'Oh?'
@@ -287,10 +369,9 @@ def main() -> int:
                 press(ser, 'c', duration=0.25, write_null_byte=False)
                 press(ser, 'z', duration=0.15, write_null_byte=False)
 
-            # return 0
-
             handle_return_from_fetch(ser, vid)
-            # return 0
+          
+            # If we havent fetched enough, continue fetching
             if (config.get('fetched_eggs') < 5):
                 handle_fetch(ser, vid)
 
@@ -301,7 +382,20 @@ def main() -> int:
                 ser.write(b'0')
                 time.sleep(0.5)
 
-                if handle_process_eggs(ser, vid):
+                target_met = handle_process_eggs(ser, vid)
+                end_program = False
+
+                if config.get('target_updated'):
+                    handle_update_target()
+                    config.update({'target_updated': False})
+
+                if target_met:
+                    end_program = handle_target_met(ser, vid)
+
+                if target_met and not end_program:
+                    config.update({'target_updated': True})
+
+                if end_program:
                     # We have reached our target for the current pokemon
                     press(ser, 'H', duration=1)
                     press(ser, 's', duration=0.25)
