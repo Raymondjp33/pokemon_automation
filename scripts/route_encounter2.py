@@ -27,6 +27,12 @@ from services.common import *
 
 redis_client = redis.StrictRedis(host='localhost', port=6379, decode_responses=True)
 
+name_map = {
+    'Nidorana' : 'NidoranM',
+    'Nidoran' : 'NidoranF',
+    "Mime": 'MimeJr',
+}
+
 def write_shiny_text():
     shiny_text_path = SWITCH2_SHINY_TEXT_PATH
     with shiny_text_path.open("w") as file1:
@@ -36,37 +42,14 @@ def increment_counter(pokemon_name, log_frame=None):
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
 
-    counter_path = SWITCH2_COUNTER_PATH
-    stream_data_path = STREAM_DATA_PATH
-    
-    # Read the existing count (default to 0 if file does not exist)
-    if counter_path.exists():
-        with counter_path.open("r") as file:
-            try:
-                count = int(file.read().strip())
-            except ValueError:
-                count = 0
-    else:
-        count = 0
 
-    # Increment the counter
-    count += 1
-
-    with stream_data_path.open("r") as stream_data_file:
-        stream_data = json.load(stream_data_file)
-
+    cursor.execute("SELECT * FROM pokemon WHERE name = ?", (pokemon_name,))
+    pokemon_row = cursor.fetchone()
     if (log_frame is not None):
-        cursor.execute("SELECT * FROM pokemon WHERE name = ?", (pokemon_name,))
-        pokemon_row = cursor.fetchone()
-        cursor.execute("SELECT * FROM catches WHERE name = ?", (pokemon_name,))
-        catch_rows = cursor.fetchall()
-        catches = [{"caught_timestamp": ts, "encounters": enc, "encounter_method": method, "total_dens": tdens} for _, _, ts, enc, method, _, _, tdens in catch_rows]
-        previous_encounters = 0
-
-        for catch in catches:
-            previous_encounters = previous_encounters + catch["encounters"]
+        cursor.execute("SELECT SUM(encounters) FROM catches WHERE name = ?", (pokemon_name,))
+        result = cursor.fetchone()[0]
+        previous_encounters = result if result is not None else 0
         count_difference = pokemon_row[2] - previous_encounters
-
         cursor.execute(
             "INSERT INTO catches (pokemon_id, caught_timestamp, encounters, encounter_method, switch, name, total_dens) VALUES (?, ?, ?, ?, ?, ?, ?)",
             (
@@ -82,15 +65,22 @@ def increment_counter(pokemon_name, log_frame=None):
 
         cv2.imwrite(f"/Volumes/DexDrive/shield/{pokemon_name}-{int(time.time() * 1000)}.png", log_frame)
     else:
-        cursor.execute("""
-            UPDATE pokemon
-            SET encounters_total = encounters_total + 1
-            WHERE name = ?
-        """, (pokemon_name,))
+        if pokemon_row:
+            cursor.execute("""
+                UPDATE pokemon
+                SET encounters_total = encounters_total + 1
+                WHERE name = ?
+            """, (pokemon_name,))
+        else:
+            cursor.execute("""
+                INSERT INTO tempmons (name, encounters)
+                VALUES (?, 1)
+                ON CONFLICT(name) DO UPDATE SET
+                    encounters = encounters + 1
+            """, (pokemon_name,))
 
-    with counter_path.open("w") as file1:
-        file1.write(str(count))
-            
+    
+    increment_txt_counter(SWITCH2_COUNTER_PATH)
     redis_client.publish(REDIS_CHANNEL, json.dumps({"update_data":True}))
     conn.commit()
     conn.close()
@@ -110,16 +100,20 @@ def extract_pokemon_name(text):
     return None
 
 def handle_movement(ser: serial.Serial, stop_event):
-    index = 1
-    while not stop_event.is_set():
-        print("Moving")
-        if index % 3 == 0:
-            press(ser, '{')
-            press(ser, 'a', duration=0.5)
-        press(ser, 'w', duration=1)
-        press(ser, 's', duration=1)
-        index += 1
-       
+    move_up = True
+    should_exit = False
+    print('Starting to move')
+    while not should_exit:
+        press(ser, 'w' if move_up else 's', write_null_byte=False)
+        for _ in range(10):
+            if stop_event.is_set():
+                should_exit = True
+                break
+            time.sleep(0.1)
+        move_up = not move_up
+
+    press(ser, 'B')
+    print('Coming to a stop')
 
 def handle_encoutner_check(vid: cv2.VideoCapture, stop_event, mon_que, delay_que, frame_que):
     x_val = 1143
@@ -129,15 +123,19 @@ def handle_encoutner_check(vid: cv2.VideoCapture, stop_event, mon_que, delay_que
         frame = getframe(vid)
         time.sleep(0.1)
 
-    stop_event.set()
     timeout = 0
     pokemon = None
-    while timeout < 60:
+    print('About to entry while statement in encounter check!')
+    while True:
         frame = getframe(vid)
         current_text = extract_encounter_text(vid)
         # print(f'here and current text is {current_text}')
         timeout += 1
+        if (timeout > 6000):
+            print('Returning from encounter check early!')
+            return
         if 'You encountered' in current_text:
+            stop_event.set()
             time.sleep(0.1)
             current_text = extract_encounter_text(vid)
             pokemon = extract_pokemon_name(current_text)
@@ -157,6 +155,7 @@ def handle_encoutner_check(vid: cv2.VideoCapture, stop_event, mon_que, delay_que
 
     delay = t1 - t0
 
+    pokemon = name_map.get(pokemon, pokemon)
     mon_que.put(pokemon)
     delay_que.put(delay)
     frame_que.put(log_frame)
@@ -212,10 +211,13 @@ def main() -> int:
             increment_counter(pokemon_name=pokemon)
 
             frame = getframe(vid)
-            while not numpy.array_equal(frame[669][1152], (255, 255, 255)):
+            current_text = get_text(frame=frame, top_left=Point(y=650, x=1054), bottom_right=Point(y=699, x=1123), invert=True)
+            while current_text != 'Run':
+                current_text = get_text(frame=frame, top_left=Point(y=650, x=1054), bottom_right=Point(y=699, x=1123), invert=True)
                 frame = getframe(vid)
                 time.sleep(1)
             
+            print('Running')
             press(ser, 'w', sleep_time=.5)
             press(ser, 'A',  sleep_time= 6)
 
