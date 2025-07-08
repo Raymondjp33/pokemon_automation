@@ -164,6 +164,8 @@ def handle_process_eggs(ser: serial.Serial, vid: cv2.VideoCapture,):
         press(ser, 's', sleep_time=.75)
         is_shiny = check_if_shiny(vid)
         if (is_shiny):
+            open_slot = config.get('open_slot')
+            boxes_to_move = 1 + int((open_slot - 1) / 30)
             print(f'We have a shiny at index {x}!')
             target_met = increment_counter(caught_index=x)
             line_count = line_count - 1
@@ -175,8 +177,8 @@ def handle_process_eggs(ser: serial.Serial, vid: cv2.VideoCapture,):
             print('Putting in open spot')
             press(ser, 'w', count = x + 1, sleep_time=0.5)
             press(ser, 'd', sleep_time=0.5)
-            press(ser, 'R', sleep_time=2)
-            move_location = get_location(config.get('open_slot'))
+            press(ser, 'L', sleep_time=2, count=boxes_to_move)
+            move_location = get_location(open_slot)
             config.update({'open_slot': config.get('open_slot') + 1})
 
             make_move(ser, from_pos=0, to_pos=move_location.row, move_vertical=True)
@@ -188,7 +190,7 @@ def handle_process_eggs(ser: serial.Serial, vid: cv2.VideoCapture,):
             make_move(ser, from_pos=move_location.col, to_pos=0, move_vertical=False)
             press(ser, 'a', sleep_time=0.5)
             press(ser, 's', count = x, sleep_time=0.5)
-            press(ser, 'L', sleep_time=2)
+            press(ser, 'R', sleep_time=2, count=boxes_to_move)
         else:   
             print(f'Pokemon at index {x} is not shiny')
 
@@ -364,10 +366,10 @@ def main() -> int:
                 if (oh_text):
                     handle_hatch(ser, vid)
                     break
-                press(ser, 'q', duration=0.35, write_null_byte=False)
+                press(ser, 'q', duration=0.27, write_null_byte=False)
                 press(ser, 'e', duration=0.1, write_null_byte=False)
                 press(ser, 'c', duration=0.25, write_null_byte=False)
-                press(ser, 'z', duration=0.15, write_null_byte=False)
+                press(ser, 'z', duration=0.12, write_null_byte=False)
 
             handle_return_from_fetch(ser, vid)
           
