@@ -205,3 +205,20 @@ def make_move(ser: serial.Serial, from_pos, to_pos, move_vertical = False,):
         press(ser, '2' if not invert else '4', count=abs(difference), sleep_time=0.5)
     else:
         press(ser, '1' if not invert else '3', count=abs(difference), sleep_time=0.5)
+
+def increment_txt_counter(file_path, count=1):
+    # Read the existing count (default to 0 if file does not exist)
+    if file_path.exists():
+        with file_path.open("r") as file:
+            try:
+                count = int(file.read().strip())
+            except ValueError:
+                count = 0
+    else:
+        count = 0
+
+    # Increment the counter
+    count += 1
+
+    with file_path.open("w") as file1:
+        file1.write(str(count))
