@@ -34,8 +34,47 @@ cursor = conn.cursor()
 
 # cursor.execute(
 # "INSERT INTO pokemon (name, encounters_total, started_hunt_ts) VALUES (?, ?, ?)",
-# ("Glameow", 0, int(time.time() * 1000))
+# ("Elekid", 2, int(time.time() * 1000))
 # )
+
+# pokemon_name = 'Swablu'
+# cursor.execute("SELECT * FROM pokemon WHERE name = ?", (pokemon_name,))
+# pokemon_row = cursor.fetchone()
+
+# cursor.execute("SELECT SUM(encounters) FROM catches WHERE name = ?", (pokemon_name,))
+# result = cursor.fetchone()[0]
+# previous_encounters = result if result is not None else 0
+# count_difference = pokemon_row[2] - previous_encounters
+# cursor.execute(
+#         "INSERT INTO catches (pokemon_id, caught_timestamp, encounters, encounter_method, switch, name, total_dens) VALUES (?, ?, ?, ?, ?, ?, ?)",
+#         (
+#         pokemon_row[0],
+#         int(time.time() * 1000),
+#         count_difference,
+#         "route",
+#         2,
+#         pokemon_name,
+#         None
+#         )
+# )
+
+# cursor.execute("SELECT SUM(encounters) FROM catches WHERE name = ?", ('Bellsprout',))
+# result = cursor.fetchone()[0]
+# previous_encounters = result if result is not None else 0
+# print(previous_encounters)
+
+# cursor.execute("""
+# CREATE TABLE IF NOT EXISTS tempmons (
+#     id INTEGER PRIMARY KEY AUTOINCREMENT,
+#     name TEXT NOT NULL,
+#     encounters INTEGER DEFAULT 0
+# );
+# """)
+
+# cursor.execute("""
+#     CREATE UNIQUE INDEX IF NOT EXISTS idx_pokemon_name
+#     ON tempmons (name);
+# """)
 
 # cursor.execute(
 # "INSERT INTO catches (pokemon_id, caught_timestamp, encounters, encounter_method, switch, name, total_dens) VALUES (?, ?, ?, ?, ?, ?, ?)",
