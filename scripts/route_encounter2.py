@@ -1,22 +1,12 @@
 from __future__ import annotations
 
-import argparse
-import contextlib
-from pathlib import Path
 import time
-from collections.abc import Generator
-from typing import NamedTuple
 
 import cv2
-import numpy
 import serial
 
-import functools
-from typing import Protocol
-import tesserocr
 import json
 import pytesseract
-import os
 import re
 import sqlite3
 import redis
