@@ -123,7 +123,7 @@ def main() -> int:
 
             reset_game(ser)
 
-            while timeout < 120:
+            while timeout < 240:
                 current_text = extract_encounter_text(vid)
                 # print(f'here and current text is {current_text}')
                 timeout += 1
