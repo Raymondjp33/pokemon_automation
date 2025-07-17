@@ -71,7 +71,7 @@ def emit_pokemon_data():
             "name": pokemon[1],
             "encounters_total": pokemon[2],
             "started_hunt_ts": pokemon[3],
-            "catches": [{"caught_timestamp": ts, "encounters": enc, "encounter_method": method, "total_dens": tdens} for _, _, ts, enc, method, _, _, tdens in catch_rows]
+            "catches": [{"caught_timestamp": ts, "encounters": enc, "encounter_method": method, "switch": switchUsed, "total_dens": tdens} for _, _, ts, enc, method, switchUsed, _, tdens in catch_rows]
         })
 
     print(f"[WebSocket] Emitting pokemon data")
