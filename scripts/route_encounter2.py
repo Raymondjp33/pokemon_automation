@@ -21,6 +21,7 @@ name_map = {
     'Nidorana' : 'NidoranM',
     'Nidoran' : 'NidoranF',
     "Mime": 'MimeJr',
+    "Stuffull": "Stufful",
 }
 
 def write_shiny_text():
