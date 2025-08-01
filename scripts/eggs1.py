@@ -159,11 +159,13 @@ def handle_process_eggs(ser: serial.Serial, vid: cv2.VideoCapture,):
     line_count = 5
 
     target_met = False
+    any_shiny = False
     # Check for any shiny
     for x in range(5):
         press(ser, 's', sleep_time=.75)
         is_shiny = check_if_shiny(vid)
         if (is_shiny):
+            any_shiny = True
             open_slot = config.get('open_slot')
             boxes_to_move = 1 + int((open_slot - 1) / 30)
             print(f'We have a shiny at index {x}!')
@@ -216,7 +218,12 @@ def handle_process_eggs(ser: serial.Serial, vid: cv2.VideoCapture,):
     press(ser, 'A', sleep_time=.5)
 
     print('Exiting eggs')
-    press(ser, 'B', count=3, sleep_time=3)
+    if (any_shiny):
+        press(ser, 'B', count=2, sleep_time=3)
+        press(ser, 'R', sleep_time=7)
+        press(ser, 'A', sleep_time=5)
+    else:
+        press(ser, 'B', count=3, sleep_time=3)
     time.sleep(1)
     press(ser, 's', duration=1)
     press(ser, 'a', duration=1)
