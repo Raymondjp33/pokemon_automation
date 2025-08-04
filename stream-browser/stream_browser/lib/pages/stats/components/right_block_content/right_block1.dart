@@ -37,7 +37,9 @@ class RightBlock1 extends StatelessWidget {
         LineItem(leftText: 'Odds (Shiny charm, Masuda)', rightText: '1/512'),
         LineItem(leftText: 'Total egg shinies', rightText: '$totalEggShinies'),
         LineItem(leftText: 'Total eggs hatched', rightText: '$totalEggs'),
-        LineItem(leftText: 'Average eggs hatched', rightText: '$averageEggs'),
+        LineItem(
+            leftText: 'Average eggs hatched',
+            rightText: averageEggs.toStringAsFixed(2)),
         Spacer(),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
