@@ -10,6 +10,7 @@ def main() -> int:
 
     switch1 = SWITCH1_SERIAL
     switch2 = SWITCH2_SERIAL
+    switch3 = SWITCH3_SERIAL
 
     parser = argparse.ArgumentParser()
     # parser.add_argument('--serial', default=SERIAL_DEFAULT)
@@ -19,7 +20,7 @@ def main() -> int:
 
     args = parser.parse_args()
 
-    serial_input = switch1 if args.switch == 1 else switch2
+    serial_input = switch1 if args.switch == 1 else switch2 if args.switch == 2 else switch3
 
     with serial.Serial(serial_input, 9600) as ser:
         time.sleep(1)

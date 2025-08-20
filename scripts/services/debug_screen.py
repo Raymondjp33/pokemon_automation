@@ -11,7 +11,7 @@ from common import make_vid
 from common import Point
 from common import SWITCH1_VID_NUM, SWITCH2_VID_NUM, SWITCH3_VID_NUM
 
-SWITCH_NUM = SWITCH1_VID_NUM
+SWITCH_NUM = SWITCH2_VID_NUM
 
 def main() -> int:
     parser = argparse.ArgumentParser()
@@ -81,6 +81,15 @@ def main() -> int:
                 Color(b=255, g=0, r=0),
                 1,
             )
+
+        # Put rectangle on screen
+        # cv2.rectangle(
+        #     frame,
+        #     (757, 260),
+        #     (762, 265),
+        #     Color(b=0, g=0, r=255),
+        #     1,
+        # )
 
         cv2.imshow('game2', frame)
         key = cv2.waitKey(1) & 0xFF

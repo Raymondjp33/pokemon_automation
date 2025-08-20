@@ -18,7 +18,7 @@ from services.common import *
 def get_pokemon_name(vid: cv2.VideoCapture):
     frame = getframe(vid)
     # Switch 1
-    return get_text(frame=frame, top_left=Point(y=570, x=89), bottom_right=Point(y=607, x=221), invert=True)
+    # return get_text(frame=frame, top_left=Point(y=570, x=89), bottom_right=Point(y=607, x=221), invert=True)
 
     # Switch 2
     return get_text(frame=frame, top_left=Point(y=571, x=67), bottom_right=Point(y=603, x=205), invert=True)
@@ -107,8 +107,8 @@ def main() -> int:
     parser.add_argument('--starting_box', type=int, required=True)
     args = parser.parse_args()
 
-    ser_str = SWITCH1_SERIAL
-    vid = make_vid(SWITCH1_VID_NUM)
+    ser_str = SWITCH2_SERIAL
+    vid = make_vid(SWITCH2_VID_NUM)
     starting_box = args.starting_box
 
     pokemon_map = load_pokemon_species_ids()

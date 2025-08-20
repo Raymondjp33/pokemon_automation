@@ -34,7 +34,7 @@ cursor = conn.cursor()
 
 # cursor.execute(
 # "INSERT INTO pokemon (name, encounters_total, started_hunt_ts) VALUES (?, ?, ?)",
-# ("Elekid", 2, int(time.time() * 1000))
+# ("Chinchou", 0, int(time.time() * 1000))
 # )
 
 # pokemon_name = 'Swablu'

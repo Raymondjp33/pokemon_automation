@@ -25,10 +25,11 @@ STREAM_DATA_PATH = Path(__file__).resolve().parent.parent.parent / 'backend' / '
 DB_FILE = Path(__file__).resolve().parent.parent.parent / 'backend' / 'my_pokemon.db'
 REDIS_CHANNEL = "update_data"
 
-SWITCH1_SERIAL = '/dev/tty.usbmodem1301'
-SWITCH2_SERIAL = '/dev/tty.usbserial-120'
+SWITCH1_SERIAL = '/dev/tty.usbmodem14201'
+SWITCH2_SERIAL = '/dev/tty.usbserial-1430'
+SWITCH3_SERIAL = '/dev/tty.usbmodem14101'
 
-SWITCH1_VID_NUM = 1
+SWITCH1_VID_NUM = 0
 SWITCH2_VID_NUM = 2
 SWITCH3_VID_NUM = 3
 
