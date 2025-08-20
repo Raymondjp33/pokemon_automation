@@ -107,6 +107,18 @@ def extract_pokemon_name(text):
         return match.group(1)
     return None
 
+def reel_indicator_present(frame):
+    colors = [(250, 250, 250), (240, 240, 240), (235, 235, 235)]
+    frameColors = [frame[263][759], frame[263][723], frame[263][793]]
+
+    for color in colors:
+        for frameColor in frameColors:
+            if color_near(frameColor, color):
+                return True
+
+    return False
+
+
 def main() -> int:
     ser_str = SWITCH2_SERIAL
     vid = make_vid(SWITCH2_VID_NUM)
@@ -122,13 +134,12 @@ def main() -> int:
         while True:
 
             # Start fishing
-            press(ser, 'A')
-            time.sleep(2)
+            press(ser, 'A', sleep_time=0.5)
 
             # Wait to reel
             bad_reel = False
             frame = getframe(vid)
-            while not color_near(frame[290][639], (236, 236, 236)) and timeout < 200:
+            while not reel_indicator_present(frame) and timeout < 200:
                 # print(frame[241][720])
                 # cv2.rectangle(
                 #         frame,
