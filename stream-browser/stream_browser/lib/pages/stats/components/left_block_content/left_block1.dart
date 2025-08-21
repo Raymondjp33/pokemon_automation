@@ -30,7 +30,7 @@ class LeftBlock1 extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'BRILLIANT DIAMOND',
+          'SHIELD',
           style: AppTextStyles.minecraftTen(fontSize: 32),
         ),
         LineItem(leftText: 'Odds (Shiny charm, Masuda)', rightText: '1/512'),

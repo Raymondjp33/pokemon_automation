@@ -134,8 +134,7 @@ class FileProvider with ChangeNotifier {
           (e) =>
               (streamData?.switch1Targets.map((e) => e.name) ?? [])
                   .contains(e.name ?? '') ||
-              (e.catches ?? [])
-                  .any((e) => e.switchUsed == 1 && e.encounterMethod == 'egg'),
+              (e.catches ?? []).any((e) => e.encounterMethod == 'egg'),
         )
         .toList();
   }
