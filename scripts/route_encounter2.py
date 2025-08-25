@@ -93,6 +93,7 @@ def extract_pokemon_name(text):
 def handle_movement(ser: serial.Serial, stop_event):
     move_up = True
     should_exit = False
+    whistle_index = 0
     print('Starting to move')
     while not should_exit:
         press(ser, 'w' if move_up else 's', write_null_byte=False)
@@ -102,6 +103,19 @@ def handle_movement(ser: serial.Serial, stop_event):
                 break
             time.sleep(0.1)
         move_up = not move_up
+        # whistle_index += 1
+
+        # if not move_up:
+        #     press(ser, 'a' if whistle_index % 2 == 0 else 'd', write_null_byte=False)
+        #     for _ in range(5):
+        #         if stop_event.is_set():
+        #             should_exit = True
+        #             break
+        #         time.sleep(0.1)
+
+        # if  whistle_index % 5 == 0:
+        #     press(ser, '{')
+        #     time.sleep(0.75)
 
     press(ser, 'B')
     print('Coming to a stop')

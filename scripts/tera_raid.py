@@ -32,11 +32,13 @@ def get_move_index(vid: cv2.VideoCapture):
     
     return -1
 
-def handle_battle(ser: serial.Serial, vid: cv2.VideoCapture):
+def handle_battle(ser: serial.Serial, vid: cv2.VideoCapture, needsToNav = True):
     turn_index = config.get('turn_index')
     has_terrad = config.get('has_terrad')
-    
-    press(ser, 'A', sleep_time=0.75)
+
+    if needsToNav:
+        press(ser, 'A', sleep_time=0.75)
+
     move_index = get_move_index(vid)
 
     config.update({'turn_index': config.get('turn_index') + 1})
@@ -55,7 +57,7 @@ def handle_battle(ser: serial.Serial, vid: cv2.VideoCapture):
     print('Using rage fist')
     move_distance = move_index - 0
     press(ser, 'w', count=move_distance, sleep_time=0.3)
-    press(ser, 'A', count=2, sleep_time=0.3)
+    press(ser, 'A', count=2, sleep_time=0.5)
 
 def get_current_screen(vid: cv2.VideoCapture):
     frame = getframe(vid)
@@ -64,7 +66,10 @@ def get_current_screen(vid: cv2.VideoCapture):
         print('Battling!')
         return 'Battling'
     
-
+    if (get_text(frame=frame, top_left=Point(y=665, x=615), bottom_right=Point(y=693, x=707), invert=True) == 'Move Info'):
+        print('Choosing Move!')
+        return 'Choosing Move'
+   
 def main() -> int:
     ser_str = SWITCH3_SERIAL
     vid = make_vid(SWITCH3_VID_NUM)
@@ -79,10 +84,11 @@ def main() -> int:
         while True:
             screen = get_current_screen(vid)
 
-            if screen == 'Battling':
-                handle_battle(ser, vid)
+            if screen == 'Battling' or screen == 'Choosing Move':
+                handle_battle(ser, vid, needsToNav = (not screen == 'Choosing Move'))
             
             time.sleep(2)
+            # press(ser, 'B')
 
 
     vid.release()
