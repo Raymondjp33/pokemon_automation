@@ -22,6 +22,7 @@ name_map = {
     'Nidoran' : 'NidoranF',
     "Mime": 'MimeJr',
     "Stuffull": "Stufful",
+    "Spheall": "Spheal"
 }
 
 def write_shiny_text():
@@ -130,7 +131,7 @@ def handle_encoutner_check(vid: cv2.VideoCapture, stop_event, mon_que, delay_que
 
     timeout = 0
     pokemon = None
-    print('About to entry while statement in encounter check!')
+    print('About to enter while statement in encounter check!')
     while True:
         frame = getframe(vid)
         current_text = extract_encounter_text(vid)
@@ -195,7 +196,7 @@ def main() -> int:
             log_frame = frame_que.get()
 
             print(f'dialog delay: {delay:.3f}s')
-            if (delay) > 0.6:
+            if (delay) > 0.8:
                 print('SHINY!!!')
                 press(ser, 'C', duration=2)
                 press(ser, 'H', duration=1)

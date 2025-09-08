@@ -16,7 +16,7 @@ from services.config_manager import ConfigManager
 redis_client = redis.StrictRedis(host='localhost', port=6379, decode_responses=True)
 
 def write_shiny_text():
-    shiny_text_path = SWITCH2_SHINY_TEXT_PATH
+    shiny_text_path = SWITCH1_SHINY_TEXT_PATH
     with shiny_text_path.open("w") as file1:
         file1.write("I got the target amount of\nshinies! My switch will be\noff until I'm back.")
 
@@ -24,27 +24,13 @@ def increment_counter(caught_index=None):
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
 
-    counter_path = Path(__file__).resolve().parent / 'configs' / 'switch2-counter.txt' 
-    stream_data_path = Path(__file__).resolve().parent.parent / 'backend' / 'stream_data.json'
-    
-    # Read the existing count (default to 0 if file does not exist)
-    if counter_path.exists():
-        with counter_path.open("r") as file:
-            try:
-                count = int(file.read().strip())
-            except ValueError:
-                count = 0
-    else:
-        count = 0
-
-    # Increment the counter
-    count += 5
+    stream_data_path = Path(__file__).resolve().parent.parent / 'backend' / 'stream_data.json'    
 
     with stream_data_path.open("r") as stream_data_file:
         stream_data = json.load(stream_data_file)
 
-    pokemon_name = stream_data['switch2_targets'][0]["name"]
-    pokemon_target = stream_data['switch2_targets'][0]["target"]
+    pokemon_name = stream_data['switch1_targets'][0]["name"]
+    pokemon_target = stream_data['switch1_targets'][0]["target"]
 
     target_met = False
     if (caught_index is not None):
@@ -66,7 +52,7 @@ def increment_counter(caught_index=None):
                 int(time.time() * 1000),
                 count_difference,
                 "egg",
-                2,
+                1,
                 pokemon_name,
                 None
             )
@@ -81,8 +67,6 @@ def increment_counter(caught_index=None):
             WHERE name = ?
         """, (pokemon_name,))
 
-    with counter_path.open("w") as file1:
-        file1.write(str(count))
     
     redis_client.publish(REDIS_CHANNEL, json.dumps({"update_data":True}))
     conn.commit()
@@ -95,9 +79,10 @@ def oh_text_showing(vid: cv2.VideoCapture):
     return get_text(frame=frame, top_left=Point(y=590, x=260), bottom_right=Point(y=635, x=351), invert=True) == 'Oh?'
 
 def handle_fetch(ser: serial.Serial, vid: cv2.VideoCapture, refuse_egg = False):
-    press(ser, 'a', duration=0.75, sleep_time=0.2)
-    press(ser, 'w', duration=0.5, sleep_time=0.2)
-    press(ser, 'e', duration=2, sleep_time=0.2)
+    for _ in range(2 if refuse_egg else 1):
+        press(ser, 'a', duration=0.75, sleep_time=0.2)
+        press(ser, 'w', duration=0.5, sleep_time=0.2)
+        press(ser, 'e', duration=2, sleep_time=0.2)
     time.sleep(0.5)
   
 
@@ -109,7 +94,7 @@ def handle_fetch(ser: serial.Serial, vid: cv2.VideoCapture, refuse_egg = False):
         return
     
     press(ser, 'A', sleep_time=1)
-    handle_return_from_fetch(ser, vid)
+    handle_return_from_fetch(ser, vid, refuse_egg=refuse_egg)
 
 def handle_return_from_fetch(ser: serial.Serial, vid: cv2.VideoCapture, refuse_egg = False):
     frame = getframe(vid)
@@ -141,6 +126,8 @@ def handle_hatch(ser: serial.Serial, vid: cv2.VideoCapture,):
         press(ser, 'B', sleep_time=1.5)
 
     print(f'Done hatching')
+    if oh_text_showing(vid):
+        return
     press(ser, 'a', duration=0.75, sleep_time=0.2)
     press(ser, 'w', duration=0.5, sleep_time=0.2)
     press(ser, 'e', duration=2, sleep_time=0.2)
@@ -310,10 +297,10 @@ def handle_update_target():
 
     config.update({'next_pokemon': next_pokemon})
 
-    switch2_targets = [{ "name": new_target['name'], "target": new_target['target'], "dexNum": new_target['dexNum'] }]
+    switch1_targets = [{ "name": new_target['name'], "target": new_target['target'], "dexNum": new_target['dexNum'] }]
     with open(STREAM_DATA_PATH, 'r') as f:
         data = json.load(f)
-    data['switch2_targets'] = switch2_targets
+    data['switch1_targets'] = switch1_targets
     with open(STREAM_DATA_PATH, 'w') as f:
         json.dump(data, f, indent=4)
 
@@ -331,11 +318,11 @@ def handle_update_target():
     conn.commit()
     conn.close()
 
-config = ConfigManager(Path(__file__).resolve().parent / 'configs' / 'egg_data2.json')
+config = ConfigManager(Path(__file__).resolve().parent / 'configs' / 'egg_data1.json')
 
 def main() -> int:
-    ser_str = SWITCH2_SERIAL
-    vid = make_vid(SWITCH2_VID_NUM)
+    ser_str = SWITCH1_SERIAL
+    vid = make_vid(SWITCH1_VID_NUM)
 
     start_time = time.time()
     # print(get_text(frame=getframe(vid), top_left=Point(y=586, x=262), bottom_right=Point(y=641, x=495), invert=True))
@@ -351,7 +338,6 @@ def main() -> int:
         # handle_target_met(ser, vid)
         # return 
         while True:
-
             for _ in range (5):
                 if (oh_text_showing(vid)):
                     handle_hatch(ser, vid)
@@ -360,7 +346,7 @@ def main() -> int:
                 press(ser, 's', duration=0.5, write_null_byte=False)
                 press(ser, 'a', duration=0.5, write_null_byte=False)
                 press(ser, 'w', duration=0.5, write_null_byte=False)
-                press(ser, 'd', duration=0.5, write_null_byte=False)
+                press(ser, 'd', duration=0.5)
 
             handle_return_from_fetch(ser, vid)
             # return 0

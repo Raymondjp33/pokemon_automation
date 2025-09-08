@@ -12,3 +12,10 @@ https://docs.google.com/spreadsheets/d/1bvIx7Q2Lxp7efHRrUh48WkuwirNlKardwSHVz_R8
 
 Label Image
 - To run: label-studio
+
+Pokemon available to hunt with abilities
+Water - Storm Drain
+Electric - Static
+Grass - Harvest
+Fire - Flash Fire
+Steel - Magnet Pull
