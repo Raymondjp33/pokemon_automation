@@ -101,10 +101,10 @@ def extract_pokemon_name(text):
 
 def reset_game(ser: serial.Serial):
     press(ser, 'H', sleep_time=1.25)
-    press(ser, 'X', sleep_time=1.25)
+    press(ser, 'X', sleep_time=1)
     press(ser, 'A', sleep_time=1.75)
-    press(ser, 'A', count=2, sleep_time=.75)
-    time.sleep(1)
+    press(ser, 'A', count=3, sleep_time=.75)
+    time.sleep(2.5)
 
 
 def main() -> int:

@@ -121,10 +121,33 @@ def press(ser: serial.Serial, s: str, duration: float = .1, count: int = 1, slee
             time.sleep(sleep_time)
 
 def getframe(vid: cv2.VideoCapture) -> numpy.ndarray:
+    attempts = 0
+    last_exception = None
+
+    while attempts < 3:
+        try:
+            return tryGetframe(vid)
+        except Exception as e:
+            attempts += 1
+            last_exception = e
+            
+            if attempts < 3:
+                print(f"Attempt {attempts} failed: {str(e)}. Retrying in 0.05 seconds.")
+                time.sleep(0.05)
+            else:
+                print(f"All 3 attempts failed. Last error: {str(e)}")
+
+    # If we get here, all attempts failed
+    raise last_exception
+
+
+def tryGetframe(vid: cv2.VideoCapture) -> numpy.ndarray:
     _, frame = vid.read()
     # cv2.imshow('game', frame)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         raise SystemExit(0)
+    if not isinstance(frame, numpy.ndarray):
+        raise Exception("Frame is None")
     return frame
 
 def wait_and_render(vid: cv2.VideoCapture, t: float) -> None:

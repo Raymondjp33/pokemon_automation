@@ -196,7 +196,7 @@ def main() -> int:
             log_frame = frame_que.get()
 
             print(f'dialog delay: {delay:.3f}s')
-            if (delay) > 0.8:
+            if (delay) > 0.9:
                 print('SHINY!!!')
                 press(ser, 'C', duration=2)
                 press(ser, 'H', duration=1)

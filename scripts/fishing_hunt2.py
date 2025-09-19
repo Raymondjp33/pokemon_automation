@@ -109,7 +109,7 @@ def extract_pokemon_name(text):
 
 def reel_indicator_present(frame):
     colors = [(250, 250, 250), (240, 240, 240), (235, 235, 235)]
-    frameColors = [frame[263][759], frame[263][723], frame[263][793]]
+    frameColors = [frame[264][564], frame[264][524], frame[264][604]]
 
     for color in colors:
         for frameColor in frameColors:
@@ -209,7 +209,7 @@ def main() -> int:
             delay = t1 - t0
             print(f'dialog delay: {delay:.3f}s')
 
-            if (delay) > 0.5:
+            if (delay) > 0.9:
                 print('SHINY!!!')
                 press(ser, 'C', duration=2)
                 press(ser, 'H', duration=1)
