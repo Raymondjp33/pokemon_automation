@@ -22,6 +22,8 @@ def main() -> int:
 
     serial_input = switch1 if args.switch == 1 else switch2 if args.switch == 2 else switch3
 
+    isSwitch1 = args.switch == 1
+
     with serial.Serial(serial_input, 9600) as ser:
         time.sleep(1)
         while True:
@@ -38,12 +40,13 @@ def main() -> int:
 
             if user_input.lower() == 'exit':
                 break
+
             
             elif user_input:  # Filter single character keys
                 for _ in range(count):
-                    ser.write(user_input[0].encode())
+                    ser.write(f"{'' if not isSwitch1 else '9'}{user_input[0]}".encode())
                     time.sleep(duration)
-                    ser.write(b'.')
+                    ser.write(f"{'' if not isSwitch1 else '9'}{user_input[0]}".encode()+b'.')
                     time.sleep(.05)
                     print(f"Sent: {user_input[0]}")
 

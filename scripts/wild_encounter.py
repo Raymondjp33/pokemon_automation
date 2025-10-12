@@ -104,7 +104,7 @@ def reset_game(ser: serial.Serial):
     press(ser, 'X', sleep_time=1)
     press(ser, 'A', sleep_time=1.75)
     press(ser, 'A', count=3, sleep_time=.75)
-    time.sleep(2.5)
+    time.sleep(4)
 
 
 def main() -> int:

@@ -25,12 +25,12 @@ STREAM_DATA_PATH = Path(__file__).resolve().parent.parent.parent / 'backend' / '
 DB_FILE = Path(__file__).resolve().parent.parent.parent / 'backend' / 'my_pokemon.db'
 REDIS_CHANNEL = "update_data"
 
-SWITCH1_SERIAL = '/dev/tty.usbmodem14201'
-SWITCH2_SERIAL = '/dev/tty.usbserial-1430'
+SWITCH1_SERIAL = '/dev/tty.usbmodem14101'
+SWITCH2_SERIAL = '/dev/tty.usbserial-130'
 SWITCH3_SERIAL = '/dev/tty.usbmodem14101'
 
 SWITCH1_VID_NUM = 0
-SWITCH2_VID_NUM = 2
+SWITCH2_VID_NUM = 1
 SWITCH3_VID_NUM = 3
 
 def make_vid(switch_num) -> cv2.VideoCapture:
@@ -110,6 +110,15 @@ def get_text(
         crop = cv2.bitwise_not(crop)
 
     return tess_text_u8(crop, tessapi=tessapi)
+
+def press1(ser: serial.Serial, s: str, duration: float = .1, count: int = 1, sleep_time = .075, write_null_byte=True) -> None:
+    for _ in range(count):
+        # print(f'{s=} {duration=}')
+        ser.write(('9'+s).encode())
+        time.sleep(duration)
+        if (write_null_byte):
+            ser.write('9'.encode()+b'0')
+            time.sleep(sleep_time)
 
 def press(ser: serial.Serial, s: str, duration: float = .1, count: int = 1, sleep_time = .075, write_null_byte=True) -> None:
     for _ in range(count):
