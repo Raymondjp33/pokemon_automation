@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'pages/control_panel/control_panel_state.dart';
+import 'pages/one_switch/one_switch_state.dart';
 import 'pages/stats/stats_state.dart';
 import 'pages/three_switch/three_switch_state.dart';
 
@@ -13,6 +14,7 @@ class NavKeyService {
 enum ERoute {
   controlPanel(name: 'controlPanel', path: '/'),
   threeSwitch(name: 'threeSwitch', path: '/threeSwitch'),
+  oneSwitch(name: 'oneSwitch', path: '/oneSwitch'),
   stats(name: 'stats', path: '/stats');
 
   final String name;
@@ -44,6 +46,13 @@ final GoRouter router = GoRouter(
       path: ERoute.threeSwitch.path,
       builder: (BuildContext context, GoRouterState state) {
         return ThreeSwitch();
+      },
+    ),
+    GoRoute(
+      name: ERoute.oneSwitch.name,
+      path: ERoute.oneSwitch.path,
+      builder: (BuildContext context, GoRouterState state) {
+        return OneSwitch();
       },
     ),
   ],
