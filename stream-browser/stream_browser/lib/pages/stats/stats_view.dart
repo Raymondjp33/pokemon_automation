@@ -27,7 +27,7 @@ class StatsView extends StatelessWidget {
               child: Row(
                 children: [
                   Container(
-                    width: 427,
+                    width: 328,
                     height: 354,
                     padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                     decoration: const BoxDecoration(
@@ -38,13 +38,13 @@ class StatsView extends StatelessWidget {
                     child: LeftSwitchContent(),
                   ),
                   Container(
-                    width: 426,
+                    width: 624,
                     height: 354,
                     padding: EdgeInsets.symmetric(vertical: 10, horizontal: 2),
                     child: MiddleContent(),
                   ),
                   Container(
-                    width: 427,
+                    width: 328,
                     height: 354,
                     padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                     decoration: const BoxDecoration(
