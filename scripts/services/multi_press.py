@@ -32,8 +32,8 @@ def main() -> int:
 
             duration = 0.1
             count = 1
-            if (inputs.__contains__('duration')):
-                duration = float(inputs[inputs.index('duration') + 1])
+            if (inputs.__contains__('dur')):
+                duration = float(inputs[inputs.index('dur') + 1])
 
             if (inputs.__contains__('count')):
                 count = int(inputs[inputs.index('count') + 1])
@@ -44,9 +44,9 @@ def main() -> int:
             
             elif user_input:  # Filter single character keys
                 for _ in range(count):
-                    ser.write(f"{'' if not isSwitch1 else '9'}{user_input[0]}".encode())
+                    ser.write(user_input[0].encode())
                     time.sleep(duration)
-                    ser.write(f"{'' if not isSwitch1 else '9'}{user_input[0]}".encode()+b'.')
+                    ser.write(b'.')
                     time.sleep(.05)
                     print(f"Sent: {user_input[0]}")
 
