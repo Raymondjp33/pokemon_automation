@@ -2,6 +2,7 @@ from pathlib import Path
 import sqlite3
 import json
 import time
+import csv
 
 # Create (or open) the database file
 conn = sqlite3.connect("my_pokemon.db")
@@ -34,7 +35,7 @@ cursor = conn.cursor()
 
 # cursor.execute(
 # "INSERT INTO pokemon (name, encounters_total, started_hunt_ts) VALUES (?, ?, ?)",
-# ("Chinchou", 0, int(time.time() * 1000))
+# ("Mamoswine", 0, int(time.time() * 1000))
 # )
 
 # pokemon_name = 'Swablu'
@@ -64,17 +65,84 @@ cursor = conn.cursor()
 # print(previous_encounters)
 
 # cursor.execute("""
-# CREATE TABLE IF NOT EXISTS tempmons (
-#     id INTEGER PRIMARY KEY AUTOINCREMENT,
-#     name TEXT NOT NULL,
-#     encounters INTEGER DEFAULT 0
+# CREATE TABLE IF NOT EXISTS hunt_encounters (
+#         id INTEGER PRIMARY KEY AUTOINCREMENT,
+#         pokemon_id INTEGER,
+#         hunt_id INTEGER,
+#         encounters INTEGER
 # );
 # """)
 
+# res = cursor.execute("SELECT encounters, COUNT(*) FROM hunt_encounters WHERE hunt_id = ?", (1,)).fetchone()[0]
+
+# res = cursor.execute("SELECT AVG(encounters) FROM catches WHERE encounter_method = ?", ('egg',)).fetchone()[0]
+# print(res)
+
+# cursor.execute("SELECT * FROM pokemon")
+# all_pokemon = cursor.fetchall()
+
+# for pokemon in all_pokemon:
+#         cursor.execute("UPDATE temppokemon SET total_encounters = ? WHERE id = ?", (pokemon[2], pokemon[4]))
+
+        # pokemon_catches = cursor.fetchall()
+
+        # for catch in pokemon_catches:
+
+        #         if catch[4] == 'route':
+        #                 cursor.execute("UPDATE catches set encounter_method = ? WHERE id = ?", ('wild', catch[0],))
+        
+        
 # cursor.execute("""
-#     CREATE UNIQUE INDEX IF NOT EXISTS idx_pokemon_name
-#     ON tempmons (name);
-# """)
+#         ALTER TABLE hunt_encounters
+#         ADD total_dens INTEGER;
+#  """)
+
+# with open(Path(__file__).resolve().parent.parent / 'scripts' / 'configs' / 'pokemon.csv', mode='r', encoding='utf-8') as file:
+#         reader = csv.DictReader(file)
+#         for row in reader:
+#                 name = row['identifier'].strip().lower()  # Normalize name
+#                 species_id = int(row['species_id'])
+
+#                 gif_number = species_id - 1
+
+#                 if (gif_number > 801):
+#                         gif_number = gif_number + 18
+
+#                 if (gif_number > 907):
+#                         gif_number = gif_number + 14
+
+#                 print(name)
+#                 cursor.execute(
+#                 "INSERT INTO temppokemon (id, name, total_encounters, gif_number) VALUES (?, ?, ?, ?)",
+#                 (
+#                 species_id,
+#                 name,
+#                 0,
+#                 gif_number,
+#                 )
+#         )
+# cursor.execute(
+# "INSERT INTO hunts (started_hunt_ts, switch) VALUES (?, ?)",
+# (
+# 1761706800000,
+# 2,
+# )
+# )
+# print(cursor.execute("SELECT * FROM hunt_encounters WHERE hunt_id = ?", (2,)).fetchone())
+# cursor.execute(
+# "INSERT INTO hunt_encounters (pokemon_id, hunt_id, encounters, pokemon_name, switch, targets, started_hunt_ts, encounter_method, total_dens) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+# (
+# 403,
+# 2,
+# 0,
+# 'shinx',
+# 1,
+# 2,
+# int(time.time() * 1000),
+# 'egg',
+# None
+# )
+# )
 
 # cursor.execute(
 # "INSERT INTO catches (pokemon_id, caught_timestamp, encounters, encounter_method, switch, name, total_dens) VALUES (?, ?, ?, ?, ?, ?, ?)",
