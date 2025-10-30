@@ -1,29 +1,29 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-    
-        {
-            "name": "stream_browser",
-            "cwd": "stream-browser/stream_browser",
-            "request": "launch",
-            "type": "dart"
-        },
-        {
-            "name": "stream_browser (profile mode)",
-            "cwd": "stream-browser/stream_browser",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "profile"
-        },
-        {
-            "name": "stream_browser (release mode)",
-            "cwd": "stream-browser/stream_browser",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "release"
-        }
-    ]
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "stream_browser",
+      "cwd": "stream-browser/stream_browser",
+      "request": "launch",
+      "type": "dart",
+      "args": ["--no-web-experimental-hot-reload"]
+    },
+    {
+      "name": "stream_browser (profile mode)",
+      "cwd": "stream-browser/stream_browser",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "profile"
+    },
+    {
+      "name": "stream_browser (release mode)",
+      "cwd": "stream-browser/stream_browser",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "release"
+    }
+  ]
 }
