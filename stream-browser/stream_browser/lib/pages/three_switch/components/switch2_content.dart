@@ -3,6 +3,7 @@ import 'package:gif/gif.dart';
 import 'package:provider/provider.dart';
 
 import '../../../constants/app_styles.dart';
+import '../../../models/pokemon.model.dart';
 import '../../../services/file_provider.dart';
 import '../../../widgets/pokemon_row.dart';
 import '../../../widgets/scrolling_widget.dart';
@@ -14,29 +15,28 @@ class Switch2Content extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    int currentEncounters =
-        context.select((FileProvider e) => e.switch2CurrentEncounters);
-    String shinyCounts =
-        context.select((FileProvider e) => e.switch2ShinyCounts);
-    String switch2GifNumber =
-        context.select((FileProvider e) => e.switch2GifNumber);
-    int? startTime = context.select((FileProvider e) => e.switch2StartTime);
+    final List<PokemonModel>? pokemon =
+        context.select((FileProvider e) => e.switch2Pokemon);
 
-    final fileProvider = context.watch<FileProvider>();
-    final targets = fileProvider.streamData?.switch2Targets ?? [];
+    int currentEncounters = pokemon?.firstOrNull?.encounters ?? 0;
+    String shinyCounts =
+        '${pokemon?.firstOrNull?.catches?.length ?? 0}/${pokemon?.firstOrNull?.targets ?? 0}';
+    String switch2GifNumber = '${(pokemon?.firstOrNull?.pokemonId ?? 1) - 1}';
+    int? startTime = pokemon?.firstOrNull?.startedHuntTimestamp?.toInt();
+
     final screenIndex =
         context.select((FileProvider state) => state.rightScreenIndex);
 
     if (screenIndex == 0) {
       return Center(
-        child: targets.length > 3
+        child: (pokemon?.length ?? 0) > 3
             ? Container(
                 height: 175,
                 padding: EdgeInsets.symmetric(vertical: 10),
                 child: ScrollingWidget(
                   scrollSpeed: 30,
                   child: PokemonRow(
-                    targets: targets,
+                    targets: pokemon,
                     pokemonGifSize: 80,
                   ),
                 ),
@@ -44,7 +44,7 @@ class Switch2Content extends StatelessWidget {
             : Padding(
                 padding: EdgeInsets.only(top: 10),
                 child: PokemonRow(
-                  targets: targets,
+                  targets: pokemon,
                   pokemonGifSize: 80,
                 ),
               ),

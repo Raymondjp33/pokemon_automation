@@ -59,13 +59,14 @@ class OneSwitchView extends StatelessWidget {
                     ),
                   ),
                   child: Align(
-                      alignment: Alignment.center,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          RightSwitchContent(),
-                        ],
-                      )),
+                    alignment: Alignment.center,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        RightSwitchContent(),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ],

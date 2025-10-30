@@ -3,6 +3,7 @@ import 'package:gif/gif.dart';
 import 'package:provider/provider.dart';
 
 import '../../../constants/app_styles.dart';
+import '../../../models/pokemon.model.dart';
 import '../../../services/file_provider.dart';
 import '../../../widgets/spacing.dart';
 import '../../stats/components/encounter_timer.dart';
@@ -12,13 +13,14 @@ class Switch1Content extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    int currentEncounters =
-        context.select((FileProvider e) => e.switch1CurrentEncounters);
+    final PokemonModel? pokemon =
+        context.select((FileProvider e) => e.switch1Pokemon.firstOrNull);
+
+    int currentEncounters = pokemon?.encounters ?? 0;
     String shinyCounts =
-        context.select((FileProvider e) => e.switch1ShinyCounts);
-    String switch1GifNumber =
-        context.select((FileProvider e) => e.switch1GifNumber);
-    int? startTime = context.select((FileProvider e) => e.switch1StartTime);
+        '${(pokemon?.catches ?? []).length}/${pokemon?.targets ?? 0}';
+    String switch1GifNumber = '${(pokemon?.pokemonId ?? 1) - 1}';
+    int? startTime = pokemon?.startedHuntTimestamp?.toInt();
 
     return Center(
       child: Row(

@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import '../constants/app_styles.dart';
 import '../models/pokemon.model.dart';
-import '../models/target.model.dart';
-import '../services/file_provider.dart';
 import 'pokemon_gif_image.dart';
 
 class PokemonRow extends StatelessWidget {
@@ -15,27 +12,18 @@ class PokemonRow extends StatelessWidget {
     super.key,
   });
 
-  final List<TargetModel> targets;
+  final List<PokemonModel>? targets;
   final double pokemonGifSize;
   final bool smallFont;
 
   @override
   Widget build(BuildContext context) {
-    final fileProvider = context.watch<FileProvider>();
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        for (TargetModel target
-            in fileProvider.streamData?.switch2Targets ?? [])
+        for (PokemonModel pokemon in targets ?? [])
           Builder(
             builder: (context) {
-              PokemonModel? pokemonModel =
-                  fileProvider.getPokemonModel(target.name);
-
-              if (pokemonModel == null) {
-                return Container();
-              }
-
               return Container(
                 padding: EdgeInsets.symmetric(horizontal: 10),
                 child: Column(
@@ -43,16 +31,16 @@ class PokemonRow extends StatelessWidget {
                     PokemonGifImage(
                       width: pokemonGifSize,
                       height: pokemonGifSize,
-                      dexNum: target.dexNum,
+                      dexNum: '${pokemon.pokemonId - 1}',
                     ),
                     Text(
-                      '${pokemonModel.totalEncounters}',
+                      '${pokemon.encounters}',
                       style: AppTextStyles.pokePixel(
                         fontSize: smallFont ? 32 : 40,
                       ),
                     ),
                     Text(
-                      '${pokemonModel.catches?.length ?? 0}/${target.target} ${target.mainTarget ? "(Target)" : ''}',
+                      '${pokemon.catches?.length ?? 0}/${pokemon.targets}',
                       style: AppTextStyles.pokePixel(fontSize: 24),
                     ),
                   ],

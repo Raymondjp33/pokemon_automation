@@ -6,17 +6,26 @@ part 'pokemon.model.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 class PokemonModel {
-  String? name;
-  @JsonKey(name: 'encounters_total')
-  int? totalEncounters;
+  String name;
+  int targets;
+  int switchNum;
+  int encounters;
+  @JsonKey(name: 'pokemon_id')
+  int pokemonId;
+  @JsonKey(name: 'total_dens')
+  int totalDens;
   @JsonKey(name: 'started_hunt_ts')
   num? startedHuntTimestamp;
 
   List<CatchModel>? catches;
 
   PokemonModel({
-    this.name,
-    this.totalEncounters,
+    this.name = '',
+    this.targets = 1,
+    this.switchNum = 1,
+    this.pokemonId = 1,
+    this.encounters = 0,
+    this.totalDens = 0,
     this.startedHuntTimestamp,
     this.catches,
   });

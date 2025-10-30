@@ -55,27 +55,29 @@ def emit_pokemon_data():
     with open(STREAM_DATA_FILE) as stream_data_file:
         stream_data = json.load(stream_data_file)
 
-    # pokemon_names = [entry["name"] for entry in stream_data.get("switch1_targets", [])] + \
-    #     [entry["name"] for entry in stream_data.get("switch2_targets", [])]
-    # query = "SELECT * FROM pokemon WHERE name IN ({})".format(",".join(["?"] * len(pokemon_names)))
+    switch1_hunt_id = stream_data['switch1_hunt_id']
+    switch2_hunt_id = stream_data['switch2_hunt_id']
 
-    query = "SELECT * FROM pokemon"
-    cursor.execute(query)
+    cursor.execute("SELECT * FROM hunt_encounters WHERE hunt_id = ? OR hunt_id = ?", (switch1_hunt_id, switch2_hunt_id,))
     pokemon_rows = cursor.fetchall()
 
     pokemon_data = []
     for pokemon in pokemon_rows:
-        cursor.execute("SELECT * FROM catches WHERE pokemon_id = ?", (pokemon[0],))
+        cursor.execute("SELECT * FROM catches WHERE hunt_id = ? OR hunt_id = ? AND name = ?", (switch1_hunt_id, switch2_hunt_id, pokemon[4],))
         catch_rows = cursor.fetchall()
         pokemon_data.append({
-            "name": pokemon[1],
-            "encounters_total": pokemon[2],
-            "started_hunt_ts": pokemon[3],
-            "catches": [{"caught_timestamp": ts, "encounters": enc, "encounter_method": method, "switch": switchUsed, "total_dens": tdens} for _, _, ts, enc, method, switchUsed, _, tdens in catch_rows]
+            "encounters": pokemon[3],
+            "pokemon_id": pokemon[1],
+            "name": pokemon[4],
+            "targets": pokemon[6],
+            "switchNum": pokemon[5],
+            "started_hunt_ts": pokemon[7],
+            "total_dens": pokemon[9],
+            "catches": [{"caught_timestamp": ts, "encounters": enc, "encounter_method": method, "switch": switchUsed, "total_dens": tdens} for _, _, ts, enc, method, switchUsed, _, tdens, _ in catch_rows]
         })
 
     print(f"[WebSocket] Emitting pokemon data")
-    socketio.emit("pokemon_data", {"pokemon": pokemon_data})
+    socketio.emit("pokemon_data", {"pokemon": pokemon_data, "pokemonStats": get_pokemon_stats(cursor)})
 
 @app.route('/')
 def index():
@@ -105,6 +107,27 @@ def watch_file():
                 print(f"Error reading file: {e}")
         
         time.sleep(2)
+
+def get_pokemon_stats(cursor):
+    # FIX THIS TO USE HUNT_ENCOUTNERS
+    totalEggShinies = cursor.execute("SELECT COUNT(*) FROM catches WHERE encounter_method = ?", ('egg',)).fetchone()[0]
+    totalEggs = cursor.execute("SELECT SUM(encounters) FROM catches WHERE encounter_method = ?", ('egg',)).fetchone()[0]
+    averageEggs = cursor.execute("SELECT AVG(encounters) FROM catches WHERE encounter_method = ?", ('egg',)).fetchone()[0]
+    
+    totalStaticShinies = cursor.execute("SELECT COUNT(*) FROM catches WHERE encounter_method = ?", ('static',)).fetchone()[0]
+    totalStatic = cursor.execute("SELECT SUM(encounters) FROM catches WHERE encounter_method = ?", ('static',)).fetchone()[0]
+    averageStatic = cursor.execute("SELECT AVG(encounters) FROM catches WHERE encounter_method = ?", ('static',)).fetchone()[0]
+
+    totalWildShinies = cursor.execute("SELECT COUNT(*) FROM catches WHERE encounter_method = ?", ('wild',)).fetchone()[0]
+    totalWild = cursor.execute("SELECT SUM(encounters) FROM catches WHERE encounter_method = ?", ('wild',)).fetchone()[0]
+    averageWild = cursor.execute("SELECT AVG(encounters) FROM catches WHERE encounter_method = ?", ('wild',)).fetchone()[0]
+
+
+    return {
+        "totalEggShinies": totalEggShinies, "totalEggs": totalEggs, "averageEggs": averageEggs, 
+        "totalStaticShinies": totalStaticShinies, "totalStatic": totalStatic, "averageStatic": averageStatic,
+        "totalWildShinies":totalWildShinies, "totalWild": totalWild, "averageWild": averageWild,
+        }
 
 # http://0.0.0.0:5050/
 if __name__ == '__main__':

@@ -3,8 +3,11 @@ import 'package:gif/gif.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../constants/app_styles.dart';
+import '../../../../models/pokemon.model.dart';
+import '../../../../models/stats.model.dart';
 import '../../../../services/file_provider.dart';
 import '../../../../widgets/spacing.dart';
+
 import '../encounter_timer.dart';
 import '../line_item.dart';
 
@@ -13,19 +16,18 @@ class RightBlock1 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final totalEggs = context.select((FileProvider e) => e.switch2TotalEggs);
-    final totalEggShinies =
-        context.select((FileProvider e) => e.switch2TotalEggShinies);
-    final averageEggs =
-        context.select((FileProvider e) => e.switch2AverageEggs);
+    final FileProvider fileProvider = context.watch<FileProvider>();
+    final PokemonModel? pokemon = fileProvider.switch2Pokemon.firstOrNull;
+    final StatsModel? pokemonStats = fileProvider.pokemonStats;
 
-    final switch2GifNumber =
-        context.select((FileProvider e) => e.switch2GifNumber);
-    final currentEnc =
-        context.select((FileProvider e) => e.switch2CurrentEncounters);
-    final shinyCounts =
-        context.select((FileProvider e) => e.switch2ShinyCounts);
-    final startTime = context.select((FileProvider e) => e.switch2StartTime);
+    int currentEnc = pokemon?.encounters ?? 0;
+    String switch2GifNumber = '${(pokemon?.pokemonId ?? 1) - 1}';
+    String shinyCounts =
+        '${(pokemon?.catches ?? []).length}/${pokemon?.targets ?? 0}';
+    int totalShinies = pokemonStats?.totalStaticShinies ?? 0;
+    int totalEncounters = pokemonStats?.totalStatic ?? 0;
+    double averageEncounters = pokemonStats?.averageStatic ?? 0;
+    int? startTime = pokemon?.startedHuntTimestamp?.toInt();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
@@ -34,20 +36,20 @@ class RightBlock1 extends StatelessWidget {
           'Shield',
           style: AppTextStyles.minecraftTen(fontSize: 36),
         ),
-        LineItem(leftText: 'Odds (Shiny charm, Masuda)', rightText: '1/512'),
-        LineItem(leftText: 'Total egg shinies', rightText: '$totalEggShinies'),
-        LineItem(leftText: 'Total eggs hatched', rightText: '$totalEggs'),
+        LineItem(leftText: 'Odds (Static)', rightText: '1/4096'),
+        LineItem(leftText: 'Total static shinies', rightText: '$totalShinies'),
+        LineItem(leftText: 'Total static encs', rightText: '$totalEncounters'),
         LineItem(
-          leftText: 'Average eggs hatched',
-          rightText: averageEggs.toStringAsFixed(2),
+          leftText: 'Average encs',
+          rightText: averageEncounters.toStringAsFixed(2),
         ),
         Spacer(),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              width: 150,
-              height: 108,
+              width: 100,
+              height: 100,
               child: Gif(
                 image: NetworkImage(
                   'https://raw.githubusercontent.com/adamsb0303/Shiny_Hunt_Tracker/master/Images/Sprites/3d/$switch2GifNumber.gif',
