@@ -15,6 +15,15 @@ from services.common import *
 
 redis_client = redis.StrictRedis(host='localhost', port=6379, decode_responses=True)
 
+name_map = {
+    'Nidorana' : 'NidoranM',
+    'Nidoran' : 'NidoranF',
+    "Mime": 'MimeJr',
+    "Stuffull": "Stufful",
+    "Spheall": "Spheal",
+    "Registeell": "Registeel",
+}
+
 def write_shiny_text():
     shiny_text_path = SWITCH2_SHINY_TEXT_PATH
     with shiny_text_path.open("w") as file1:
@@ -104,7 +113,7 @@ def reset_game(ser: serial.Serial):
     press(ser, 'X', sleep_time=1)
     press(ser, 'A', sleep_time=1.75)
     press(ser, 'A', count=3, sleep_time=.75)
-    time.sleep(4)
+    time.sleep(6)
 
 
 def main() -> int:
@@ -132,6 +141,7 @@ def main() -> int:
                     time.sleep(0.1)
                     current_text = extract_encounter_text(vid)
                     pokemon = extract_pokemon_name(current_text)
+                    pokemon = name_map.get(pokemon, pokemon)
                     break
                 press(ser, 'A')
                 time.sleep(0.4)
