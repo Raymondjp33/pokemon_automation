@@ -22,19 +22,20 @@ class LeftBlock2 extends StatelessWidget {
     int totalEncounters = pokemonStats?.totalWild ?? 0;
     double averageEncounters = pokemonStats?.averageWild ?? 0;
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           'shield',
           style: AppTextStyles.minecraftTen(fontSize: 32),
         ),
         LineItem(leftText: 'Odds (Shiny charm)', rightText: '1/1365'),
-        LineItem(leftText: 'Total shinies', rightText: '$totalShinies'),
+        LineItem(leftText: 'Total wild shinies', rightText: '$totalShinies'),
         LineItem(
-          leftText: 'Total enc',
+          leftText: 'Total wild enc',
           rightText: '$totalEncounters',
         ),
         LineItem(
-          leftText: 'Average enc',
+          leftText: 'Average wild enc',
           rightText: averageEncounters.toStringAsFixed(2),
         ),
         Spacer(),
