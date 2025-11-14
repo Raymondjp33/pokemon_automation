@@ -63,8 +63,8 @@ def main() -> int:
             # press(ser, 'B')
 
             ## Bench
-            # press(ser, 'a', duration=1)
-            # press(ser, 'd', duration=0.5)
+            press(ser, 'd', duration=2.5)
+            press(ser, 'a', duration=2.5)
             press(ser, 's')
             press(ser, 'A', sleep_time=0.5, count=7)
             increment_reset_counter('/Users/raymondprice/Desktop/other/test_coding/pokemon_scripts/pokemon_automation/scripts/configs/bench_counter.txt')
