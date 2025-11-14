@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import '../../../constants/app_styles.dart';
 import '../../../models/pokemon.model.dart';
 import '../../../services/file_provider.dart';
-import '../../../widgets/pokemon_row.dart';
+import '../../stats/components/pokemon_display/pokemon_row.dart';
 import '../../../widgets/scrolling_widget.dart';
 import '../../../widgets/spacing.dart';
 import '../../stats/components/encounter_timer.dart';
