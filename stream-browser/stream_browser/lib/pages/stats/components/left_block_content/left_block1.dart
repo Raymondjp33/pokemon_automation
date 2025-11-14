@@ -22,7 +22,7 @@ class LeftBlock1 extends StatelessWidget {
     int currentEncounters = pokemon?.encounters ?? 0;
     String shinyCounts =
         '${(pokemon?.catches ?? []).length}/${pokemon?.targets ?? 0}';
-    String switch1GifNumber = '${(pokemon?.pokemonId ?? 1) - 1}';
+    String switch1GifNumber = '${pokemon?.gifNumber ?? 1}';
     int totalShinies = pokemonStats?.totalEggShinies ?? 0;
     int totalEncounters = pokemonStats?.totalEggs ?? 0;
     double averageEncounters = pokemonStats?.averageEggs ?? 0;

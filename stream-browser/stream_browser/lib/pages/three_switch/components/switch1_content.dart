@@ -19,7 +19,7 @@ class Switch1Content extends StatelessWidget {
     int currentEncounters = pokemon?.encounters ?? 0;
     String shinyCounts =
         '${(pokemon?.catches ?? []).length}/${pokemon?.targets ?? 0}';
-    String switch1GifNumber = '${(pokemon?.pokemonId ?? 1) - 1}';
+    String switch1GifNumber = '${pokemon?.gifNumber ?? 1}';
     int? startTime = pokemon?.startedHuntTimestamp?.toInt();
 
     return Center(

@@ -21,7 +21,7 @@ class RightBlock1 extends StatelessWidget {
     final StatsModel? pokemonStats = fileProvider.pokemonStats;
 
     int currentEnc = pokemon?.encounters ?? 0;
-    String switch2GifNumber = '${(pokemon?.pokemonId ?? 1) - 1}';
+    String switch2GifNumber = '${pokemon?.gifNumber ?? 1}';
     String shinyCounts =
         '${(pokemon?.catches ?? []).length}/${pokemon?.targets ?? 0}';
     int totalShinies = pokemonStats?.totalStaticShinies ?? 0;

@@ -23,7 +23,7 @@ class RightBlock2 extends StatelessWidget {
     int currentEncounters = pokemon?.encounters ?? 0;
     String shinyCounts =
         '${(pokemon?.catches ?? []).length}/${pokemon?.targets ?? 0}';
-    String switch2GifNumber = '${(pokemon?.pokemonId ?? 1) - 1}';
+    String switch2GifNumber = '${pokemon?.gifNumber ?? 1}';
     int totalShinies = pokemonStats?.totalWildShinies ?? 0;
     int totalEncounters = pokemonStats?.totalWild ?? 0;
     double averageEncounters = pokemonStats?.averageWild ?? 0;
