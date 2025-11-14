@@ -32,6 +32,19 @@ class PokemonModel {
 
   static PokemonModel get emptyPokemon => PokemonModel();
 
+  int get gifNumber {
+    int gifValue = pokemonId - 1;
+    if (pokemonId > 802) {
+      gifValue = gifValue + 18;
+    }
+
+    if (gifValue > 907) {
+      gifValue = gifValue + 13;
+    }
+
+    return gifValue;
+  }
+
   factory PokemonModel.fromJson(Map<String, dynamic>? json) {
     if (json == null) throw Exception('PokemonModel: json was null');
     try {
