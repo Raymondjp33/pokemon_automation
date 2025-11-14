@@ -63,7 +63,7 @@ def emit_pokemon_data():
 
     pokemon_data = []
     for pokemon in pokemon_rows:
-        cursor.execute("SELECT * FROM catches WHERE hunt_id = ? OR hunt_id = ? AND name = ?", (switch1_hunt_id, switch2_hunt_id, pokemon[4],))
+        cursor.execute("SELECT * FROM catches WHERE hunt_id = ? AND name = ?", (pokemon[2], pokemon[4],))
         catch_rows = cursor.fetchall()
         pokemon_data.append({
             "encounters": pokemon[3],
@@ -109,18 +109,17 @@ def watch_file():
         time.sleep(2)
 
 def get_pokemon_stats(cursor):
-    # FIX THIS TO USE HUNT_ENCOUTNERS
     totalEggShinies = cursor.execute("SELECT COUNT(*) FROM catches WHERE encounter_method = ?", ('egg',)).fetchone()[0]
-    totalEggs = cursor.execute("SELECT SUM(encounters) FROM catches WHERE encounter_method = ?", ('egg',)).fetchone()[0]
-    averageEggs = cursor.execute("SELECT AVG(encounters) FROM catches WHERE encounter_method = ?", ('egg',)).fetchone()[0]
+    totalEggs = cursor.execute("SELECT SUM(encounters) FROM hunt_encounters WHERE encounter_method = ?", ('egg',)).fetchone()[0]
+    averageEggs = cursor.execute("SELECT AVG(encounters) FROM hunt_encounters WHERE encounter_method = ?", ('egg',)).fetchone()[0]
     
     totalStaticShinies = cursor.execute("SELECT COUNT(*) FROM catches WHERE encounter_method = ?", ('static',)).fetchone()[0]
-    totalStatic = cursor.execute("SELECT SUM(encounters) FROM catches WHERE encounter_method = ?", ('static',)).fetchone()[0]
-    averageStatic = cursor.execute("SELECT AVG(encounters) FROM catches WHERE encounter_method = ?", ('static',)).fetchone()[0]
+    totalStatic = cursor.execute("SELECT SUM(encounters) FROM hunt_encounters WHERE encounter_method = ?", ('static',)).fetchone()[0]
+    averageStatic = cursor.execute("SELECT AVG(encounters) FROM hunt_encounters WHERE encounter_method = ?", ('static',)).fetchone()[0]
 
     totalWildShinies = cursor.execute("SELECT COUNT(*) FROM catches WHERE encounter_method = ?", ('wild',)).fetchone()[0]
-    totalWild = cursor.execute("SELECT SUM(encounters) FROM catches WHERE encounter_method = ?", ('wild',)).fetchone()[0]
-    averageWild = cursor.execute("SELECT AVG(encounters) FROM catches WHERE encounter_method = ?", ('wild',)).fetchone()[0]
+    totalWild = cursor.execute("SELECT SUM(encounters) FROM hunt_encounters WHERE encounter_method = ?", ('wild',)).fetchone()[0]
+    averageWild = cursor.execute("SELECT AVG(encounters) FROM hunt_encounters WHERE encounter_method = ?", ('wild',)).fetchone()[0]
 
 
     return {
