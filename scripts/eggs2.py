@@ -29,43 +29,52 @@ def increment_counter(caught_index=None):
     with stream_data_path.open("r") as stream_data_file:
         stream_data = json.load(stream_data_file)
 
-    pokemon_name = stream_data['switch1_targets'][0]["name"]
-    pokemon_target = stream_data['switch1_targets'][0]["target"]
+    hunt_id = stream_data['switch1_hunt_id']
+
+    pokemon = cursor.execute("SELECT * FROM hunt_encounters WHERE hunt_id = ?", (hunt_id,)).fetchone()
+
+    pokemon_name = pokemon[4]
 
     target_met = False
     if (caught_index is not None):
-        cursor.execute("SELECT * FROM pokemon WHERE name = ?", (pokemon_name,))
-        pokemon_row = cursor.fetchone()
         cursor.execute("SELECT * FROM catches WHERE name = ?", (pokemon_name,))
         catch_rows = cursor.fetchall()
-        catches = [{"caught_timestamp": ts, "encounters": enc, "encounter_method": method, "total_dens": tdens} for _, _, ts, enc, method, _, _, tdens in catch_rows]
+        catches = [{"caught_timestamp": ts, "encounters": enc, "encounter_method": method, "total_dens": tdens} for _, _, ts, enc, method, _, _, tdens, _ in catch_rows]
         previous_encounters = 0
 
         for catch in catches:
             previous_encounters = previous_encounters + catch["encounters"]
-        count_difference = pokemon_row[2] - previous_encounters - (4 - caught_index)
+        count_difference = pokemon[3] - previous_encounters - (4 - caught_index)
 
         cursor.execute(
-            "INSERT INTO catches (pokemon_id, caught_timestamp, encounters, encounter_method, switch, name, total_dens) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO catches (pokemon_id, caught_timestamp, encounters, encounter_method, switch, name, total_dens, hunt_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
             (
-                pokemon_row[0],
+                pokemon[1],
                 int(time.time() * 1000),
                 count_difference,
                 "egg",
                 1,
                 pokemon_name,
-                None
+                None,
+                hunt_id
             )
         )
         
-        if len(catches) + 1 >= pokemon_target:
+        if len(catches) + 1 >= pokemon[6]:
             target_met = True
-    else:
-        cursor.execute("""
-            UPDATE pokemon
-            SET encounters_total = encounters_total + 5
-            WHERE name = ?
-        """, (pokemon_name,))
+    
+    cursor.execute("""
+        UPDATE pokemon
+        SET total_encounters = total_encounters + 5
+        WHERE name = ?
+    """, (pokemon_name,))
+
+    cursor.execute("""
+        UPDATE hunt_encounters
+        SET encounters = encounters + 5
+        WHERE pokemon_name = ? AND hunt_id = ?
+    """, (pokemon_name, hunt_id,))
+
 
     
     redis_client.publish(REDIS_CHANNEL, json.dumps({"update_data":True}))
@@ -299,22 +308,22 @@ def handle_update_target():
 
     config.update({'next_pokemon': next_pokemon})
 
-    switch1_targets = [{ "name": new_target['name'], "target": new_target['target'], "dexNum": new_target['dexNum'] }]
-    with open(STREAM_DATA_PATH, 'r') as f:
-        data = json.load(f)
-    data['switch1_targets'] = switch1_targets
-    with open(STREAM_DATA_PATH, 'w') as f:
-        json.dump(data, f, indent=4)
-
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
 
-    cursor.execute("SELECT 1 FROM pokemon WHERE name = ?", (new_target['name'],))
-    if cursor.fetchone() is None:
-        cursor.execute(
-        "INSERT INTO pokemon (name, encounters_total, started_hunt_ts) VALUES (?, ?, ?)",
-        (new_target['name'], 0, int(time.time() * 1000))
-        )
+    new_hunt_id = cursor.execute("SELECT MAX(hunt_id) FROM hunt_encounters").fetchone()[0] + 1
+    pokemon = cursor.execute("SELECT * FROM pokemon WHERE name = ?", (new_target['name'],)).fetchone()
+
+    cursor.execute(
+    "INSERT INTO hunt_encounters (pokemon_id, hunt_id, encounters, pokemon_name, switch, targets, started_hunt_ts, encounter_method, total_dens) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+    (pokemon[0], new_hunt_id, 0, new_target['name'], 1, new_target['target'], int(time.time() * 1000), 'egg', None)
+    )
+
+    with open(STREAM_DATA_PATH, 'r') as f:
+        data = json.load(f)
+    data['switch1_hunt_id'] = new_hunt_id
+    with open(STREAM_DATA_PATH, 'w') as f:
+        json.dump(data, f, indent=4)
 
     redis_client.publish(REDIS_CHANNEL, json.dumps({"update_data":True}))
     conn.commit()
@@ -340,6 +349,22 @@ def main() -> int:
         # handle_target_met(ser, vid)
         # return 
         while True:
+            # end_time = time.time()
+
+            # if (end_time-start_time > 2000):
+            #         press(ser, 'H', duration=1)
+            #         press(ser, 's', duration=0.25)
+            #         press(ser, 'd', duration=0.25)
+            #         press(ser, 'd', duration=0.25)
+            #         press(ser, 'd', duration=0.25)
+            #         press(ser, 'd', duration=0.25)
+            #         press(ser, 'd', duration=0.25)
+            #         press(ser, 'd', duration=0.25)
+            #         press(ser, 'A', duration=1)
+            #         press(ser, 'w', duration=1)
+            #         press(ser, 'A', duration=1)
+            #         return 0
+
             for _ in range (5):
                 if (oh_text_showing(vid)):
                     handle_hatch(ser, vid)

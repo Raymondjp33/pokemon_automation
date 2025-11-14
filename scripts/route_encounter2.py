@@ -34,16 +34,22 @@ def increment_counter(pokemon_name, log_frame=None):
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
 
+    stream_data_path = STREAM_DATA_PATH
+
+    with stream_data_path.open("r") as stream_data_file:
+        stream_data = json.load(stream_data_file)
+
+    hunt_id = stream_data['switch2_hunt_id']
 
     cursor.execute("SELECT * FROM pokemon WHERE name = ?", (pokemon_name,))
     pokemon_row = cursor.fetchone()
     if (log_frame is not None):
-        cursor.execute("SELECT SUM(encounters) FROM catches WHERE name = ?", (pokemon_name,))
+        cursor.execute("SELECT SUM(encounters) FROM catches WHERE name = ? AND hunt_id = ?", (pokemon_name, hunt_id,))
         result = cursor.fetchone()[0]
         previous_encounters = result if result is not None else 0
         count_difference = pokemon_row[2] - previous_encounters
         cursor.execute(
-            "INSERT INTO catches (pokemon_id, caught_timestamp, encounters, encounter_method, switch, name, total_dens) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO catches (pokemon_id, caught_timestamp, encounters, encounter_method, switch, name, total_dens, hunt_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
             (
                 pokemon_row[0],
                 int(time.time() * 1000),
@@ -51,27 +57,33 @@ def increment_counter(pokemon_name, log_frame=None):
                 "route",
                 2,
                 pokemon_name,
-                None
+                None,
+                hunt_id
             )
         )
 
         cv2.imwrite(f"/Volumes/DexDrive/shield/{pokemon_name}-{int(time.time() * 1000)}.png", log_frame)
-    else:
-        if pokemon_row:
-            cursor.execute("""
-                UPDATE pokemon
-                SET encounters_total = encounters_total + 1
-                WHERE name = ?
-            """, (pokemon_name,))
-        else:
-            cursor.execute("""
-                INSERT INTO tempmons (name, encounters)
-                VALUES (?, 1)
-                ON CONFLICT(name) DO UPDATE SET
-                    encounters = encounters + 1
-            """, (pokemon_name,))
 
-    
+    if pokemon_row:
+        cursor.execute("""
+            UPDATE pokemon
+            SET total_encounters = total_encounters + 1
+            WHERE name = ?
+        """, (pokemon_name,))
+        
+        cursor.execute("""
+                UPDATE hunt_encounters
+                SET encounters = encounters + 1
+                WHERE pokemon_name = ? AND hunt_id = ?
+            """, (pokemon_name, hunt_id,))
+    else:
+        cursor.execute("""
+            INSERT INTO tempmons (name, encounters)
+            VALUES (?, 1)
+            ON CONFLICT(name) DO UPDATE SET
+                encounters = encounters + 1
+        """, (pokemon_name,))
+
     increment_txt_counter(SWITCH2_COUNTER_PATH)
     redis_client.publish(REDIS_CHANNEL, json.dumps({"update_data":True}))
     conn.commit()
@@ -162,6 +174,7 @@ def handle_encoutner_check(vid: cv2.VideoCapture, stop_event, mon_que, delay_que
     delay = t1 - t0
 
     pokemon = name_map.get(pokemon, pokemon)
+    pokemon = pokemon.lower()
     mon_que.put(pokemon)
     delay_que.put(delay)
     frame_que.put(log_frame)

@@ -4,7 +4,6 @@ from typing import Protocol
 from collections.abc import Generator
 from typing import NamedTuple
 
-import argparse
 import contextlib
 import time
 import cv2
@@ -12,7 +11,7 @@ import numpy
 import serial
 import functools
 import tesserocr
-import json
+import sqlite3
 
 
 
@@ -40,6 +39,56 @@ def make_vid(switch_num) -> cv2.VideoCapture:
     vid.set(cv2.CAP_PROP_BUFFERSIZE, 1)  # default: 3
     return vid
 
+class CatchModel:
+
+    def __init__(self, catch):
+        self.id = catch[0]
+        self.pokemon_id = catch[1]
+        self.caught_ts = catch[2]
+        self.encounters = catch[3]
+        self.encounter_method = catch[4]
+        self.switch = catch[5]
+        self.name = catch[6]
+        self.total_dens = catch[7]
+        self.hunt_id = catch[8]
+
+class PokemonModel:
+
+    def __init__(self, pokemon):
+        self.id = pokemon[0]
+        self.name = pokemon[1]
+        self.total_encounters = pokemon[2]
+        self.started_ts = pokemon[3]
+
+class HuntEncounterModel:
+
+    def __init__(self, hunt_encounter):
+        self.id = hunt_encounter[0]
+        self.pokemon_id = hunt_encounter[1]
+        self.hunt_id = hunt_encounter[2]
+        self.encounters = hunt_encounter[3]
+        self.pokemon_name = hunt_encounter[4]
+        self.switch = hunt_encounter[5]
+        self.targets = hunt_encounter[6]
+        self.started_ts = hunt_encounter[7]
+        self.encounter_method = hunt_encounter[8]
+        self.total_dens = hunt_encounter[9]
+
+def run_db_query(query, params, function=None):
+    conn = sqlite3.connect(DB_FILE)
+    cursor = conn.cursor()
+
+    if function == None:
+        return_value = cursor.execute(query, params)
+    elif function == 'fetchone':
+        return_value = cursor.execute(query, params).fetchone()
+    else:
+        return_value = cursor.execute(query, params).fetchall()
+
+    conn.commit()
+    conn.close()
+
+    return return_value
 class Color(NamedTuple):
     b: int
     g: int

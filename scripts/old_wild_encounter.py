@@ -73,24 +73,18 @@ def increment_counter(pokemon_name, log_frame=None, caught_shiny=False):
                 pokemon_row[0],
                 int(time.time() * 1000),
                 count_difference,
-                "static",
+                "wild",
                 2,
                 pokemon_name,
                 None
             )
         )
 
-    
-    cursor.execute("""
+    else:
+        cursor.execute("""
             UPDATE pokemon
-            SET total_encounters = total_encounters + 1
+            SET encounters_total = encounters_total + 1
             WHERE name = ?
-        """, (pokemon_name,))
-    
-    cursor.execute("""
-            UPDATE hunt_encounters
-            SET encounters = encounters + 1
-            WHERE pokemon_name = ?
         """, (pokemon_name,))
 
     with counter_path.open("w") as file1:
@@ -147,7 +141,7 @@ def main() -> int:
                     time.sleep(0.1)
                     current_text = extract_encounter_text(vid)
                     pokemon = extract_pokemon_name(current_text)
-                    pokemon = name_map.get(pokemon, pokemon).lower()
+                    pokemon = name_map.get(pokemon, pokemon)
                     break
                 press(ser, 'A')
                 time.sleep(0.4)
