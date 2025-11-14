@@ -4,8 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../../constants/app_styles.dart';
 import '../../../../models/pokemon.model.dart';
 import '../../../../services/file_provider.dart';
-import '../../../../widgets/pokemon_row.dart';
-import '../../../../widgets/scrolling_widget.dart';
+import '../pokemon_display/pokemon_display.dart';
 import '../line_item.dart';
 
 class RightBlock3 extends StatelessWidget {
@@ -40,23 +39,7 @@ class RightBlock3 extends StatelessWidget {
           rightText: '$phaseEncounters',
         ),
         LineItem(leftText: 'Current total shinies', rightText: '$phaseShinies'),
-        Center(
-          child: pokemon.length > 3
-              ? Container(
-                  height: 175,
-                  child: ScrollingWidget(
-                    scrollSpeed: 30,
-                    child: PokemonRow(
-                      targets: pokemon,
-                      pokemonGifSize: 90,
-                    ),
-                  ),
-                )
-              : PokemonRow(
-                  targets: pokemon,
-                  pokemonGifSize: 90,
-                ),
-        ),
+        PokemonDisplay(pokemon: pokemon),
       ],
     );
   }

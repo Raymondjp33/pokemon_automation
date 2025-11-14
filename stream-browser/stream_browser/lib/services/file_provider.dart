@@ -20,6 +20,7 @@ class FileProvider with ChangeNotifier {
   StreamData? streamData;
   DateTime now = DateTime.now();
   int get rightScreenIndex => streamData?.switch2Content ?? 0;
+  int get leftScreenIndex => streamData?.switch1Content ?? 0;
 
   final List<String> logs1 = [];
 
