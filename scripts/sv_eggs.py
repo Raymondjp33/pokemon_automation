@@ -273,7 +273,7 @@ def reset_position(ser: serial.Serial, vid: cv2.VideoCapture,):
     press(ser, 'L', sleep_time=0.5)
     press(ser, 'e', sleep_time=0.5)
     press(ser, 'L', sleep_time=0.5)
-    press(ser, 'w', duration=3.5)
+    press(ser, 'w', duration=2.5)
     press(ser, 'd', duration=2.2)
     press(ser, 'a', duration=0.3)
     press(ser, 'L', sleep_time=0.5)
@@ -395,6 +395,8 @@ def take_basket_eggs(ser: serial.Serial, vid: cv2.VideoCapture):
         time.sleep(1)
         press(ser, 'Y', sleep_time=1.5)
         press(ser, 'A', sleep_time=4, count=2)
+        press(ser, 'B', count=8)
+        time.sleep(1)
 
 def prepare_party(ser: serial.Serial,  vid: cv2.VideoCapture, breeding: bool = False):
     select_menu_item(ser, vid, "Boxes")
@@ -473,7 +475,6 @@ def hatch_eggs(ser: serial.Serial,  vid: cv2.VideoCapture,):
             press(ser, 's' if not forward else 'w', duration=2)
             forward = not forward
         
-        reset_position(ser, vid)
         time.sleep(1)
         select_menu_item(ser, vid, 'Boxes')
         save_needed = handle_process_eggs(ser, vid)
