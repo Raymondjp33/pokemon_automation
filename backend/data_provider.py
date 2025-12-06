@@ -111,15 +111,15 @@ def watch_file():
 def get_pokemon_stats(cursor):
     totalEggShinies = cursor.execute("SELECT COUNT(*) FROM catches WHERE encounter_method = ?", ('egg',)).fetchone()[0]
     totalEggs = cursor.execute("SELECT SUM(encounters) FROM hunt_encounters WHERE encounter_method = ?", ('egg',)).fetchone()[0]
-    averageEggs = cursor.execute("SELECT AVG(encounters) FROM hunt_encounters WHERE encounter_method = ?", ('egg',)).fetchone()[0]
+    averageEggs = totalEggs / totalEggShinies 
     
     totalStaticShinies = cursor.execute("SELECT COUNT(*) FROM catches WHERE encounter_method = ?", ('static',)).fetchone()[0]
     totalStatic = cursor.execute("SELECT SUM(encounters) FROM hunt_encounters WHERE encounter_method = ?", ('static',)).fetchone()[0]
-    averageStatic = cursor.execute("SELECT AVG(encounters) FROM hunt_encounters WHERE encounter_method = ?", ('static',)).fetchone()[0]
+    averageStatic = totalStatic / totalStaticShinies
 
     totalWildShinies = cursor.execute("SELECT COUNT(*) FROM catches WHERE encounter_method = ?", ('wild',)).fetchone()[0]
     totalWild = cursor.execute("SELECT SUM(encounters) FROM hunt_encounters WHERE encounter_method = ?", ('wild',)).fetchone()[0]
-    averageWild = cursor.execute("SELECT AVG(encounters) FROM hunt_encounters WHERE encounter_method = ?", ('wild',)).fetchone()[0]
+    averageWild = totalWild / totalWildShinies 
 
 
     return {
