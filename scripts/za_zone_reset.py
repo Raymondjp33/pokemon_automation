@@ -51,37 +51,42 @@ def main() -> int:
         
         while True:
 
+            ## Walk in then tp, zone 2
+            # press(ser, 'A', sleep_time=2)
+            # press(ser, 'w', duration=2.5)
+            # press(ser, 'B', sleep_time=1)
+            # press(ser, 'A')
+            # press(ser, '+', sleep_time=1.25)
+            # press(ser, 'A', sleep_time=0.5, count=4)
+            # time.sleep(5)
+
+            ## Battles
             # press(ser, 'l', duration=0.5, write_null_byte=False)
             # press(ser, 'A', sleep_time=0.5, count=3)
-            # start_time = time.time()
-            # press(ser, '+', sleep_time=1.25)
-            # press(ser, 'A', sleep_time=1.5)
-            # press(ser, 'A', sleep_time=1)
-            # press(ser, 'B', sleep_time=4)
-
-            # press(ser, 'w', duration=1.25,)
-            # press(ser, 'B')
 
             ## Bench
-            press(ser, 'd', duration=2.5)
-            press(ser, 'a', duration=2.5)
-            press(ser, 's')
-            press(ser, 'A', sleep_time=0.5, count=7)
-            increment_reset_counter('/Users/raymondprice/Desktop/other/test_coding/pokemon_scripts/pokemon_automation/scripts/configs/bench_counter.txt')
-            time.sleep(20)
+            # press(ser, 'd', duration=2.5)
+            # press(ser, 'a', duration=2.5)
+            # press(ser, 's')
+            # press(ser, 'w', duration=4)
+            # press(ser, 's', duration=4.5)
+            # press(ser, 'A', sleep_time=0.5, count=7)
+            # time.sleep(20)
 
             ## Teleporter
             # press(ser, 'A', sleep_time=4)
-            # increment_reset_counter('/Users/raymondprice/Desktop/other/test_coding/pokemon_scripts/pokemon_automation/scripts/configs/bench_counter.txt')
            
             ## Zone 20 charmander specific
-            # press(ser, 'w', duration=3)
+            # press(ser, 'q', duration=0.2, write_null_byte=False)
+            # press(ser, 'B', duration=0.03, write_null_byte=False)
+            # press(ser, 'q', duration=6, write_null_byte=False)
             # press(ser, 'B')
             # press(ser, '+', sleep_time=1.25)
-            # press(ser, 'w', duration=0.05)
+            # press(ser, 'd', duration=0.05)
             # press(ser, 'A', sleep_time=0.5, count=4)
-            # increment_reset_counter('/Users/raymondprice/Desktop/other/test_coding/pokemon_scripts/pokemon_automation/scripts/configs/bench_counter.txt')
-            # time.sleep(4)
+            # press(ser, 'd')
+            # press(ser, 'A', sleep_time=0.5, count=4)
+            # time.sleep(3.5)
 
             ## Walk into zone then TP
             # press(ser, 'w', duration=1.5)
@@ -90,10 +95,13 @@ def main() -> int:
             # press(ser, '+', sleep_time=1.25)
             # press(ser, 'a')
             # press(ser, 'A', sleep_time=0.5, count=4)
-            # increment_reset_counter('/Users/raymondprice/Desktop/other/test_coding/pokemon_scripts/pokemon_automation/scripts/configs/bench_counter.txt')
             # time.sleep(4)
-           
-            
+
+            ## Zone 3
+            press(ser, 's', duration=0.5, sleep_time=3.5)
+
+            ## Unspecific
+            increment_reset_counter('/Users/raymondprice/Desktop/other/test_coding/pokemon_scripts/pokemon_automation/scripts/configs/bench_counter.txt')
             # end_time = time.time()
             # print(f'Full run took {(end_time-start_time):.3f}s')
 
