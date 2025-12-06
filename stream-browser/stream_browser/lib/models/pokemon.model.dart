@@ -42,6 +42,10 @@ class PokemonModel {
       gifValue = gifValue + 13;
     }
 
+    if (gifValue > 925) {
+      gifValue = gifValue + 23;
+    }
+
     return gifValue;
   }
 
