@@ -62,18 +62,18 @@ def increment_counter(caught_index=None):
         
         if len(catches) + 1 >= pokemon[6]:
             target_met = True
-    
-    cursor.execute("""
-        UPDATE pokemon
-        SET total_encounters = total_encounters + 5
-        WHERE name = ?
-    """, (pokemon_name,))
+    else:
+        cursor.execute("""
+            UPDATE pokemon
+            SET total_encounters = total_encounters + 5
+            WHERE name = ?
+        """, (pokemon_name,))
 
-    cursor.execute("""
-        UPDATE hunt_encounters
-        SET encounters = encounters + 5
-        WHERE pokemon_name = ? AND hunt_id = ?
-    """, (pokemon_name, hunt_id,))
+        cursor.execute("""
+            UPDATE hunt_encounters
+            SET encounters = encounters + 5
+            WHERE pokemon_name = ? AND hunt_id = ?
+        """, (pokemon_name, hunt_id,))
 
 
     
