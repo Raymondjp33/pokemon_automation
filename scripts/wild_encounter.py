@@ -23,6 +23,9 @@ name_map = {
     "Spheall": "Spheal",
     "Registeell": "Registeel",
     "Cryogonall": "Cryogonal",
+    "Kommo": "Kommo-o",
+    "hatterene": "Hatterene",
+    "tsareena": "Tsareena",
 }
 
 def write_shiny_text():
@@ -171,7 +174,7 @@ def main() -> int:
             delay = t1 - t0
             print(f'dialog delay: {delay:.3f}s')
 
-            if (delay) > 0.5:
+            if (delay) > 0.8:
                 print('SHINY!!!')
                 press(ser, 'C', duration=2)
                 press(ser, 'H', duration=1)

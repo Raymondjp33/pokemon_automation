@@ -22,7 +22,8 @@ name_map = {
     'Nidoran' : 'NidoranF',
     "Mime": 'MimeJr',
     "Stuffull": "Stufful",
-    "Spheall": "Spheal"
+    "Spheall": "Spheal",
+    "Sneasell": "Sneasel"
 }
 
 def write_shiny_text():
@@ -54,7 +55,7 @@ def increment_counter(pokemon_name, log_frame=None):
                 pokemon_row[0],
                 int(time.time() * 1000),
                 count_difference,
-                "route",
+                "wild",
                 2,
                 pokemon_name,
                 None,
