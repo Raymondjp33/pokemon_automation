@@ -11,7 +11,7 @@ class PokemonModel {
   int switchNum;
   int encounters;
   @JsonKey(name: 'pokemon_id')
-  int pokemonId;
+  String pokemonId;
   @JsonKey(name: 'total_dens')
   int totalDens;
   @JsonKey(name: 'started_hunt_ts')
@@ -23,7 +23,7 @@ class PokemonModel {
     this.name = '',
     this.targets = 1,
     this.switchNum = 1,
-    this.pokemonId = 1,
+    this.pokemonId = '1',
     this.encounters = 0,
     this.totalDens = 0,
     this.startedHuntTimestamp,
@@ -33,20 +33,43 @@ class PokemonModel {
   static PokemonModel get emptyPokemon => PokemonModel();
 
   int get gifNumber {
-    int gifValue = pokemonId - 1;
-    if (pokemonId > 802) {
+    if (pokemonId.contains('-')) {
+      return specificGifNumber;
+    }
+
+    int? pokemonIdNum = int.tryParse(pokemonId);
+
+    if (pokemonIdNum == null) {
+      return 1;
+    }
+
+    int gifValue = pokemonIdNum - 1;
+    // 802 - 819 Alolan pokemon
+    if (pokemonIdNum > 802) {
       gifValue = gifValue + 18;
     }
 
+    // 908 - 920 Galarian pokemon
     if (gifValue > 907) {
       gifValue = gifValue + 13;
     }
 
+    // 926 - 958 Galarian / Hisuian pokemon
     if (gifValue > 925) {
       gifValue = gifValue + 23;
     }
 
     return gifValue;
+  }
+
+  int get specificGifNumber {
+    switch (pokemonId) {
+      // Alolan Meowth
+      case '52-1':
+        return 811;
+    }
+
+    return 1;
   }
 
   factory PokemonModel.fromJson(Map<String, dynamic>? json) {

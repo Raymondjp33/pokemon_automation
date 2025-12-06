@@ -21,7 +21,7 @@ class Switch2Content extends StatelessWidget {
     int currentEncounters = pokemon?.firstOrNull?.encounters ?? 0;
     String shinyCounts =
         '${pokemon?.firstOrNull?.catches?.length ?? 0}/${pokemon?.firstOrNull?.targets ?? 0}';
-    String switch2GifNumber = '${(pokemon?.firstOrNull?.pokemonId ?? 1) - 1}';
+    String switch2GifNumber = '${pokemon?.first.gifNumber ?? 1}';
     int? startTime = pokemon?.firstOrNull?.startedHuntTimestamp?.toInt();
 
     final screenIndex =

@@ -67,7 +67,7 @@ def emit_pokemon_data():
         catch_rows = cursor.fetchall()
         pokemon_data.append({
             "encounters": pokemon[3],
-            "pokemon_id": pokemon[1],
+            "pokemon_id": str(pokemon[1]),
             "name": pokemon[4],
             "targets": pokemon[6],
             "switchNum": pokemon[5],

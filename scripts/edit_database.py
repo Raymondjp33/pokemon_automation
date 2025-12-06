@@ -1,8 +1,6 @@
 from services.common import *
 
 # catches = run_db_query("SELECT * FROM catches", (), function='fetchall')
-
-
 # for catch in catches:
 
 #         catch_id = catch[0]
@@ -144,7 +142,7 @@ from services.common import *
 ###             ADD NEW HUNT
 ###
 
-pokemon_name = 'polteageist'
+pokemon_name = 'meowth:alolan'
 targets = 1
 hunt_id = run_db_query("SELECT MAX(hunt_id) FROM hunt_encounters", (), function='fetchone')[0] + 1
 encounter_method = 'wild'
@@ -197,14 +195,26 @@ print(f'Added hunt {hunt_id}')
 # with data_path.open() as file:
 #     data = json.load(file)
 
+# conn = sqlite3.connect(DB_FILE)
+# cursor = conn.cursor()
+
+# cursor.execute(f"UPDATE catches SET pokemon_id = CAST(pokemon_id AS TEXT)")
+
 # cursor.execute("""
-# CREATE TABLE IF NOT EXISTS hunt_encounters (
-#         id INTEGER PRIMARY KEY AUTOINCREMENT,
-#         pokemon_id INTEGER,
-#         hunt_id INTEGER,
-#         encounters INTEGER
-# );
+# CREATE TABLE new_pokemon (
+#             id TEXT PRIMARY KEY,
+#             name TEXT,
+#             total_encounters INTEGER
+#         );
 # """)
+
+# cursor.execute("""
+# INSERT INTO new_pokemon (id, name, total_encounters)
+# SELECT CAST(id AS TEXT), name, total_encounters FROM pokemon;
+# """)
+
+# conn.commit()
+# conn.close()
    
 # cursor.execute("""
 #         ALTER TABLE hunt_encounters

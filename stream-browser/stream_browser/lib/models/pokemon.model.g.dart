@@ -10,7 +10,7 @@ PokemonModel _$PokemonModelFromJson(Map<String, dynamic> json) => PokemonModel(
       name: json['name'] as String? ?? '',
       targets: (json['targets'] as num?)?.toInt() ?? 1,
       switchNum: (json['switchNum'] as num?)?.toInt() ?? 1,
-      pokemonId: (json['pokemon_id'] as num?)?.toInt() ?? 1,
+      pokemonId: json['pokemon_id'] as String? ?? '1',
       encounters: (json['encounters'] as num?)?.toInt() ?? 0,
       totalDens: (json['total_dens'] as num?)?.toInt() ?? 0,
       startedHuntTimestamp: json['started_hunt_ts'] as num?,
