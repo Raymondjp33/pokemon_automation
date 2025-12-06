@@ -374,6 +374,9 @@ def main() -> int:
                 press(ser, 'a', duration=0.5, write_null_byte=False)
                 press(ser, 'w', duration=0.5, write_null_byte=False)
                 press(ser, 'd', duration=0.5)
+            
+            # # Uncomment this for hatching party eggs
+            # continue
 
             handle_return_from_fetch(ser, vid)
             # return 0

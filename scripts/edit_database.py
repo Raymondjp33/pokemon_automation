@@ -144,11 +144,11 @@ from services.common import *
 ###             ADD NEW HUNT
 ###
 
-pokemon_name = 'fuecoco'
-targets = 2
+pokemon_name = 'polteageist'
+targets = 1
 hunt_id = run_db_query("SELECT MAX(hunt_id) FROM hunt_encounters", (), function='fetchone')[0] + 1
-encounter_method = 'egg'
-switch = 2
+encounter_method = 'wild'
+switch = 1
 total_dens = None
 encounters = 0
 

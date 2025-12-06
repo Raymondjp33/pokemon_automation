@@ -98,7 +98,7 @@ def main() -> int:
             # time.sleep(4)
 
             ## Zone 3
-            press(ser, 's', duration=0.5, sleep_time=3.5)
+            press(ser, 's', duration=1, sleep_time=3)
 
             ## Unspecific
             increment_reset_counter('/Users/raymondprice/Desktop/other/test_coding/pokemon_scripts/pokemon_automation/scripts/configs/bench_counter.txt')
