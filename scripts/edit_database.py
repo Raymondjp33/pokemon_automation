@@ -144,19 +144,49 @@ from services.common import *
 ###             ADD NEW HUNT
 ###
 
-# pokemon_name = 'unown'
-# targets = 1
-# hunt_id = run_db_query("SELECT MAX(hunt_id) FROM hunt_encounters", (), function='fetchone')[0] + 1
-# encounter_method = 'static'
-# switch = 1
-# total_dens = None
-# encounters = 0
+pokemon_name = 'fuecoco'
+targets = 2
+hunt_id = run_db_query("SELECT MAX(hunt_id) FROM hunt_encounters", (), function='fetchone')[0] + 1
+encounter_method = 'egg'
+switch = 2
+total_dens = None
+encounters = 0
 
-# pokemon = run_db_query("SELECT * FROM pokemon WHERE name = ?", (pokemon_name,),function= "fetchone")
+pokemon = run_db_query("SELECT * FROM pokemon WHERE name = ?", (pokemon_name,),function= "fetchone")
+run_db_query(
+"INSERT INTO hunt_encounters (pokemon_id, hunt_id, encounters, pokemon_name, switch, targets, started_hunt_ts, encounter_method, total_dens) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+(pokemon[0], hunt_id, encounters, pokemon_name, switch, targets, int(time.time() * 1000), encounter_method, total_dens, ))
+print(f'Added hunt {hunt_id}')
+
+###
+###             ADD NEW Catch
+###
+
+# pokemon_id = 853
+# caught_timestamp = int(time.time() * 1000)
+# encounters = 1
+# encounter_method = 'wild'
+# switch = 2
+# name = 'grapploct'
+# total_dens = None
+# hunt_id = 309
+
 # run_db_query(
-# "INSERT INTO hunt_encounters (pokemon_id, hunt_id, encounters, pokemon_name, switch, targets, started_hunt_ts, encounter_method, total_dens) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-# (pokemon[0], hunt_id, encounters, pokemon_name, switch, targets, int(time.time() * 1000), encounter_method, total_dens, ))
-# print(f'Added hunt {hunt_id}')
+# "INSERT INTO catches (pokemon_id, caught_timestamp, encounters, encounter_method, switch, name, total_dens, hunt_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+# (pokemon_id, int(time.time() * 1000), encounters, encounter_method, switch, name, None, hunt_id))
+
+###
+###             ADD NEW Pokemon
+###
+
+# id = '52-1'
+# name = 'meowth:alolan'
+# total_encounters = 0
+
+# run_db_query(
+# "INSERT INTO pokemon (id, name, total_encounters) VALUES (?, ?, ?)",
+# (id, name, total_encounters))
+
 
 ###
 ###             OTHER USEFUL FUNCTIONS
