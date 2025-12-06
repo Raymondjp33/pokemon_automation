@@ -142,19 +142,19 @@ from services.common import *
 ###             ADD NEW HUNT
 ###
 
-pokemon_name = 'meowth:alolan'
-targets = 1
-hunt_id = run_db_query("SELECT MAX(hunt_id) FROM hunt_encounters", (), function='fetchone')[0] + 1
-encounter_method = 'wild'
-switch = 1
-total_dens = None
-encounters = 0
+# pokemon_name = 'meowth:alolan'
+# targets = 1
+# hunt_id = run_db_query("SELECT MAX(hunt_id) FROM hunt_encounters", (), function='fetchone')[0] + 1
+# encounter_method = 'wild'
+# switch = 1
+# total_dens = None
+# encounters = 0
 
-pokemon = run_db_query("SELECT * FROM pokemon WHERE name = ?", (pokemon_name,),function= "fetchone")
-run_db_query(
-"INSERT INTO hunt_encounters (pokemon_id, hunt_id, encounters, pokemon_name, switch, targets, started_hunt_ts, encounter_method, total_dens) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-(pokemon[0], hunt_id, encounters, pokemon_name, switch, targets, int(time.time() * 1000), encounter_method, total_dens, ))
-print(f'Added hunt {hunt_id}')
+# pokemon = run_db_query("SELECT * FROM pokemon WHERE name = ?", (pokemon_name,),function= "fetchone")
+# run_db_query(
+# "INSERT INTO hunt_encounters (pokemon_id, hunt_id, encounters, pokemon_name, switch, targets, started_hunt_ts, encounter_method, total_dens) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+# (pokemon[0], hunt_id, encounters, pokemon_name, switch, targets, int(time.time() * 1000), encounter_method, total_dens, ))
+# print(f'Added hunt {hunt_id}')
 
 ###
 ###             ADD NEW Catch
@@ -185,6 +185,22 @@ print(f'Added hunt {hunt_id}')
 # "INSERT INTO pokemon (id, name, total_encounters) VALUES (?, ?, ?)",
 # (id, name, total_encounters))
 
+###
+###             MOVE CATCH TO FAIL
+###
+
+# catch_id = 601
+
+# catch = run_db_query("SELECT * FROM catches WHERE id = ?", (catch_id,), function='fetchone')
+# run_db_query(
+#  "INSERT INTO fails (pokemon_id, caught_timestamp, encounters, encounter_method, switch, name, total_dens, hunt_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+#  (catch[1], catch[2], catch[3], catch[4], catch[5], catch[6], catch[7], catch[8],)
+# )
+
+# run_db_query(
+#     "DELETE FROM catches WHERE id = ? ",
+#     (catch_id,)
+# )
 
 ###
 ###             OTHER USEFUL FUNCTIONS
@@ -199,14 +215,6 @@ print(f'Added hunt {hunt_id}')
 # cursor = conn.cursor()
 
 # cursor.execute(f"UPDATE catches SET pokemon_id = CAST(pokemon_id AS TEXT)")
-
-# cursor.execute("""
-# CREATE TABLE new_pokemon (
-#             id TEXT PRIMARY KEY,
-#             name TEXT,
-#             total_encounters INTEGER
-#         );
-# """)
 
 # cursor.execute("""
 # INSERT INTO new_pokemon (id, name, total_encounters)
