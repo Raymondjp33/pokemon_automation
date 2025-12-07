@@ -178,13 +178,13 @@ def hatch_egg(ser: serial.Serial):
     print('Egg Hatched!')
 
 def delete_current_pokemon(ser: serial.Serial):
-    press(ser, 'A', sleep_time=0.7)
+    press(ser, 'A', sleep_time=1)
     press(ser, 'w', count=2)
     time.sleep(0.3)
-    press(ser, 'A', sleep_time=0.7)
-    press(ser, 'w', sleep_time=0.7)
+    press(ser, 'A', sleep_time=1)
+    press(ser, 'w', sleep_time=1)
     press(ser, 'A', sleep_time=1.2)
-    press(ser, 'A', sleep_time=.7)
+    press(ser, 'A', sleep_time=1.5)
 
 def check_menu(ser: serial.Serial, vid: cv2.VideoCapture, leave_open:bool = False):
     print(f'Checking for the menu and {"leaving it open" if leave_open else "closing it"}')
@@ -297,7 +297,7 @@ def move_eggs_to_party(ser: serial.Serial):
     if columns_to_move > 5:
         return
 
-    press(ser, 'd', count=columns_to_move)
+    press(ser, 'd', count=columns_to_move, sleep_time=0.5)
     time.sleep(0.5)
     press(ser, '-', sleep_time=0.5)
     press(ser, 's', count=4)
@@ -446,11 +446,13 @@ def hatch_eggs(ser: serial.Serial,  vid: cv2.VideoCapture,):
     while total_hatched < 30:
         start_time = time.time()
         while party_hatched < 5:
-            if (oh_text_showing(vid)):
+            if oh_text_showing(vid):
                 print(f'Hatching egg {party_hatched}')
                 party_hatched = party_hatched + 1
                 hatch_egg(ser)
                 forward = not forward
+
+            # if 
             
             if (party_hatched >= 5):
                 break
