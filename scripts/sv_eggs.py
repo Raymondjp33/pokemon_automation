@@ -165,6 +165,30 @@ def map_on_zero(vid: cv2.VideoCapture,):
     
     return 0
 
+def get_box_cursor_position(vid: cv2.VideoCapture,):
+    frame = getframe(vid)
+    party_selected_color = (0, 220, 255)
+    box_selected_color = (4, 224, 244)
+
+    ## Current Party
+    party_difference = 92
+    party1_y = 150
+    for x in range(6):
+        y_location = party1_y + (x * party_difference)
+        if color_near(frame[y_location][35], party_selected_color):
+            return f'party-{x}'
+
+    ## Box locations in x,y
+    diff = 87
+    starting_x = 308
+    starting_y = 147
+    for x in range(6):
+        curr_x = starting_x + (x * diff)
+        for y in range(5):
+            curr_y = starting_y + (y * diff)
+            if color_near(frame[curr_y][curr_x], box_selected_color):
+                return f'box-{x}-{y}'
+
 ###
 ###     HELPER FUNCTIONS
 ###
@@ -177,14 +201,48 @@ def hatch_egg(ser: serial.Serial):
     time.sleep(4)
     print('Egg Hatched!')
 
-def delete_current_pokemon(ser: serial.Serial):
-    press(ser, 'A', sleep_time=1)
-    press(ser, 'w', count=2)
+def delete_current_pokemon(ser: serial.Serial, vid: cv2.VideoCapture):
+
+    if check_if_shiny(vid):
+        print('Attempting to delete shiny, aborting!')
+        end_program(ser, failure=True)
+
+    # Select pokemon, we are looking for the word 'Release in the menu'    
+    for x in range(10):
+        press(ser, 'A', sleep_time=1)
+        if 'Release' == get_text(frame=getframe(vid), top_left=Point(y=303, x=296), bottom_right=Point(y=339, x=390), invert=True):
+            break
+
+        if (x > 6):
+            print('Should see release and I cant!')
+            end_program(ser, failure=True)
+
+    # Pokemon menu should be open, make sure we are over 'Release'
+    selected_color = (0, 219, 255)
+    frame=getframe(vid)
+    curr = 0
+    while not color_near(frame[320][500], selected_color):
+        press(ser, 'w', sleep_time=0.3)
+        frame=getframe(vid)
+        curr = curr + 1
+        if (curr > 12):
+            print('Should be over release and im not!')
+            end_program(ser, failure=True)
     time.sleep(0.3)
+
     press(ser, 'A', sleep_time=1)
+        
+    curr = 0
+    while not 'Yes' == get_text(frame=getframe(vid), top_left=Point(y=433, x=962), bottom_right=Point(y=462, x=1007), invert=True):
+        time.sleep(0.1)
+        curr = curr + 1
+        if (curr > 12):
+            print('Should be looking at yes and im not')
+            end_program(ser, failure=True)
+    
     press(ser, 'w', sleep_time=1)
     press(ser, 'A', sleep_time=1.2)
-    press(ser, 'A', sleep_time=1.5)
+    press(ser, 'A', sleep_time=1.75)
 
 def check_menu(ser: serial.Serial, vid: cv2.VideoCapture, leave_open:bool = False):
     print(f'Checking for the menu and {"leaving it open" if leave_open else "closing it"}')
@@ -257,6 +315,15 @@ def reset_position(ser: serial.Serial, vid: cv2.VideoCapture,):
             print("Got to zero moving with 's'")
             ready_to_travel = True
             press(ser, 'A', sleep_time=1)
+    
+    if not ready_to_travel:
+        press(ser, '+', sleep_time=1)
+        press(ser, 'q', sleep_time=1)
+
+        if map_on_zero(vid) == 1:
+            print("Got to zero moving with 'q'")
+            ready_to_travel = True
+            press(ser, 'A', sleep_time=1)
 
     if not ready_to_travel:
         press(ser, '+', sleep_time=1)
@@ -306,6 +373,24 @@ def move_eggs_to_party(ser: serial.Serial):
     press(ser, 's', sleep_time=0.5)
     press(ser, 'A', sleep_time=1)
 
+def handle_battle_check(ser: serial.Serial,  vid: cv2.VideoCapture):
+
+    if not 'Run' == get_text(frame=getframe(vid), top_left=Point(y=642, x=1048), bottom_right=Point(y=686, x=1106), invert=True):
+        return
+
+    print('We are in battle, running and resetting')
+    selected_color = (0, 206, 238)
+
+    frame=getframe(vid)
+    while not color_near(frame[663][1116], selected_color):
+        press(ser, 's', sleep_time=0.5)
+        frame=getframe(vid)
+
+    time.sleep(1)
+    # Now we should be over run
+    press(ser, 'A', sleep_time=5)
+    reset_position(ser, vid)
+
 ###
 ###     CORE FUNCTIONS
 ###
@@ -336,9 +421,9 @@ def make_sandwich(ser: serial.Serial):
     press(ser, 'A', sleep_time= 6)
 
     # Select egg 2 sandwich
-    press(ser, 'd')
-    press(ser, 's', count=2)
-    press(ser, 'A', count=4)
+    press(ser, 'd', sleep_time=0.4)
+    press(ser, 's', sleep_time=0.4, count=2)
+    press(ser, 'A', sleep_time=0.3, count=4)
     time.sleep(9)
 
     # Put banana pieces on sandwich
@@ -370,11 +455,11 @@ def take_basket_eggs(ser: serial.Serial, vid: cv2.VideoCapture):
 
             taking_eggs = True
             print("Checking basket")
-            press(ser, 'A', count=2, sleep_time=.75)
+            press(ser, 'A', count=2, sleep_time=1)
+            start_time = time.time()
             while taking_eggs:
-                time.sleep(0.5)
+                time.sleep(1)
                 
-
                 current_text = get_text(frame=getframe(vid), top_left=Point(y=543, x=358), bottom_right=Point(y=592, x=558), invert=True)
                 if current_text == 'Doesn’t look like':
                     print('No egg')
@@ -390,6 +475,14 @@ def take_basket_eggs(ser: serial.Serial, vid: cv2.VideoCapture):
                     press(ser, 'A', count=4, sleep_time=0.5)
                     config.update({'fetched_eggs': fetched_eggs + 1})
                 
+                end_time = time.time()
+                curr_time = end_time - start_time
+
+                if curr_time > 100:
+                    print('Attempting to break out of loop')
+                    press(ser, 'B', sleep_time=1)
+                    start_time = time.time()
+
                 fetched_eggs = config.get('fetched_eggs')
         # Exit picnic
         time.sleep(1)
@@ -452,13 +545,14 @@ def hatch_eggs(ser: serial.Serial,  vid: cv2.VideoCapture,):
                 hatch_egg(ser)
                 forward = not forward
 
-            # if 
-            
             if (party_hatched >= 5):
                 break
 
             end_time = time.time()
-            if (end_time - start_time > 1000):
+            current_time = end_time - start_time
+            if current_time > 150:
+                handle_battle_check(ser, vid)
+            elif current_time > 1000:
                 end_program(ser, failure=True)
 
             # press(ser, '{', duration=0.03, write_null_byte=False)
@@ -472,8 +566,8 @@ def hatch_eggs(ser: serial.Serial,  vid: cv2.VideoCapture,):
             # press(ser, 'a', duration=0.5, write_null_byte=False)
             
                 
-            press(ser, 's' if not forward else 'w', duration=.5, write_null_byte=False)
-            press(ser, '{', duration=0.03, write_null_byte=False)
+            # press(ser, 's' if not forward else 'w', duration=.5, write_null_byte=False)
+            # press(ser, '{', duration=0.03, write_null_byte=False)
             press(ser, 's' if not forward else 'w', duration=2)
             forward = not forward
         
@@ -547,7 +641,7 @@ def handle_process_eggs(ser: serial.Serial, vid: cv2.VideoCapture,):
 
     # Delete all non shiny
     for _ in range(line_count):
-        delete_current_pokemon(ser)
+        delete_current_pokemon(ser, vid)
     
     press(ser, 'd')
     press(ser, 'w')
@@ -573,16 +667,17 @@ def main() -> int:
         # prepare_party(ser, vid)
         # handle_update_hunt(ser, vid)
         # handle_process_eggs(ser, vid)
-        # delete_current_pokemon(ser)
+        # print(get_box_cursor_position(vid))
+        # delete_current_pokemon(ser, vid)
         # move_eggs_to_party(ser)
         # hatch_eggs(ser, vid)
         # handle_process_eggs(ser, vid)
-        # reset_position(ser, vid)
+        reset_position(ser, vid)
         # end_program(ser, failure=True)
-        # return
+        # handle_battle_check(ser, vid)
+        return 
     
         while True:
-
             reset_position(ser, vid)
             handle_picnic_and_egg_fetching(ser, vid)
             hatch_eggs(ser, vid)
