@@ -14,9 +14,6 @@ import tesserocr
 import sqlite3
 
 
-
-SWITCH1_COUNTER_PATH = Path(__file__).resolve().parent.parent / 'configs' / 'switch1-counter.txt'
-SWITCH2_COUNTER_PATH = Path(__file__).resolve().parent.parent / 'configs' / 'switch2-counter.txt'
 SWITCH1_SHINY_TEXT_PATH = Path(__file__).resolve().parent.parent / 'configs' / 'switch1-shiny-text.txt'
 SWITCH2_SHINY_TEXT_PATH = Path(__file__).resolve().parent.parent / 'configs' / 'switch2-shiny-text.txt'
 STREAM_DATA_PATH = Path(__file__).resolve().parent.parent.parent / 'backend' / 'stream_data.json'
@@ -25,8 +22,8 @@ DB_FILE = Path(__file__).resolve().parent.parent.parent / 'backend' / 'my_pokemo
 REDIS_CHANNEL = "update_data"
 
 SWITCH1_SERIAL = '/dev/tty.usbmodem14101'
-SWITCH2_SERIAL = '/dev/tty.usbserial-1420'
-SWITCH3_SERIAL = '/dev/tty.usbmodem1301'
+SWITCH2_SERIAL = '/dev/tty.usbmodem1301'
+SWITCH3_SERIAL = '/dev/tty.usbserial-1420'
 
 SWITCH1_VID_NUM = 0
 SWITCH2_VID_NUM = 2
@@ -160,7 +157,6 @@ def get_text(
 
     return tess_text_u8(crop, tessapi=tessapi)
 
-
 def press(ser: serial.Serial, s: str, duration: float = .1, count: int = 1, sleep_time = .075, write_null_byte=True) -> None:
     for _ in range(count):
         # print(f'{s=} {duration=}')
@@ -189,7 +185,6 @@ def getframe(vid: cv2.VideoCapture) -> numpy.ndarray:
 
     # If we get here, all attempts failed
     raise last_exception
-
 
 def tryGetframe(vid: cv2.VideoCapture) -> numpy.ndarray:
     _, frame = vid.read()
@@ -250,7 +245,6 @@ def shh(ser: serial.Serial) -> Generator[None]:
         yield
     finally:
         ser.write(b'.')
-
 class Position(NamedTuple):
     col: int
     row: int
@@ -275,8 +269,6 @@ def move_position(ser: serial.Serial, curr_pos: Position, next_pos: Position):
     press(ser, '2' if row_diff >= 0 else '4', count=abs(row_diff), sleep_time=0.5)
     press(ser, '1' if col_diff >= 0 else '3', count=abs(col_diff), sleep_time=0.5)
 
-
-
 def make_move(ser: serial.Serial, from_pos, to_pos, move_vertical = False,):
     difference = to_pos - from_pos
 
@@ -288,6 +280,14 @@ def make_move(ser: serial.Serial, from_pos, to_pos, move_vertical = False,):
         press(ser, '2' if not invert else '4', count=abs(difference), sleep_time=0.5)
     else:
         press(ser, '1' if not invert else '3', count=abs(difference), sleep_time=0.5)
+
+def get_mapped_name(text: str):
+    name_map = run_db_query("SELECT * FROM name_mappings WHERE text = ?", (text,), function='fetchone')
+
+    if name_map is None:
+            return text
+
+    return run_db_query("SELECT * FROM pokemon WHERE id = ?", (name_map[2],), function='fetchone')[1]
 
 def increment_txt_counter(file_path, count=1):
     # Read the existing count (default to 0 if file does not exist)

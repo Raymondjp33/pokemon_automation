@@ -15,16 +15,6 @@ from services.common import *
 
 redis_client = redis.StrictRedis(host='localhost', port=6379, decode_responses=True)
 
-name_map = {
-    'Nidorana' : 'NidoranM',
-    'Nidoran' : 'NidoranF',
-    "Mime": 'MimeJr',
-    "Stuffull": "Stufful",
-    "Spheall": "Spheal",
-    "Registeell": "Registeel",
-    "Cryogonall": "Cryogonal",
-}
-
 def write_shiny_text():
     shiny_text_path = SWITCH1_SHINY_TEXT_PATH
     with shiny_text_path.open("w") as file1:
@@ -34,21 +24,7 @@ def increment_counter(pokemon_name, log_frame=None, caught_shiny=False):
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
 
-    counter_path = SWITCH1_COUNTER_PATH
     stream_data_path = STREAM_DATA_PATH
-    
-    # Read the existing count (default to 0 if file does not exist)
-    if counter_path.exists():
-        with counter_path.open("r") as file:
-            try:
-                count = int(file.read().strip())
-            except ValueError:
-                count = 0
-    else:
-        count = 0
-
-    # Increment the counter
-    count += 1
 
     with stream_data_path.open("r") as stream_data_file:
         stream_data = json.load(stream_data_file)
@@ -56,7 +32,7 @@ def increment_counter(pokemon_name, log_frame=None, caught_shiny=False):
     hunt_id = stream_data['switch1_hunt_id']
 
     if log_frame is not None:
-        cv2.imwrite(f"/Volumes/DexDrive/shield/{pokemon_name}-{count}.png", log_frame)
+        cv2.imwrite(f"/Volumes/DexDrive/shield/{pokemon_name}-{time.time()}.png", log_frame)
 
     if caught_shiny:
         cursor.execute("SELECT * FROM pokemon WHERE name = ?", (pokemon_name,))
@@ -96,9 +72,6 @@ def increment_counter(pokemon_name, log_frame=None, caught_shiny=False):
             SET encounters = encounters + 1
             WHERE pokemon_name = ? AND hunt_id = ?
         """, (pokemon_name, hunt_id,))
-
-    with counter_path.open("w") as file1:
-        file1.write(str(count))
             
     redis_client.publish(REDIS_CHANNEL, json.dumps({"update_data":True}))
     conn.commit()
@@ -151,7 +124,7 @@ def main() -> int:
                     time.sleep(0.1)
                     current_text = extract_encounter_text(vid)
                     pokemon = extract_pokemon_name(current_text)
-                    pokemon = name_map.get(pokemon, pokemon).lower()
+                    pokemon = get_mapped_name(pokemon).lower()
                     break
                 press(ser, 'A')
                 time.sleep(0.4)
