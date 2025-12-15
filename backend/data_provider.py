@@ -114,12 +114,14 @@ def get_pokemon_stats(cursor):
     averageEggs = totalEggs / totalEggShinies 
     
     totalStaticShinies = cursor.execute("SELECT COUNT(*) FROM catches WHERE encounter_method = ?", ('static',)).fetchone()[0]
+    totalStaticFails = cursor.execute("SELECT COUNT(*) FROM fails WHERE encounter_method = ?", ('static',)).fetchone()[0]
     totalStatic = cursor.execute("SELECT SUM(encounters) FROM hunt_encounters WHERE encounter_method = ?", ('static',)).fetchone()[0]
-    averageStatic = totalStatic / totalStaticShinies
+    averageStatic = totalStatic / (totalStaticShinies + totalStaticFails)
 
     totalWildShinies = cursor.execute("SELECT COUNT(*) FROM catches WHERE encounter_method = ?", ('wild',)).fetchone()[0]
+    totalWildFails = cursor.execute("SELECT COUNT(*) FROM fails WHERE encounter_method = ?", ('wild',)).fetchone()[0]
     totalWild = cursor.execute("SELECT SUM(encounters) FROM hunt_encounters WHERE encounter_method = ?", ('wild',)).fetchone()[0]
-    averageWild = totalWild / totalWildShinies 
+    averageWild = totalWild / (totalWildShinies + totalWildFails) 
 
 
     return {
