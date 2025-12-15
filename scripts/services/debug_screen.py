@@ -82,11 +82,11 @@ def main() -> int:
                 1,
             )
 
-        # Put rectangle on screen
+        # # Put rectangle on screen
         # cv2.rectangle(
         #     frame,
-        #     (757, 260),
-        #     (762, 265),
+        #     (306, 145),
+        #     (310, 149),
         #     Color(b=0, g=0, r=255),
         #     1,
         # )
