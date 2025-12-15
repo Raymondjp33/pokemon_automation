@@ -142,19 +142,19 @@ from services.common import *
 ###             ADD NEW HUNT
 ###
 
-# pokemon_name = 'meowth:alolan'
-# targets = 1
-# hunt_id = run_db_query("SELECT MAX(hunt_id) FROM hunt_encounters", (), function='fetchone')[0] + 1
-# encounter_method = 'wild'
-# switch = 1
-# total_dens = None
-# encounters = 0
+pokemon_name = 'copperajah'
+targets = 1
+hunt_id = run_db_query("SELECT MAX(hunt_id) FROM hunt_encounters", (), function='fetchone')[0] + 1
+encounter_method = 'wild'
+switch = 1
+total_dens = None
+encounters = 0
 
-# pokemon = run_db_query("SELECT * FROM pokemon WHERE name = ?", (pokemon_name,),function= "fetchone")
-# run_db_query(
-# "INSERT INTO hunt_encounters (pokemon_id, hunt_id, encounters, pokemon_name, switch, targets, started_hunt_ts, encounter_method, total_dens) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-# (pokemon[0], hunt_id, encounters, pokemon_name, switch, targets, int(time.time() * 1000), encounter_method, total_dens, ))
-# print(f'Added hunt {hunt_id}')
+pokemon = run_db_query("SELECT * FROM pokemon WHERE name = ?", (pokemon_name,),function= "fetchone")
+run_db_query(
+"INSERT INTO hunt_encounters (pokemon_id, hunt_id, encounters, pokemon_name, switch, targets, started_hunt_ts, encounter_method, total_dens) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+(pokemon[0], hunt_id, encounters, pokemon_name, switch, targets, int(time.time() * 1000), encounter_method, total_dens, ))
+print(f'Added hunt {hunt_id}')
 
 ###
 ###             ADD NEW Catch
@@ -186,10 +186,24 @@ from services.common import *
 # (id, name, total_encounters))
 
 ###
+###             ADD NAME MAPPING
+###
+
+# text = 'Stuffull'
+# name = 'stufful'
+
+# pokemon = run_db_query("SELECT * FROM pokemon WHERE name = ?", (name,),function= "fetchone")
+
+# run_db_query(
+# "INSERT INTO name_mappings (text, pokemon_id) VALUES (?, ?)",
+# (text, pokemon[0])
+# )
+
+###
 ###             MOVE CATCH TO FAIL
 ###
 
-# catch_id = 601
+# catch_id = 49
 
 # catch = run_db_query("SELECT * FROM catches WHERE id = ?", (catch_id,), function='fetchone')
 # run_db_query(
@@ -217,9 +231,14 @@ from services.common import *
 # cursor.execute(f"UPDATE catches SET pokemon_id = CAST(pokemon_id AS TEXT)")
 
 # cursor.execute("""
-# INSERT INTO new_pokemon (id, name, total_encounters)
-# SELECT CAST(id AS TEXT), name, total_encounters FROM pokemon;
-# """)
+# CREATE TABLE name_mappings (
+#     id INTEGER PRIMARY KEY AUTOINCREMENT,
+#     text TEXT,
+#     pokemon_id TEXT
+# );
+#  """)
+
+
 
 # conn.commit()
 # conn.close()
