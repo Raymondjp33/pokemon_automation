@@ -113,12 +113,14 @@ def handle_update_hunt(ser: serial.Serial,  vid: cv2.VideoCapture):
     next_pos = get_location(new_target['slot'])
     starting_pos = Position(col=1,row=0)
 
-    move_position(ser, starting_pos, next_pos)
-    press(ser, 'Y', sleep_time=0.5)
-    move_position(ser, next_pos, starting_pos)
-    press(ser, 'A', sleep_time=0.5)
+    safe_move_box_cursor(ser, vid, next_pos)
+    # press(ser, 'Y', sleep_time=0.5)
+    safe_perform_grasp(ser, vid, pickup=True)
+    safe_move_box_cursor(ser, vid, starting_pos)
+    # press(ser, 'A', sleep_time=0.5)
+    safe_perform_grasp(ser, vid, pickup=False)
 
-def end_program(ser: serial.Serial, failure: bool = False):
+def end_program(ser: serial.Serial, failure: bool = True):
     press(ser, 'H', duration=1)
     press(ser, 's', duration=0.25)
     press(ser, 'd', duration=0.25)
@@ -169,14 +171,28 @@ def get_box_cursor_position(vid: cv2.VideoCapture,):
     frame = getframe(vid)
     party_selected_color = (0, 220, 255)
     box_selected_color = (4, 224, 244)
+    box_selected_color2 = (8, 224, 244)
+    bottom_selected_color1 = (1, 218, 234)
+    bottom_selected_color2 = (2, 224, 244)
+    selection_colors = [party_selected_color, box_selected_color, box_selected_color2, bottom_selected_color1, bottom_selected_color2]
+    what_doya_want_popup = (45, 40, 20)
+    red_thresh = 180
+
+    # if color_near(frame[544][484], what_doya_want_popup):
+    if frame[544][484][2] > red_thresh:
+        if 'Release' == get_text(frame=getframe(vid), top_left=Point(y=303, x=296), bottom_right=Point(y=339, x=390), invert=True):
+            return 'realese'
+        elif 'Yes' == get_text(frame=getframe(vid), top_left=Point(y=433, x=962), bottom_right=Point(y=462, x=1007), invert=True):
+            return 'confirming'
 
     ## Current Party
     party_difference = 92
     party1_y = 150
     for x in range(6):
         y_location = party1_y + (x * party_difference)
-        if color_near(frame[y_location][35], party_selected_color):
-            return f'party-{x}'
+        # if color_near(frame[y_location][35], party_selected_color):
+        if frame[y_location][35][2] > red_thresh:
+            return f'-1,{x}'
 
     ## Box locations in x,y
     diff = 87
@@ -186,13 +202,45 @@ def get_box_cursor_position(vid: cv2.VideoCapture,):
         curr_x = starting_x + (x * diff)
         for y in range(5):
             curr_y = starting_y + (y * diff)
-            if color_near(frame[curr_y][curr_x], box_selected_color):
-                return f'box-{x}-{y}'
+            # if any(color_near(frame[curr_y][curr_x], certain_color) for certain_color in selection_colors):
+            if frame[curr_y][curr_x][2] > red_thresh:
+                return f'{x},{y}'
+
+    # if color_near(frame[100][471], party_selected_color):
+    if frame[100][471][2] > red_thresh:
+        return 'top'
+    
+    # if color_near(frame[613][359], bottom_selected_color1):
+    if frame[613][359][2] > red_thresh:
+        return 'bottom1'
+    
+    # if color_near(frame[613][660], bottom_selected_color2):
+    if frame[613][660][2] > red_thresh:
+        return 'bottom2'
+
+def moving_pokemon(vid: cv2.VideoCapture,):
+    if 'Swap' == get_text(frame=getframe(vid), top_left=Point(y=681, x=676), bottom_right=Point(y=708, x=720), invert=True):
+        return False
+    if 'Swap' == get_text(frame=getframe(vid), top_left=Point(y=684, x=769), bottom_right=Point(y=707, x=811), invert=True):
+        return False
+    if 'Swap' == get_text(frame=getframe(vid), top_left=Point(y=680, x=598), bottom_right=Point(y=709, x=638), invert=True):
+        return False
+    
+    return True
 
 ###
 ###     HELPER FUNCTIONS
 ###
 # Handles from the "Oh?" text through full hatch of egg
+def attempt_action(ser: serial.Serial, action, condition, *, attempts: int = 10):
+    for _ in range(attempts):
+        action()
+
+        if condition():
+            return
+    
+    end_program(ser)
+
 def hatch_egg(ser: serial.Serial):
     config.update({'hatched_eggs': config.get('hatched_eggs') + 1})
     press(ser, 'A', count=3)
@@ -202,47 +250,62 @@ def hatch_egg(ser: serial.Serial):
     print('Egg Hatched!')
 
 def delete_current_pokemon(ser: serial.Serial, vid: cv2.VideoCapture):
-
     if check_if_shiny(vid):
         print('Attempting to delete shiny, aborting!')
-        end_program(ser, failure=True)
+        end_program(ser)
 
-    # Select pokemon, we are looking for the word 'Release in the menu'    
-    for x in range(10):
-        press(ser, 'A', sleep_time=1)
-        if 'Release' == get_text(frame=getframe(vid), top_left=Point(y=303, x=296), bottom_right=Point(y=339, x=390), invert=True):
-            break
+    selected_color = (0, 219, 255)
 
-        if (x > 6):
-            print('Should see release and I cant!')
-            end_program(ser, failure=True)
+    # Select pokemon, we are looking for the word 'Release' in the menu'   
+    attempt_action(
+        ser, 
+        action = lambda: press(ser, 'A', sleep_time=1),
+        condition = lambda: ('Release' == get_text(frame=getframe(vid), top_left=Point(y=303, x=296), bottom_right=Point(y=339, x=390), invert=True)),
+    )
 
     # Pokemon menu should be open, make sure we are over 'Release'
-    selected_color = (0, 219, 255)
-    frame=getframe(vid)
-    curr = 0
-    while not color_near(frame[320][500], selected_color):
-        press(ser, 'w', sleep_time=0.3)
-        frame=getframe(vid)
-        curr = curr + 1
-        if (curr > 12):
-            print('Should be over release and im not!')
-            end_program(ser, failure=True)
+    attempt_action(
+        ser, 
+        action = lambda: press(ser, 'w', sleep_time=0.3),
+        condition = lambda: (color_near((getframe(vid))[320][500], selected_color)),
+    )
     time.sleep(0.3)
 
-    press(ser, 'A', sleep_time=1)
-        
-    curr = 0
-    while not 'Yes' == get_text(frame=getframe(vid), top_left=Point(y=433, x=962), bottom_right=Point(y=462, x=1007), invert=True):
-        time.sleep(0.1)
-        curr = curr + 1
-        if (curr > 12):
-            print('Should be looking at yes and im not')
-            end_program(ser, failure=True)
+    # Make sure we now see the word 'Yes' in the menu
+    attempt_action(
+        ser, 
+        action = lambda: press(ser, 'A', sleep_time=1),
+        condition = lambda: 'Yes' == get_text(frame=getframe(vid), top_left=Point(y=433, x=962), bottom_right=Point(y=462, x=1007), invert=True),
+    )
+
+    # Make sure we are over the word yes
+    attempt_action(
+        ser, 
+        action = lambda: press(ser, 'w', sleep_time=1),
+        condition = lambda: color_near((getframe(vid))[442][1047], selected_color),
+    )
+
+    # Make sure that yes was tapped
+    attempt_action(
+        ser, 
+        action = lambda: press(ser, 'A'),
+        condition = lambda: (not 'Yes' == get_text(frame=getframe(vid), top_left=Point(y=433, x=962), bottom_right=Point(y=462, x=1007), invert=True)),
+    )
     
-    press(ser, 'w', sleep_time=1)
-    press(ser, 'A', sleep_time=1.2)
-    press(ser, 'A', sleep_time=1.75)
+    # Wait until we see 'Bye-Bye' text
+    attempt_action(
+        ser, 
+        action = lambda: time.sleep(0.5),
+        condition = lambda: ('Bye-bye' == get_text(frame=getframe(vid), top_left=Point(y=593, x=361), bottom_right=Point(y=632, x=454), invert=True)),
+    )
+    time.sleep(0.5)
+
+    # Make sure that 'Bye Bye' text is gone
+    attempt_action(
+        ser, 
+        action = lambda: press(ser, 'A', sleep_time=1.75),
+        condition = lambda: (not 'Bye-bye' == get_text(frame=getframe(vid), top_left=Point(y=593, x=361), bottom_right=Point(y=632, x=454), invert=True)),
+    )
 
 def check_menu(ser: serial.Serial, vid: cv2.VideoCapture, leave_open:bool = False):
     print(f'Checking for the menu and {"leaving it open" if leave_open else "closing it"}')
@@ -285,17 +348,25 @@ def select_menu_item(ser: serial.Serial, vid: cv2.VideoCapture, menu_item: str):
 
     if menu_item == current_menu_item:
         press(ser, 'A', sleep_time=2)
-        print('')
+        if menu_item == 'Boxes':        
+            curr = 0
+            while get_box_cursor_position(vid) != '0,0':
+                time.sleep(1)
+                if curr > 10:
+                    end_program(ser)
+                curr = curr + 1
+
     elif current_menu_item == "Boxes":
         press(ser, 's')
         press(ser, 'A', sleep_time=2)
+
     else:
         press(ser, 'w')
         press(ser, 'A', sleep_time=2)
 
     print(f'Entering {menu_item}')
 
-def reset_position(ser: serial.Serial, vid: cv2.VideoCapture,):
+def reset_position(ser: serial.Serial, vid: cv2.VideoCapture, full_reset=False):
     # Open map
     press(ser, 'Y', sleep_time=2.5)
 
@@ -331,19 +402,35 @@ def reset_position(ser: serial.Serial, vid: cv2.VideoCapture,):
         print("Already on zero")
 
         if map_on_zero(vid) != 2:
-            end_program(ser, failure=True)
+            end_program(ser)
 
     # At this point we should be looking at "Fly Here"
     press(ser, 'A', sleep_time=1.5, count=2)
 
-    toggle_riding(ser, vid)
-    press(ser, 'L', sleep_time=0.5)
-    press(ser, 'e', sleep_time=0.5)
-    press(ser, 'L', sleep_time=0.5)
-    press(ser, 'w', duration=2.5)
-    press(ser, 'd', duration=2.2)
-    press(ser, 'a', duration=0.3)
-    press(ser, 'L', sleep_time=0.5)
+    if full_reset:
+        toggle_riding(ser, vid)
+        select_menu_item(ser, vid, 'Boxes')
+        move_eggs_to_party(ser, vid, from_party=True)
+        exit_menus(ser, vid)
+        press(ser, 'e', duration=2, sleep_time=5)
+        press(ser, 's', duration=2, sleep_time=3)
+        toggle_riding(ser, vid)
+        press(ser, 'w', duration=4)
+        press(ser, 'd', duration=1)
+        press(ser, 'a', duration=0.5)
+        press(ser, 'L', sleep_time=0.5)
+        select_menu_item(ser, vid, 'Boxes')
+        move_eggs_to_party(ser, vid)
+        exit_menus(ser, vid)
+    else:
+        toggle_riding(ser, vid)
+        press(ser, 'L', sleep_time=0.5)
+        press(ser, 'e', sleep_time=0.5)
+        press(ser, 'L', sleep_time=0.5)
+        press(ser, 'w', duration=2.5)
+        press(ser, 'd', duration=2.2)
+        press(ser, 'a', duration=0.3)
+        press(ser, 'L', sleep_time=0.5)
 
 def toggle_riding(ser: serial.Serial,  vid: cv2.VideoCapture, get_off: bool = False):
     check_menu(ser, vid, leave_open=True)
@@ -358,20 +445,54 @@ def toggle_riding(ser: serial.Serial,  vid: cv2.VideoCapture, get_off: bool = Fa
     else:
         press(ser, 'B', sleep_time=1)
 
-def move_eggs_to_party(ser: serial.Serial):
+def move_eggs_to_party(ser: serial.Serial, vid: cv2.VideoCapture, from_party=False):
     columns_to_move = int(math.floor(config.get("hatched_eggs", 0) / 5))
 
-    if columns_to_move > 5:
+    if columns_to_move > 5 or config.get('fetched_eggs') < 30:
         return
 
-    press(ser, 'd', count=columns_to_move, sleep_time=0.5)
-    time.sleep(0.5)
-    press(ser, '-', sleep_time=0.5)
-    press(ser, 's', count=4)
-    press(ser, 'A', sleep_time=0.5)
-    press(ser, 'a', sleep_time=0.5, count=columns_to_move + 1)
-    press(ser, 's', sleep_time=0.5)
-    press(ser, 'A', sleep_time=1)
+    if from_party:
+        safe_move_box_cursor(ser, vid, Position(col=-1, row=1))
+        time.sleep(0.5)
+        attempt_action(
+            ser, 
+            action = lambda: press(ser, '-', sleep_time=0.5),
+            condition = lambda: moving_pokemon(vid),
+        )
+        safe_move_box_cursor(ser, vid, Position(col=-1, row=5))
+        attempt_action(
+            ser, 
+            action = lambda: press(ser, 'A', sleep_time=0.5),
+            condition = lambda: get_box_cursor_position(vid) == '-1,1',
+        )
+        safe_move_box_cursor(ser, vid, Position(col=columns_to_move, row=0))
+        attempt_action(
+            ser, 
+            action = lambda: press(ser, 'A', sleep_time=1),
+            condition = lambda: (not moving_pokemon(vid)),
+        )
+    else:
+        safe_move_box_cursor(ser, vid, Position(col=columns_to_move, row=0))
+        time.sleep(0.5)
+        attempt_action(
+            ser, 
+            action = lambda: press(ser, '-', sleep_time=0.5),
+            condition = lambda: moving_pokemon(vid),
+        )
+
+        safe_move_box_cursor(ser, vid, Position(col=columns_to_move, row=4))
+        attempt_action(
+            ser, 
+            action = lambda: press(ser, 'A', sleep_time=0.5),
+            condition = lambda: get_box_cursor_position(vid) == f'{columns_to_move},0',
+        )
+
+        safe_move_box_cursor(ser, vid, Position(col=-1, row=1))
+        attempt_action(
+            ser, 
+            action = lambda: press(ser, 'A', sleep_time=1),
+            condition = lambda: (not moving_pokemon(vid)),
+        )
 
 def handle_battle_check(ser: serial.Serial,  vid: cv2.VideoCapture):
 
@@ -389,8 +510,82 @@ def handle_battle_check(ser: serial.Serial,  vid: cv2.VideoCapture):
     time.sleep(1)
     # Now we should be over run
     press(ser, 'A', sleep_time=5)
-    reset_position(ser, vid)
+    reset_position(ser, vid, full_reset=True)
 
+def validate_and_extract_split(input_string: str | None):
+    if input_string == None:
+        return None
+
+    try:
+        parts = input_string.split(',')
+        if len(parts) == 2:
+            num1 = int(parts[0])
+            num2 = int(parts[1])
+            return (num1, num2)
+    except ValueError:
+        return None
+    
+    return None
+    
+def safe_move_box_cursor(ser: serial.Serial, vid: cv2.VideoCapture, to_pos: Position):
+    current_pos = validate_and_extract_split(get_box_cursor_position(vid))
+
+    if (current_pos == None):
+        print("Dont know or invalid position!")
+        end_program(ser)
+        return
+    
+    current_pos = Position(col=current_pos[0], row=current_pos[1])
+    move_position(ser, current_pos, to_pos)
+
+    print(current_pos)
+    print(get_box_cursor_position(vid))
+
+    current_pos = validate_and_extract_split(get_box_cursor_position(vid))
+    if current_pos[0] != to_pos.col or current_pos[1] != to_pos.row:
+        safe_move_box_cursor(ser, vid, to_pos)
+
+def safe_move_box_number(ser: serial.Serial, vid: cv2.VideoCapture, to_box: int):
+    def get_current_box():
+        try:
+            return int(get_text(frame=getframe(vid), top_left=Point(y=82, x=543), bottom_right=Point(y=118, x=607), invert=True))
+        except: 
+            return None
+        
+    current_box = get_current_box()
+    if (current_box == None):
+        print("Dont know box number or invalid box num!")
+        end_program(ser)
+        return
+    
+    box_diff = to_box - current_box
+    press(ser, 'L' if box_diff < 0 else 'R', sleep_time=1.5, count=abs(box_diff))
+
+    current_box = get_current_box()
+    if (current_box == None):
+        print("Dont know box number or invalid box num!")
+        end_program(ser)
+        return
+    if current_box != to_box:
+        safe_move_box_cursor(ser, vid, to_box)
+
+def safe_perform_grasp(ser: serial.Serial, vid: cv2.VideoCapture, pickup: bool):
+    attempt_action(
+        ser, 
+        action = lambda: press(ser, 'Y' if pickup else 'A', sleep_time=1),
+        condition = lambda: (moving_pokemon(vid) if pickup else (not moving_pokemon(vid))),
+    ) 
+
+def exit_menus(ser: serial.Serial, vid: cv2.VideoCapture,):
+    main_menu_showing = lambda: 'MAIN MENU' == get_text(frame=getframe(vid), top_left=Point(y=112, x=884), bottom_right=Point(y=154, x=1038), invert=True)
+    boxes_open = lambda: 'Back' == get_text(frame=getframe(vid), top_left=Point(y=677, x=1217), bottom_right=Point(y=707, x=1262), invert=True)
+
+    attempt_action(
+        ser, 
+        action = lambda: press(ser, 'B', sleep_time=2),
+        condition = lambda: (not (main_menu_showing() or boxes_open())),
+    ) 
+    
 ###
 ###     CORE FUNCTIONS
 ###
@@ -403,7 +598,7 @@ def handle_picnic_and_egg_fetching(ser: serial.Serial, vid: cv2.VideoCapture):
 
     if prepare_party(ser, vid, breeding=True):
         # We have no next target, end the program
-        end_program(ser)
+        end_program(ser, failure=False)
         return 0
     select_menu_item(ser, vid, "Picnic")
     time.sleep(7)
@@ -496,38 +691,44 @@ def prepare_party(ser: serial.Serial,  vid: cv2.VideoCapture, breeding: bool = F
     time.sleep(2)
 
     press(ser, 'L', sleep_time=1.5)
+    safe_move_box_number(ser, vid, 4)
 
     # Swap ditto and coalossal
-    press(ser, 'Y', sleep_time=0.3)
-    press(ser, 'a', sleep_time=.5)
-    press(ser, 'A', sleep_time=0.5)
+    # press(ser, 'Y', sleep_time=0.3)
+    safe_perform_grasp(ser, vid, pickup=True)
+    safe_move_box_cursor(ser, vid, Position(col=-1, row=0))
+    # press(ser, 'A', sleep_time=0.5)
+    safe_perform_grasp(ser, vid, pickup=False)
 
     # Either put away or move breeding pokemon respectively
     if breeding:
-        press(ser, 'd', count=2, sleep_time=0.3)
+        safe_move_box_cursor(ser, vid, Position(col=1, row=0))
 
         if config.get('target_met'):
             if handle_update_hunt(ser, vid):
                 return True
 
-        press(ser, 'Y', sleep_time=0.5)
-        press(ser, 'a', count=2, sleep_time=0.3)
-        press(ser, 's', sleep_time=0.3)
-        press(ser, 'A', sleep_time=0.5)
-        press(ser, 'R', sleep_time=1.5)
+        # press(ser, 'Y', sleep_time=0.5)
+        safe_perform_grasp(ser, vid, pickup=True)
+        safe_move_box_cursor(ser, vid, Position(col=-1, row=1))
+        # press(ser, 'A', sleep_time=0.5)
+        safe_perform_grasp(ser, vid, pickup=False)
+        safe_move_box_number(ser, vid, 5)
     else:
-        press(ser, 's', sleep_time=0.3)
-        press(ser, 'Y', sleep_time=0.5)
-        press(ser, 'd', count=2, sleep_time=0.3)
-        press(ser, 'w', sleep_time=0.3)
-        press(ser, 'A', sleep_time=0.5)
-        press(ser, 'a', sleep_time=0.5)
-        press(ser, 'R', sleep_time=1.5)
-        move_eggs_to_party(ser)
+        # press(ser, 's', sleep_time=0.3)
+        safe_move_box_cursor(ser, vid, Position(col=-1, row=1))
+        # press(ser, 'Y', sleep_time=0.5)
+        safe_perform_grasp(ser, vid, pickup=True)
+        safe_move_box_cursor(ser, vid, Position(col=1, row=0))
+        # press(ser, 'A', sleep_time=0.5)
+        safe_perform_grasp(ser, vid, pickup=False)
+        safe_move_box_cursor(ser, vid, Position(col=0, row=0))
+        # press(ser, 'R', sleep_time=1.5)
+        safe_move_box_number(ser, vid, 5)
+        move_eggs_to_party(ser, vid)
 
     
-    press(ser, 'B', sleep_time=3)
-    press(ser, 'B', sleep_time=1)
+    exit_menus(ser, vid)
 
 def hatch_eggs(ser: serial.Serial,  vid: cv2.VideoCapture,):
     total_hatched = config.get('hatched_eggs')
@@ -553,7 +754,7 @@ def hatch_eggs(ser: serial.Serial,  vid: cv2.VideoCapture,):
             if current_time > 150:
                 handle_battle_check(ser, vid)
             elif current_time > 1000:
-                end_program(ser, failure=True)
+                end_program(ser)
 
             # press(ser, '{', duration=0.03, write_null_byte=False)
             # press(ser, 'q', duration=0.5, write_null_byte=False)
@@ -574,7 +775,7 @@ def hatch_eggs(ser: serial.Serial,  vid: cv2.VideoCapture,):
         time.sleep(1)
         select_menu_item(ser, vid, 'Boxes')
         save_needed = handle_process_eggs(ser, vid)
-        move_eggs_to_party(ser)
+        move_eggs_to_party(ser, vid)
         press(ser, 'B', sleep_time=3)
 
         if save_needed:
@@ -594,7 +795,8 @@ def handle_process_eggs(ser: serial.Serial, vid: cv2.VideoCapture,):
     print('Processing eggs!')
     increment_counter(caught_index=None)
 
-    press(ser, 'a', sleep_time=.5)
+    # press(ser, 'a', sleep_time=.5)
+    safe_move_box_cursor(ser, vid, Position(col=-1, row=0))
 
     line_count = 5
 
@@ -602,41 +804,43 @@ def handle_process_eggs(ser: serial.Serial, vid: cv2.VideoCapture,):
     any_shiny = False
     # Check for any shiny
     for x in range(5):
-        press(ser, 's', sleep_time=.75)
+        # press(ser, 's', sleep_time=.75)
+        safe_move_box_cursor(ser, vid, Position(col=-1, row=x+1))
         is_shiny = check_if_shiny(vid)
         if (is_shiny):
             any_shiny = True
             open_slot = config.get('open_slot')
-            boxes_to_move = 2 + int((open_slot - 1) / 30)
+            # boxes_to_move = 2 + int((open_slot - 1) / 30)
+            box_to_move_to = 3 - int((open_slot - 1) / 30)
             print(f'We have a shiny at index {x}!')
             target_met = increment_counter(caught_index=x)
             line_count = line_count - 1
             # Pick shiny up 
             print('Picking shiny up')
-            press(ser, 'A', sleep_time=0.75, count=2)
-            time.sleep(1)
+            # press(ser, 'Y')
+            safe_perform_grasp(ser, vid, pickup=True)
+            time.sleep(1.5)
             # Put in open spot
             print('Putting in open spot')
-            press(ser, 'w', count = x + 1, sleep_time=0.5)
-            press(ser, 'd', sleep_time=0.5)
-            press(ser, 'L', sleep_time=2, count=boxes_to_move)
+            # press(ser, 'L', sleep_time=2, count=boxes_to_move)
+            safe_move_box_number(ser, vid, box_to_move_to)
             move_location = get_location(open_slot)
+            starting_location = Position(col=0, row=0)
             config.update({'open_slot': config.get('open_slot') + 1})
 
-            make_move(ser, from_pos=0, to_pos=move_location.row, move_vertical=True)
-            make_move(ser, from_pos=0, to_pos=move_location.col, move_vertical=False)
-            press(ser, 'A', sleep_time=1.5)
+            safe_move_box_cursor(ser, vid, move_location)
+            # press(ser, 'A', sleep_time=1.5)
+            safe_perform_grasp(ser, vid, pickup=False)
 
             # Come back
-            make_move(ser, from_pos=move_location.row, to_pos=0, move_vertical=True)
-            make_move(ser, from_pos=move_location.col, to_pos=0, move_vertical=False)
-            press(ser, 'R', sleep_time=2, count=boxes_to_move)
-            press(ser, 'a', sleep_time=0.5)
-            press(ser, 's', count = x, sleep_time=0.5)
+            safe_move_box_cursor(ser, vid, starting_location)
+            safe_move_box_number(ser, vid, 5)
+            safe_move_box_cursor(ser, vid, Position(col=-1, row=x))
         else:   
             print(f'Pokemon at index {x} is not shiny')
 
-    press(ser, 'w', count=line_count - 1, sleep_time=0.25)
+    # press(ser, 'w', count=line_count - 1, sleep_time=0.25)
+    safe_move_box_cursor(ser, vid, Position(col=-1, row=1))
     time.sleep(0.5)
 
     # Delete all non shiny
@@ -663,22 +867,26 @@ def main() -> int:
 
     with serial.Serial(ser_str, 9600) as ser, shh(ser):
         time.sleep(2)
-        # toggle_riding(ser, vid, get_off=True)
-        # prepare_party(ser, vid)
-        # handle_update_hunt(ser, vid)
+
         # handle_process_eggs(ser, vid)
-        # print(get_box_cursor_position(vid))
         # delete_current_pokemon(ser, vid)
-        # move_eggs_to_party(ser)
-        # hatch_eggs(ser, vid)
-        # handle_process_eggs(ser, vid)
-        reset_position(ser, vid)
-        # end_program(ser, failure=True)
-        # handle_battle_check(ser, vid)
-        return 
+        # move_eggs_to_party(ser, vid, from_party=False)
+        # safe_move_box_number(ser, vid, 3)
+        # exit_menus(ser, vid)
+        # reset_position(ser, vid, full_reset=True)
+        # prepare_party(ser, vid, breeding=False)
+        # return 
     
         while True:
-            reset_position(ser, vid)
+
+            # print(get_box_cursor_position(vid))
+            # print(color_near((getframe(vid))[540][482], (45, 40, 20)))
+            # print(get_text(frame=getframe(vid), top_left=Point(y=681, x=676), bottom_right=Point(y=708, x=720), invert=True))
+            # print(moving_pokemon(vid))
+            # time.sleep(1)
+            # continue
+
+            reset_position(ser, vid, full_reset=True)
             handle_picnic_and_egg_fetching(ser, vid)
             hatch_eggs(ser, vid)
 
