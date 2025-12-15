@@ -65,13 +65,13 @@ def main() -> int:
             # press(ser, 'A', sleep_time=0.5, count=3)
 
             ## Bench
-            # press(ser, 'd', duration=2.5)
-            # press(ser, 'a', duration=2.5)
+            # press(ser, 'a', duration=0.75)
+            # press(ser, 'd', duration=0.5)
+            press(ser, 'w', duration=2)
+            press(ser, 's', duration=2.3)
             # press(ser, 's')
-            # press(ser, 'w', duration=4)
-            # press(ser, 's', duration=4.5)
-            # press(ser, 'A', sleep_time=0.5, count=7)
-            # time.sleep(20)
+            press(ser, 'A', sleep_time=0.5, count=7)
+            time.sleep(20)
 
             ## Teleporter
             # press(ser, 'A', sleep_time=4)
@@ -97,8 +97,15 @@ def main() -> int:
             # press(ser, 'A', sleep_time=0.5, count=4)
             # time.sleep(4)
 
+            ## Zone tp (7)
+            # press(ser, '+', sleep_time=1.25)
+            # press(ser, 'a')
+            # press(ser, 'A', sleep_time=0.5, count=4)
+            # press(ser, 'B')
+            # time.sleep(4)
+
             ## Zone 3
-            press(ser, 's', duration=1, sleep_time=3)
+            # press(ser, 's', duration=1, sleep_time=3)
 
             ## Unspecific
             increment_reset_counter('/Users/raymondprice/Desktop/other/test_coding/pokemon_scripts/pokemon_automation/scripts/configs/bench_counter.txt')
