@@ -5,6 +5,7 @@ import '../../../../services/file_provider.dart';
 import 'right_block1.dart';
 import 'right_block2.dart';
 import 'right_block3.dart';
+import 'right_block4.dart';
 
 class RightSwitchContent extends StatelessWidget {
   const RightSwitchContent({super.key});
@@ -24,6 +25,11 @@ class RightSwitchContent extends StatelessWidget {
       case 2:
         child = RightBlock2(
           key: ValueKey(2),
+        );
+        break;
+      case 3:
+        child = RightBlock4(
+          key: ValueKey(3),
         );
         break;
       case 0:

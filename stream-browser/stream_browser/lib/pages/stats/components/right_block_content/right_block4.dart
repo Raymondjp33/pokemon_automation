@@ -8,13 +8,13 @@ import '../../../../services/file_provider.dart';
 import '../line_item.dart';
 import '../pokemon_display/pokemon_display.dart';
 
-class LeftBlock1 extends StatelessWidget {
-  const LeftBlock1({super.key});
+class RightBlock4 extends StatelessWidget {
+  const RightBlock4({super.key});
 
   @override
   Widget build(BuildContext context) {
     final FileProvider fileProvider = context.watch<FileProvider>();
-    final List<PokemonModel> pokemon = fileProvider.switch1Pokemon;
+    final List<PokemonModel> pokemon = fileProvider.switch2Pokemon;
     final StatsModel? pokemonStats = fileProvider.pokemonStats;
 
     int totalShinies = pokemonStats?.totalEggShinies ?? 0;
@@ -22,10 +22,10 @@ class LeftBlock1 extends StatelessWidget {
     double averageEncounters = pokemonStats?.averageEggs ?? 0;
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         Text(
-          'SHIELD',
+          'Violet',
           style: AppTextStyles.minecraftTen(fontSize: 32),
         ),
         LineItem(leftText: 'Odds (Charm, Masuda)', rightText: '1/512'),
