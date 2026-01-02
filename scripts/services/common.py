@@ -22,8 +22,8 @@ DB_FILE = Path(__file__).resolve().parent.parent.parent / 'backend' / 'my_pokemo
 REDIS_CHANNEL = "update_data"
 
 SWITCH1_SERIAL = '/dev/tty.usbmodem14101'
-SWITCH2_SERIAL = '/dev/tty.usbmodem1301'
-SWITCH3_SERIAL = '/dev/tty.usbserial-1420'
+SWITCH2_SERIAL = '/dev/tty.usbserial-1420'
+SWITCH3_SERIAL = '/dev/tty.usbmodem1301'
 
 SWITCH1_VID_NUM = 0
 SWITCH2_VID_NUM = 2
