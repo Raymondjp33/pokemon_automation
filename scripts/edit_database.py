@@ -142,19 +142,19 @@ from services.common import *
 ###             ADD NEW HUNT
 ###
 
-pokemon_name = 'copperajah'
-targets = 1
-hunt_id = run_db_query("SELECT MAX(hunt_id) FROM hunt_encounters", (), function='fetchone')[0] + 1
-encounter_method = 'wild'
-switch = 1
-total_dens = None
-encounters = 0
+# pokemon_name = 'thievul'
+# targets = 0
+# hunt_id = run_db_query("SELECT MAX(hunt_id) FROM hunt_encounters", (), function='fetchone')[0] + 1
+# encounter_method = 'wild'
+# switch = 1
+# total_dens = None
+# encounters = 0
 
-pokemon = run_db_query("SELECT * FROM pokemon WHERE name = ?", (pokemon_name,),function= "fetchone")
-run_db_query(
-"INSERT INTO hunt_encounters (pokemon_id, hunt_id, encounters, pokemon_name, switch, targets, started_hunt_ts, encounter_method, total_dens) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-(pokemon[0], hunt_id, encounters, pokemon_name, switch, targets, int(time.time() * 1000), encounter_method, total_dens, ))
-print(f'Added hunt {hunt_id}')
+# pokemon = run_db_query("SELECT * FROM pokemon WHERE name = ?", (pokemon_name,),function= "fetchone")
+# run_db_query(
+# "INSERT INTO hunt_encounters (pokemon_id, hunt_id, encounters, pokemon_name, switch, targets, started_hunt_ts, encounter_method, total_dens) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+# (pokemon[0], hunt_id, encounters, pokemon_name, switch, targets, int(time.time() * 1000), encounter_method, total_dens, ))
+# print(f'Added hunt {hunt_id}')
 
 ###
 ###             ADD NEW Catch
@@ -238,15 +238,14 @@ print(f'Added hunt {hunt_id}')
 # );
 #  """)
 
-
+# cursor.execute("""
+#         ALTER TABLE tempmons
+#         ADD hunt_id INTEGER;
+#  """)
 
 # conn.commit()
 # conn.close()
    
-# cursor.execute("""
-#         ALTER TABLE hunt_encounters
-#         ADD total_dens INTEGER;
-#  """)
 
 # user_input = input("> ").strip()
 # inputs = user_input.split(' ')
