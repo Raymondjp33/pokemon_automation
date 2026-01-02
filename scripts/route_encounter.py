@@ -17,17 +17,8 @@ from services.common import *
 
 redis_client = redis.StrictRedis(host='localhost', port=6379, decode_responses=True)
 
-name_map = {
-    'Nidorana' : 'NidoranM',
-    'Nidoran' : 'NidoranF',
-    "Mime": 'MimeJr',
-    "Stuffull": "Stufful",
-    "Spheall": "Spheal",
-    "Sneasell": "Sneasel"
-}
-
 def write_shiny_text():
-    shiny_text_path = SWITCH2_SHINY_TEXT_PATH
+    shiny_text_path = SWITCH1_SHINY_TEXT_PATH
     with shiny_text_path.open("w") as file1:
         file1.write("I got a shiny! My switch\nwill be off until I can\ncome catch it!")
 
@@ -40,9 +31,9 @@ def increment_counter(pokemon_name, log_frame=None):
     with stream_data_path.open("r") as stream_data_file:
         stream_data = json.load(stream_data_file)
 
-    hunt_id = stream_data['switch2_hunt_id']
+    hunt_id = stream_data['switch1_hunt_id']
 
-    cursor.execute("SELECT * FROM pokemon WHERE name = ?", (pokemon_name,))
+    cursor.execute("SELECT * FROM hunt_encounters WHERE pokemon_name = ? AND hunt_id = ?", (pokemon_name, hunt_id,))
     pokemon_row = cursor.fetchone()
     if (log_frame is not None):
         cursor.execute("SELECT SUM(encounters) FROM catches WHERE name = ? AND hunt_id = ?", (pokemon_name, hunt_id,))
@@ -79,13 +70,12 @@ def increment_counter(pokemon_name, log_frame=None):
             """, (pokemon_name, hunt_id,))
     else:
         cursor.execute("""
-            INSERT INTO tempmons (name, encounters)
-            VALUES (?, 1)
+            INSERT INTO tempmons (name, encounters, hunt_id)
+            VALUES (?, 1, ?)
             ON CONFLICT(name) DO UPDATE SET
                 encounters = encounters + 1
-        """, (pokemon_name,))
+        """, (pokemon_name, hunt_id,))
 
-    increment_txt_counter(SWITCH2_COUNTER_PATH)
     redis_client.publish(REDIS_CHANNEL, json.dumps({"update_data":True}))
     conn.commit()
     conn.close()
@@ -174,15 +164,14 @@ def handle_encoutner_check(vid: cv2.VideoCapture, stop_event, mon_que, delay_que
 
     delay = t1 - t0
 
-    pokemon = name_map.get(pokemon, pokemon)
-    pokemon = pokemon.lower()
+    pokemon = get_mapped_name(pokemon).lower()
     mon_que.put(pokemon)
     delay_que.put(delay)
     frame_que.put(log_frame)
 
 def main() -> int:
-    ser_str = SWITCH2_SERIAL
-    vid = make_vid(SWITCH2_VID_NUM)
+    ser_str = SWITCH1_SERIAL
+    vid = make_vid(SWITCH1_VID_NUM)
 
 
 
@@ -230,11 +219,12 @@ def main() -> int:
 
             increment_counter(pokemon_name=pokemon)
 
-            frame = getframe(vid)
-            current_text = get_text(frame=frame, top_left=Point(y=650, x=1054), bottom_right=Point(y=699, x=1123), invert=True)
-            while current_text != 'Run':
-                current_text = get_text(frame=frame, top_left=Point(y=650, x=1054), bottom_right=Point(y=699, x=1123), invert=True)
+            run_texts = []
+            while 'Run' not in run_texts:
                 frame = getframe(vid)
+                switch2_run_text = get_text(frame=frame, top_left=Point(y=650, x=1054), bottom_right=Point(y=699, x=1123), invert=True)
+                switch1_run_text = get_text(frame=frame, top_left=Point(y=639, x=1038), bottom_right=Point(y=682, x=1102), invert=True)
+                run_texts = [switch2_run_text, switch1_run_text]
                 time.sleep(1)
             
             print('Running')
