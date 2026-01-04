@@ -372,37 +372,32 @@ def reset_position(ser: serial.Serial, vid: cv2.VideoCapture, full_reset=False):
 
     # Try to get over the area zero gate fast travel
     ready_to_travel = False
-    press(ser, 'c', sleep_time=1)
-    if map_on_zero(vid) == 1:
-        print("Got to zero moving with 'c'")
+    press(ser, 'A', sleep_time=1)
+    if map_on_zero(vid) == 2:
         ready_to_travel = True
-        press(ser, 'A', sleep_time=1)
-    
-    if not ready_to_travel:
-        press(ser, '+', sleep_time=1)
-        press(ser, 's', sleep_time=1)
-
-        if map_on_zero(vid) == 1:
-            print("Got to zero moving with 's'")
-            ready_to_travel = True
-            press(ser, 'A', sleep_time=1)
-    
-    if not ready_to_travel:
-        press(ser, '+', sleep_time=1)
-        press(ser, 'q', sleep_time=1)
-
-        if map_on_zero(vid) == 1:
-            print("Got to zero moving with 'q'")
-            ready_to_travel = True
-            press(ser, 'A', sleep_time=1)
-
-    if not ready_to_travel:
-        press(ser, '+', sleep_time=1)
-        press(ser, 'A', sleep_time=1)
         print("Already on zero")
+    else:
+        press(ser, 'B', sleep_time=2)
 
-        if map_on_zero(vid) != 2:
-            end_program(ser)
+    def attempt_map_move(button):
+        nonlocal ready_to_travel
+        if ready_to_travel:
+            return
+        
+        press(ser, '+', sleep_time=1)
+        press(ser, button, sleep_time=1)
+        if map_on_zero(vid) == 1:
+            ready_to_travel = True
+            press(ser, 'A', sleep_time=1)
+            print(f"Got to zero moving with '{button}'")
+
+    attempt_map_move('c')
+    attempt_map_move('s')
+    attempt_map_move('q')
+    attempt_map_move('d')
+    
+    if not ready_to_travel:
+        end_program(ser)
 
     # At this point we should be looking at "Fly Here"
     press(ser, 'A', sleep_time=1.5, count=2)
