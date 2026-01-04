@@ -15,8 +15,10 @@ from services.common import *
 
 redis_client = redis.StrictRedis(host='localhost', port=6379, decode_responses=True)
 
+SWITCH_NUM = 1
+
 def write_shiny_text():
-    shiny_text_path = SWITCH2_SHINY_TEXT_PATH
+    shiny_text_path = SWITCH1_SHINY_TEXT_PATH if SWITCH_NUM == 1 else SWITCH2_SHINY_TEXT_PATH
     with shiny_text_path.open("w") as file1:
         file1.write("I got a shiny! My switch\nwill be off until I can\ncome catch it!")
 
@@ -29,7 +31,7 @@ def increment_counter(pokemon_name, log_frame=None, caught_shiny=False):
     with stream_data_path.open("r") as stream_data_file:
         stream_data = json.load(stream_data_file)
 
-    hunt_id = stream_data['switch2_hunt_id']
+    hunt_id = stream_data['switch1_hunt_id' if SWITCH_NUM == 1 else 'switch2_hunt_id']
 
     if log_frame is not None:
         cv2.imwrite(f"/Volumes/DexDrive/shield/{pokemon_name}-{time.time()}.png", log_frame)
@@ -53,7 +55,7 @@ def increment_counter(pokemon_name, log_frame=None, caught_shiny=False):
                 int(time.time() * 1000),
                 count_difference,
                 "wild",
-                2,
+                1 if SWITCH_NUM == 1 else 2,
                 pokemon_name,
                 None,
                 hunt_id
@@ -100,8 +102,8 @@ def reset_game(ser: serial.Serial):
 
 
 def main() -> int:
-    ser_str = SWITCH2_SERIAL
-    vid = make_vid(SWITCH2_VID_NUM)
+    ser_str = SWITCH1_SERIAL if SWITCH_NUM == 1 else SWITCH2_SERIAL
+    vid = make_vid(SWITCH1_VID_NUM if SWITCH_NUM == 1 else SWITCH2_VID_NUM)
 
     x_val = 1143
     y_val = 640
