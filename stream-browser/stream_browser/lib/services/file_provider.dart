@@ -19,8 +19,12 @@ class FileProvider with ChangeNotifier {
   PokemonData? pokemonData;
   StreamData? streamData;
   DateTime now = DateTime.now();
-  int get rightScreenIndex => streamData?.switch2Content ?? 0;
-  int get leftScreenIndex => streamData?.switch1Content ?? 0;
+  String get leftScreenContent =>
+      streamData?.switch1Content?.content ?? 'current';
+  String get leftSwitchGame => streamData?.switch1Content?.game ?? 'shield';
+  String get rightScreenContent =>
+      streamData?.switch2Content?.content ?? 'current';
+  String get rightSwitchGame => streamData?.switch2Content?.game ?? 'shield';
 
   final List<String> logs1 = [];
 

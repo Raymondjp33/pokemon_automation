@@ -25,9 +25,10 @@ class Switch2Content extends StatelessWidget {
     int? startTime = pokemon?.firstOrNull?.startedHuntTimestamp?.toInt();
 
     final screenIndex =
-        context.select((FileProvider state) => state.rightScreenIndex);
+        context.select((FileProvider state) => state.rightScreenContent);
 
-    if (screenIndex == 0) {
+    // FIX THIS
+    if (screenIndex == '') {
       return Center(
         child: (pokemon?.length ?? 0) > 3
             ? Container(

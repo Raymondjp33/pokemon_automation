@@ -1,15 +1,17 @@
 import 'package:json_annotation/json_annotation.dart';
 
+import 'display_content.model.dart';
+
 part 'stream_data.model.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 class StreamData {
   bool away;
 
-  @JsonKey(name: 'left_content')
-  int? switch1Content;
-  @JsonKey(name: 'right_content')
-  int? switch2Content;
+  @JsonKey(name: 'left')
+  DisplayContent? switch1Content;
+  @JsonKey(name: 'right')
+  DisplayContent? switch2Content;
 
   StreamData({
     required this.away,
