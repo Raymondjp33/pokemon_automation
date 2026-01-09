@@ -10,6 +10,7 @@ CatchModel _$CatchModelFromJson(Map<String, dynamic> json) => CatchModel(
       encounters: (json['encounters'] as num?)?.toInt(),
       caughtTimestamp: json['caught_timestamp'] as num?,
       encounterMethod: json['encounter_method'] as String?,
+      name: json['catch_name'] as String?,
       switchUsed: (json['switch'] as num?)?.toInt() ?? 1,
     );
 
@@ -18,5 +19,6 @@ Map<String, dynamic> _$CatchModelToJson(CatchModel instance) =>
       'encounters': instance.encounters,
       'switch': instance.switchUsed,
       'encounter_method': instance.encounterMethod,
+      'catch_name': instance.name,
       'caught_timestamp': instance.caughtTimestamp,
     };

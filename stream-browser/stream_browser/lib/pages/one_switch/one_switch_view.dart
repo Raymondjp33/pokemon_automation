@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../constants/app_assets.dart';
 import '../../widgets/scrolling_widget.dart';
-import '../stats/components/right_block_content/right_switch_content.dart';
+import '../stats/components/main_content/right_switch_content.dart';
 
 BorderSide containerBoarder({width = 5}) => BorderSide(
       color: Color(0xFF4C6CBF),

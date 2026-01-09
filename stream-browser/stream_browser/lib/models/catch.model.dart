@@ -9,6 +9,8 @@ class CatchModel {
   int switchUsed;
   @JsonKey(name: 'encounter_method')
   String? encounterMethod;
+  @JsonKey(name: 'catch_name')
+  String? name;
   @JsonKey(name: 'caught_timestamp')
   num? caughtTimestamp;
 
@@ -16,6 +18,7 @@ class CatchModel {
     this.encounters,
     this.caughtTimestamp,
     this.encounterMethod,
+    this.name,
     this.switchUsed = 1,
   });
 

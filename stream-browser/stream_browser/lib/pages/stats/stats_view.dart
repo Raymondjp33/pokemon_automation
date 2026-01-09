@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../../widgets/scrolling_widget.dart';
-import 'components/left_block_content/left_switch_content.dart';
+import 'components/main_content/left_switch_content.dart';
 import 'components/middle_content.dart';
-import 'components/right_block_content/right_switch_content.dart';
+import 'components/main_content/right_switch_content.dart';
 
 class StatsView extends StatelessWidget {
   const StatsView({super.key});
