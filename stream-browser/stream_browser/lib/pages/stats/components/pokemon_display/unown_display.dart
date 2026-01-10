@@ -13,16 +13,22 @@ class UnownDisplay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Map<String, int> catchCounter = {};
+    Set uniqueMap = {};
+    int catchEncounterCount = 0;
 
     for (CatchModel unown in (pokemon.firstOrNull?.catches ?? [])) {
       List<String> splitList = unown.name?.split(':') ?? [];
-
+      catchEncounterCount =
+          catchEncounterCount + (unown.encounters?.toInt() ?? 0);
       if (splitList.length < 2) {
         continue;
       }
-      catchCounter[splitList[1]] = catchCounter[splitList[1]] == null
-          ? 1
-          : catchCounter[splitList[1]]! + 1;
+
+      String letter = splitList[1];
+      catchCounter[letter] =
+          catchCounter[letter] == null ? 1 : catchCounter[letter]! + 1;
+
+      uniqueMap.add(letter);
     }
 
     return Column(
@@ -32,7 +38,7 @@ class UnownDisplay extends StatelessWidget {
             children: [
               for (int i = 0; i < 4; i++)
                 Container(
-                  height: 58,
+                  height: 54,
                   child: Row(
                     children: [
                       for (int j = 0; j < 7; j++)
@@ -59,22 +65,53 @@ class UnownDisplay extends StatelessWidget {
                     ],
                   ),
                 ),
-              Spacer(),
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    'Total Encounters',
-                    style: AppTextStyles.pokePixel(fontSize: 26),
+                  UnownLineItem(
+                    title: 'Total Encs',
+                    info: '${pokemon.firstOrNull?.encounters ?? 0}',
                   ),
-                  Spacer(),
-                  Text(
-                    '${pokemon.firstOrNull?.encounters ?? 0}',
-                    style: AppTextStyles.pokePixel(fontSize: 26),
+                  UnownLineItem(
+                    title: 'Phases',
+                    info: '${pokemon.firstOrNull?.catches?.length ?? 0}',
+                  ),
+                  UnownLineItem(
+                    title: 'Unique',
+                    info: '${uniqueMap.length}/28',
+                  ),
+                  UnownLineItem(
+                    title: 'Current',
+                    info:
+                        '${(pokemon.firstOrNull?.encounters ?? 0) - catchEncounterCount}',
                   ),
                 ],
               ),
             ],
           ),
+        ),
+      ],
+    );
+  }
+}
+
+class UnownLineItem extends StatelessWidget {
+  const UnownLineItem({required this.title, required this.info, super.key});
+
+  final String title;
+  final String info;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text(
+          title,
+          style: AppTextStyles.pokePixel(fontSize: 22),
+        ),
+        Text(
+          info,
+          style: AppTextStyles.pokePixel(fontSize: 34),
         ),
       ],
     );
