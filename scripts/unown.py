@@ -29,9 +29,7 @@ def increment_counter(frame=None):
     pokemon_name = pokemon[4]
 
     if (frame is not None):
-        cursor.execute("SELECT * FROM pokemon WHERE name = ?", (pokemon_name,))
-        pokemon_row = cursor.fetchone()
-        cursor.execute("SELECT * FROM catches WHERE name = ?", (pokemon_name,))
+        cursor.execute("SELECT * FROM catches WHERE name LIKE '%' || ? || '%'", (pokemon_name,))
         catch_rows = cursor.fetchall()
         catches = [{"caught_timestamp": ts, "encounters": enc, "encounter_method": method, "total_dens": tdens} for _, _, ts, enc, method, _, _, tdens, _ in catch_rows]
         previous_encounters = 0
@@ -39,7 +37,7 @@ def increment_counter(frame=None):
         for catch in catches:
             previous_encounters = previous_encounters + catch["encounters"]
 
-        count_difference = pokemon_row[2] - previous_encounters
+        count_difference = pokemon[3] - previous_encounters
 
         cursor.execute(
             "INSERT INTO catches (pokemon_id, caught_timestamp, encounters, encounter_method, switch, name, total_dens, hunt_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
