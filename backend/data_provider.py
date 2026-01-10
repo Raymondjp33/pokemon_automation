@@ -63,7 +63,7 @@ def emit_pokemon_data():
 
     pokemon_data = []
     for pokemon in pokemon_rows:
-        cursor.execute("SELECT * FROM catches WHERE hunt_id = ? AND name = ?", (pokemon[2], pokemon[4],))
+        cursor.execute("SELECT * FROM catches WHERE hunt_id = ? AND name LIKE '%' || ? || '%'", (pokemon[2], pokemon[4],))
         catch_rows = cursor.fetchall()
         pokemon_data.append({
             "encounters": pokemon[3],
@@ -73,7 +73,7 @@ def emit_pokemon_data():
             "switchNum": pokemon[5],
             "started_hunt_ts": pokemon[7],
             "total_dens": pokemon[9],
-            "catches": [{"caught_timestamp": ts, "encounters": enc, "encounter_method": method, "switch": switchUsed, "total_dens": tdens} for _, _, ts, enc, method, switchUsed, _, tdens, _ in catch_rows]
+            "catches": [{"catch_name": catch_name, "caught_timestamp": ts, "encounters": enc, "encounter_method": method, "switch": switchUsed, "total_dens": tdens} for _, _, ts, enc, method, switchUsed, catch_name, tdens, _ in catch_rows]
         })
 
     print(f"[WebSocket] Emitting pokemon data")
