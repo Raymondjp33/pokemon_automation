@@ -39,7 +39,7 @@ def increment_counter(pokemon_name, log_frame=None):
         cursor.execute("SELECT SUM(encounters) FROM catches WHERE name = ? AND hunt_id = ?", (pokemon_name, hunt_id,))
         result = cursor.fetchone()[0]
         previous_encounters = result if result is not None else 0
-        count_difference = pokemon_row[2] - previous_encounters
+        count_difference = pokemon_row[3] - previous_encounters
         cursor.execute(
             "INSERT INTO catches (pokemon_id, caught_timestamp, encounters, encounter_method, switch, name, total_dens, hunt_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
             (

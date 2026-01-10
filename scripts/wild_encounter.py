@@ -37,7 +37,7 @@ def increment_counter(pokemon_name, log_frame=None, caught_shiny=False):
         cv2.imwrite(f"/Volumes/DexDrive/shield/{pokemon_name}-{time.time()}.png", log_frame)
 
     if caught_shiny:
-        cursor.execute("SELECT * FROM pokemon WHERE name = ?", (pokemon_name,))
+        cursor.execute("SELECT * FROM hunt_encounters WHERE pokemon_name = ? AND hunt_id = ?", (pokemon_name, hunt_id,))
         pokemon_row = cursor.fetchone()
         cursor.execute("SELECT * FROM catches WHERE name = ?", (pokemon_name,))
         catch_rows = cursor.fetchall()
@@ -46,7 +46,7 @@ def increment_counter(pokemon_name, log_frame=None, caught_shiny=False):
 
         for catch in catches:
             previous_encounters = previous_encounters + catch["encounters"]
-        count_difference = pokemon_row[2] - previous_encounters
+        count_difference = pokemon_row[3] - previous_encounters
 
         cursor.execute(
             "INSERT INTO catches (pokemon_id, caught_timestamp, encounters, encounter_method, switch, name, total_dens, hunt_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
