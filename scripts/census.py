@@ -11,9 +11,7 @@ import json
 
 from services.common import *
 
-SWITCH_NUM = 2
-SWITCH_VID = SWITCH2_VID_NUM
-SWITCH_SERIAL = SWITCH2_SERIAL
+SWITCH_NUM = 3
 
 def get_pokemon_spots(box_num, vid: cv2.VideoCapture,):
     template = cv2.imread('templates/home_empty_spot.png', cv2.IMREAD_COLOR)
@@ -71,11 +69,11 @@ def get_pokemon_spots(box_num, vid: cv2.VideoCapture,):
 boxed_pokemon_path = Path(__file__).resolve().parent / 'configs' / 'boxed_pokemon.json'
 
 def main() -> int:
-    ser_str = SWITCH_SERIAL
-    vid = make_vid(SWITCH_VID)
+    ser_str = get_switch_serial(SWITCH_NUM)
+    vid = make_vid(get_switch_vid_num(SWITCH_NUM))
 
     owned_pokemon = set()
-    shiny_census = True
+    shiny_census = False
 
     box_num = 1
 

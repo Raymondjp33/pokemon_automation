@@ -11,7 +11,7 @@ from common import make_vid
 from common import Point
 from common import SWITCH1_VID_NUM, SWITCH2_VID_NUM, SWITCH3_VID_NUM
 
-SWITCH_NUM = SWITCH2_VID_NUM
+SWITCH_NUM = SWITCH3_VID_NUM
 
 def main() -> int:
     parser = argparse.ArgumentParser()

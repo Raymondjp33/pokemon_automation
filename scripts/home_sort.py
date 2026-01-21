@@ -14,16 +14,16 @@ import argparse
 
 from services.common import *
 
-SWITCH_NUM = 1
+SWITCH_NUM = 3
 
 def get_pokemon_name(vid: cv2.VideoCapture):
     frame = getframe(vid)
     if SWITCH_NUM == 1:
-        # Switch 1
         return get_text(frame=frame, top_left=Point(y=570, x=89), bottom_right=Point(y=607, x=221), invert=True)
     elif SWITCH_NUM == 2:
-        # Switch 2
         return get_text(frame=frame, top_left=Point(y=571, x=67), bottom_right=Point(y=603, x=205), invert=True)
+    elif SWITCH_NUM == 3:
+        return get_text(frame=frame, top_left=Point(y=571, x=63), bottom_right=Point(y=603, x=210), invert=True)
 
 def check_if_shiny(vid: cv2.VideoCapture):
     frame = getframe(vid)
@@ -109,8 +109,8 @@ def main() -> int:
     parser.add_argument('--starting_box', type=int, required=True)
     args = parser.parse_args()
 
-    ser_str = SWITCH2_SERIAL if SWITCH_NUM == 2 else SWITCH1_SERIAL
-    vid = make_vid(SWITCH2_VID_NUM if SWITCH_NUM == 2 else SWITCH1_VID_NUM)
+    ser_str = get_switch_serial(SWITCH_NUM)
+    vid = make_vid(get_switch_vid_num(SWITCH_NUM))
     starting_box = args.starting_box
 
     pokemon_map = load_pokemon_species_ids()

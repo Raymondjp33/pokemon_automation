@@ -15,7 +15,7 @@ from services.common import *
 
 redis_client = redis.StrictRedis(host='localhost', port=6379, decode_responses=True)
 
-SWITCH_NUM = 1
+SWITCH_NUM = 2
 
 def write_shiny_text():
     shiny_text_path = SWITCH1_SHINY_TEXT_PATH if SWITCH_NUM == 1 else SWITCH2_SHINY_TEXT_PATH

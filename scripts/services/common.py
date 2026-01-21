@@ -36,6 +36,21 @@ def make_vid(switch_num) -> cv2.VideoCapture:
     vid.set(cv2.CAP_PROP_BUFFERSIZE, 1)  # default: 3
     return vid
 
+def get_switch_vid_num(switch_num):
+    if switch_num == 1:
+        return SWITCH1_VID_NUM
+    if switch_num == 2:
+        return SWITCH2_VID_NUM
+    if switch_num == 3:
+        return SWITCH3_VID_NUM
+    
+def get_switch_serial(switch_num):
+    if switch_num == 1:
+        return SWITCH1_SERIAL
+    if switch_num == 2:
+        return SWITCH2_SERIAL
+    if switch_num == 3:
+        return SWITCH3_SERIAL
 class CatchModel:
 
     def __init__(self, catch):
