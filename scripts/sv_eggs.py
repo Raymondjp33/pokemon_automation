@@ -440,11 +440,14 @@ def toggle_riding(ser: serial.Serial,  vid: cv2.VideoCapture, get_off: bool = Fa
     else:
         press(ser, 'B', sleep_time=1)
 
-def move_eggs_to_party(ser: serial.Serial, vid: cv2.VideoCapture, from_party=False):
+def move_eggs_to_party(ser: serial.Serial, vid: cv2.VideoCapture, from_party=False, def_columns = None):
     columns_to_move = int(math.floor(config.get("hatched_eggs", 0) / 5))
 
-    if columns_to_move > 5 or config.get('fetched_eggs') < 30:
+    if (columns_to_move > 5 or config.get('fetched_eggs') < 30) and def_columns == None:
         return
+    
+    if def_columns is not None:
+        columns_to_move = def_columns
 
     if from_party:
         safe_move_box_cursor(ser, vid, Position(col=-1, row=1))
@@ -672,6 +675,9 @@ def take_basket_eggs(ser: serial.Serial, vid: cv2.VideoCapture):
                     print('Attempting to break out of loop')
                     press(ser, 'B', sleep_time=1)
                     start_time = time.time()
+                
+                if curr_time > 2000:
+                    end_program()
 
                 fetched_eggs = config.get('fetched_eggs')
         # Exit picnic
@@ -725,7 +731,10 @@ def prepare_party(ser: serial.Serial,  vid: cv2.VideoCapture, breeding: bool = F
     
     exit_menus(ser, vid)
 
-def hatch_eggs(ser: serial.Serial,  vid: cv2.VideoCapture,):
+def hatch_eggs(ser: serial.Serial,  vid: cv2.VideoCapture, extra = None):
+    if extra is not None:
+        config.update({'hatched_eggs': 0})
+
     total_hatched = config.get('hatched_eggs')
     party_hatched = total_hatched % 5
     forward = True
@@ -766,12 +775,23 @@ def hatch_eggs(ser: serial.Serial,  vid: cv2.VideoCapture,):
             # press(ser, '{', duration=0.03, write_null_byte=False)
             press(ser, 's' if not forward else 'w', duration=2)
             forward = not forward
+
+        if extra == 'party':
+            return
         
         time.sleep(1)
         select_menu_item(ser, vid, 'Boxes')
-        save_needed = handle_process_eggs(ser, vid)
-        move_eggs_to_party(ser, vid)
-        press(ser, 'B', sleep_time=3)
+        save_needed = False
+        if extra == 'box':
+            curr_cols = int(math.floor(config.get("hatched_eggs", 0) / 5)) 
+            move_eggs_to_party(ser, vid, from_party=True, def_columns=curr_cols - 1)
+            move_eggs_to_party(ser, vid, def_columns=curr_cols)
+        else:
+            save_needed = handle_process_eggs(ser, vid)
+            move_eggs_to_party(ser, vid)
+
+
+        press(ser, 'B', sleep_time=3) 
 
         if save_needed:
             press(ser, 'R', sleep_time=1.5)
@@ -782,6 +802,9 @@ def hatch_eggs(ser: serial.Serial,  vid: cv2.VideoCapture,):
         
         total_hatched = config.get('hatched_eggs')
         party_hatched = total_hatched % 5
+    
+    if extra is not None:
+        return
     
     config.update({'fetched_eggs': 0, 'hatched_eggs': 0})
     toggle_riding(ser, vid, get_off=True)
@@ -870,6 +893,7 @@ def main() -> int:
         # exit_menus(ser, vid)
         # reset_position(ser, vid, full_reset=True)
         # prepare_party(ser, vid, breeding=False)
+        # hatch_eggs(ser, vid, extra='box')
         # return 
     
         while True:
