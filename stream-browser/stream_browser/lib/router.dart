@@ -3,8 +3,8 @@ import 'package:go_router/go_router.dart';
 
 import 'pages/control_panel/control_panel_state.dart';
 import 'pages/one_switch/one_switch_state.dart';
-import 'pages/stats/stats_state.dart';
-import 'pages/three_switch/three_switch_state.dart';
+import 'pages/two_switch/two_switch_state.dart';
+import 'pages/showcased_switch/showcased_switch_state.dart';
 
 class NavKeyService {
   static GlobalKey<NavigatorState> globalNavigationKey =
@@ -13,9 +13,10 @@ class NavKeyService {
 
 enum ERoute {
   controlPanel(name: 'controlPanel', path: '/'),
-  threeSwitch(name: 'threeSwitch', path: '/threeSwitch'),
   oneSwitch(name: 'oneSwitch', path: '/oneSwitch'),
-  stats(name: 'stats', path: '/stats');
+  twoSwitch(name: 'twoSwitch', path: '/twoSwitch'),
+  threeSwitch(name: 'threeSwitch', path: '/threeSwitch'),
+  showcasedSwitch(name: 'showcasedSwitch', path: '/showcasedSwitch');
 
   final String name;
   final String path;
@@ -24,7 +25,7 @@ enum ERoute {
 
 final GoRouter router = GoRouter(
   navigatorKey: NavKeyService.globalNavigationKey,
-  initialLocation: ERoute.stats.path,
+  initialLocation: ERoute.twoSwitch.path,
   restorationScopeId: 'router',
   routes: <RouteBase>[
     GoRoute(
@@ -35,24 +36,24 @@ final GoRouter router = GoRouter(
       },
     ),
     GoRoute(
-      name: ERoute.stats.name,
-      path: ERoute.stats.path,
-      builder: (BuildContext context, GoRouterState state) {
-        return Stats();
-      },
-    ),
-    GoRoute(
-      name: ERoute.threeSwitch.name,
-      path: ERoute.threeSwitch.path,
-      builder: (BuildContext context, GoRouterState state) {
-        return ThreeSwitch();
-      },
-    ),
-    GoRoute(
       name: ERoute.oneSwitch.name,
       path: ERoute.oneSwitch.path,
       builder: (BuildContext context, GoRouterState state) {
         return OneSwitch();
+      },
+    ),
+    GoRoute(
+      name: ERoute.twoSwitch.name,
+      path: ERoute.twoSwitch.path,
+      builder: (BuildContext context, GoRouterState state) {
+        return TwoSwitch();
+      },
+    ),
+    GoRoute(
+      name: ERoute.showcasedSwitch.name,
+      path: ERoute.showcasedSwitch.path,
+      builder: (BuildContext context, GoRouterState state) {
+        return ShowcasedSwitch();
       },
     ),
   ],

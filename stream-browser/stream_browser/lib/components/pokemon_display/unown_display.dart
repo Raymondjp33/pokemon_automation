@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:gif/gif.dart';
 
-import '../../../../constants/app_styles.dart';
-import '../../../../models/catch.model.dart';
-import '../../../../models/pokemon.model.dart';
+import '../../constants/app_styles.dart';
+import '../../models/catch.model.dart';
+import '../../models/pokemon.model.dart';
 
 class UnownDisplay extends StatelessWidget {
   const UnownDisplay({required this.pokemon, super.key});

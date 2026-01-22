@@ -12,9 +12,8 @@ class RightSwitchContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     String screenContent =
-        context.select((FileProvider state) => state.rightScreenContent);
-    String gameName =
-        context.select((FileProvider state) => state.rightSwitchGame);
+        context.select((FileProvider state) => state.switch2Content);
+    String gameName = context.select((FileProvider state) => state.switch2Game);
     List<PokemonModel> pokemon =
         context.select((FileProvider state) => state.switch2Pokemon);
 

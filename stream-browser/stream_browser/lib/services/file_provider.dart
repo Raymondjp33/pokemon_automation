@@ -19,12 +19,12 @@ class FileProvider with ChangeNotifier {
   PokemonData? pokemonData;
   StreamData? streamData;
   DateTime now = DateTime.now();
-  String get leftScreenContent =>
-      streamData?.switch1Content?.content ?? 'current';
-  String get leftSwitchGame => streamData?.switch1Content?.game ?? 'shield';
-  String get rightScreenContent =>
-      streamData?.switch2Content?.content ?? 'current';
-  String get rightSwitchGame => streamData?.switch2Content?.game ?? 'shield';
+
+  String get switch1Content => streamData?.switch1Content?.content ?? 'current';
+  String get switch1Game => streamData?.switch1Content?.game ?? 'shield';
+
+  String get switch2Content => streamData?.switch2Content?.content ?? 'current';
+  String get switch2Game => streamData?.switch2Content?.game ?? 'shield';
 
   final List<String> logs1 = [];
 
@@ -104,6 +104,9 @@ class FileProvider with ChangeNotifier {
 
   List<PokemonModel> get switch2Pokemon =>
       pokemonData?.pokemon.where((e) => e.switchNum == 2).toList() ?? [];
+
+  List<PokemonModel> get switch3Pokemon =>
+      pokemonData?.pokemon.where((e) => e.switchNum == 3).toList() ?? [];
 
   StatsModel? get pokemonStats => pokemonData?.pokemonStats;
 

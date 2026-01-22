@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../constants/app_styles.dart';
+import '../constants/app_styles.dart';
 
 class LineItem extends StatelessWidget {
   const LineItem({

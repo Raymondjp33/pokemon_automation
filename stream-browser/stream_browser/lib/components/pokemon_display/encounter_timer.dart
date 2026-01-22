@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../../../constants/app_styles.dart';
+import '../../constants/app_styles.dart';
 
 class EncounterTimer extends StatefulWidget {
   const EncounterTimer({

@@ -5,10 +5,8 @@ import 'package:provider/provider.dart';
 import '../../../constants/app_styles.dart';
 import '../../../models/pokemon.model.dart';
 import '../../../services/file_provider.dart';
-import '../../stats/components/pokemon_display/pokemon_row.dart';
-import '../../../widgets/scrolling_widget.dart';
 import '../../../widgets/spacing.dart';
-import '../../stats/components/encounter_timer.dart';
+import '../../../components/pokemon_display/encounter_timer.dart';
 
 class Switch2Content extends StatelessWidget {
   const Switch2Content({super.key});
@@ -23,34 +21,6 @@ class Switch2Content extends StatelessWidget {
         '${pokemon?.firstOrNull?.catches?.length ?? 0}/${pokemon?.firstOrNull?.targets ?? 0}';
     String switch2GifNumber = '${pokemon?.first.gifNumber ?? 1}';
     int? startTime = pokemon?.firstOrNull?.startedHuntTimestamp?.toInt();
-
-    final screenIndex =
-        context.select((FileProvider state) => state.rightScreenContent);
-
-    // FIX THIS
-    if (screenIndex == '') {
-      return Center(
-        child: (pokemon?.length ?? 0) > 3
-            ? Container(
-                height: 175,
-                padding: EdgeInsets.symmetric(vertical: 10),
-                child: ScrollingWidget(
-                  scrollSpeed: 30,
-                  child: PokemonRow(
-                    targets: pokemon,
-                    pokemonGifSize: 80,
-                  ),
-                ),
-              )
-            : Padding(
-                padding: EdgeInsets.only(top: 10),
-                child: PokemonRow(
-                  targets: pokemon,
-                  pokemonGifSize: 80,
-                ),
-              ),
-      );
-    }
 
     return Row(
       children: [

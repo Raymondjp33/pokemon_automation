@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:gif/gif.dart';
 
-import '../../../../constants/app_styles.dart';
-import '../../../../models/pokemon.model.dart';
-import '../../../../widgets/spacing.dart';
-import '../encounter_timer.dart';
+import '../../constants/app_styles.dart';
+import '../../models/pokemon.model.dart';
+import '../../widgets/spacing.dart';
+import 'encounter_timer.dart';
 
 class SinglePokemonDisplay extends StatelessWidget {
   const SinglePokemonDisplay({required this.pokemon, super.key});

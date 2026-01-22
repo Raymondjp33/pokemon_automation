@@ -6,7 +6,7 @@ import '../../../constants/app_styles.dart';
 import '../../../models/pokemon.model.dart';
 import '../../../services/file_provider.dart';
 import '../../../widgets/spacing.dart';
-import '../../stats/components/encounter_timer.dart';
+import '../../../components/pokemon_display/encounter_timer.dart';
 
 class Switch1Content extends StatelessWidget {
   const Switch1Content({super.key});

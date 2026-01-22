@@ -10,8 +10,8 @@ BorderSide containerBoarder({width = 5}) => BorderSide(
       width: width,
     );
 
-class ThreeSwitchView extends StatelessWidget {
-  const ThreeSwitchView({super.key});
+class ShowcasedSwitchView extends StatelessWidget {
+  const ShowcasedSwitchView({super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -5,7 +5,7 @@ import '../../../../constants/app_styles.dart';
 import '../../../../models/pokemon.model.dart';
 import '../../../../services/file_provider.dart';
 import '../main_stats_display.dart';
-import '../pokemon_display/unown_display.dart';
+import '../../../../components/pokemon_display/unown_display.dart';
 
 class LeftSwitchContent extends StatelessWidget {
   const LeftSwitchContent({super.key});
@@ -13,9 +13,8 @@ class LeftSwitchContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     String screenContent =
-        context.select((FileProvider state) => state.leftScreenContent);
-    String gameName =
-        context.select((FileProvider state) => state.leftSwitchGame);
+        context.select((FileProvider state) => state.switch1Content);
+    String gameName = context.select((FileProvider state) => state.switch1Game);
     List<PokemonModel> pokemon =
         context.select((FileProvider state) => state.switch1Pokemon);
 

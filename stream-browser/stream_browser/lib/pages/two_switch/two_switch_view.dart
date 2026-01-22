@@ -5,8 +5,8 @@ import 'components/main_content/left_switch_content.dart';
 import 'components/middle_content.dart';
 import 'components/main_content/right_switch_content.dart';
 
-class StatsView extends StatelessWidget {
-  const StatsView({super.key});
+class TwoSwitchView extends StatelessWidget {
+  const TwoSwitchView({super.key});
 
   @override
   Widget build(BuildContext context) {

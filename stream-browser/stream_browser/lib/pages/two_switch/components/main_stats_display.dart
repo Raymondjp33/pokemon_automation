@@ -4,8 +4,8 @@ import 'package:provider/provider.dart';
 import '../../../models/pokemon.model.dart';
 import '../../../models/stats.model.dart';
 import '../../../services/file_provider.dart';
-import 'line_item.dart';
-import 'pokemon_display/pokemon_display.dart';
+import '../../../components/line_item.dart';
+import '../../../components/pokemon_display/pokemon_display.dart';
 
 class MainStatsDisplay extends StatelessWidget {
   const MainStatsDisplay({

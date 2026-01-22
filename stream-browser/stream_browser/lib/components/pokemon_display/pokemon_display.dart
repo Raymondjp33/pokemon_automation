@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../../../models/pokemon.model.dart';
+import '../../models/pokemon.model.dart';
 import 'pokemon_row.dart';
-import '../../../../widgets/scrolling_widget.dart';
+import '../../widgets/scrolling_widget.dart';
 import 'single_pokemon_display.dart';
 
 class PokemonDisplay extends StatelessWidget {
