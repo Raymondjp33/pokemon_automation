@@ -1,24 +1,37 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import '../../../../constants/app_styles.dart';
 import '../../../../models/pokemon.model.dart';
-import '../../../../services/file_provider.dart';
-import '../main_stats_display.dart';
+import '../../../../components/pokemon_display/unown_display.dart';
+import 'main_stats_display.dart';
 
-class RightSwitchContent extends StatelessWidget {
-  const RightSwitchContent({super.key});
+class SwitchContent extends StatelessWidget {
+  const SwitchContent({
+    required this.screenContent,
+    required this.gameName,
+    required this.pokemon,
+    this.includeTitle = true,
+    this.includeAverage = true,
+    super.key,
+  });
+
+  final String screenContent;
+  final String gameName;
+  final List<PokemonModel> pokemon;
+  final bool includeTitle;
+  final bool includeAverage;
 
   @override
   Widget build(BuildContext context) {
-    String screenContent =
-        context.select((FileProvider state) => state.switch2Content);
-    String gameName = context.select((FileProvider state) => state.switch2Game);
-    List<PokemonModel> pokemon =
-        context.select((FileProvider state) => state.switch2Pokemon);
-
     Widget child;
     switch (screenContent) {
+      case 'unown':
+        child = UnownDisplay(
+          key: ValueKey(screenContent),
+          pokemon: pokemon,
+        );
+        break;
+
       case 'egg':
       case 'static':
       case 'wild':
@@ -28,16 +41,19 @@ class RightSwitchContent extends StatelessWidget {
           key: ValueKey(screenContent),
           pokemon: pokemon,
           screenContent: screenContent,
+          includeAverage: includeAverage,
         );
+        break;
     }
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.end,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          gameName,
-          style: AppTextStyles.minecraftTen(fontSize: 36),
-        ),
+        if (includeTitle)
+          Text(
+            gameName,
+            style: AppTextStyles.minecraftTen(fontSize: 36),
+          ),
         Expanded(
           child: AnimatedSwitcher(
             duration: Duration(milliseconds: 700),

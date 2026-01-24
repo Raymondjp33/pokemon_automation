@@ -11,11 +11,13 @@ class MainStatsDisplay extends StatelessWidget {
   const MainStatsDisplay({
     required this.pokemon,
     required this.screenContent,
+    this.includeAverage = true,
     super.key,
   });
 
   final List<PokemonModel> pokemon;
   final String screenContent;
+  final bool includeAverage;
 
   @override
   Widget build(BuildContext context) {
@@ -102,10 +104,11 @@ class MainStatsDisplay extends StatelessWidget {
           leftText: totalShiniesLeftText,
           rightText: '$totalShinies',
         ),
-        LineItem(
-          leftText: averageLeftText,
-          rightText: averageEncounters.toStringAsFixed(2),
-        ),
+        if (includeAverage)
+          LineItem(
+            leftText: averageLeftText,
+            rightText: averageEncounters.toStringAsFixed(2),
+          ),
         Spacer(),
         PokemonDisplay(pokemon: pokemon),
       ],

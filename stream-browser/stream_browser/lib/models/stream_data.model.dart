@@ -8,10 +8,9 @@ part 'stream_data.model.g.dart';
 class StreamData {
   bool away;
 
-  @JsonKey(name: 'left')
   DisplayContent? switch1Content;
-  @JsonKey(name: 'right')
   DisplayContent? switch2Content;
+  DisplayContent? switch3Content;
 
   StreamData({
     required this.away,

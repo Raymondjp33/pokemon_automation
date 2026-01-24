@@ -67,6 +67,15 @@ class PokemonModel {
       // Alolan Meowth
       case '52-1':
         return 811;
+      // Hisuian Sneasel
+      case '215-1':
+        return 948;
+      // Hisuian Qwilfish
+      case '211-1':
+        return 947;
+      // Hisuian Basculin (White)
+      case '550-1':
+        return 951;
     }
 
     return 1;

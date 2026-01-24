@@ -10,24 +10,20 @@ class MainBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 1280,
-      height: 720,
-      child: Stack(
-        children: [
-          ScrollingWidget(
-            child: Image.asset(
-              AppAssets.fullBackground, fit: BoxFit.contain,
-              width: 1280,
-              height: 720,
-              // Capture the width only once to help calculate looping
-              // (assumes full screen width for background tile)
-              key: UniqueKey(), // prevents Flutter from recycling
-            ),
+    return Stack(
+      children: [
+        ScrollingWidget(
+          child: Image.asset(
+            AppAssets.fullBackground,
+            width: 1280,
+            height: 720,
+            // Capture the width only once to help calculate looping
+            // (assumes full screen width for background tile)
+            key: UniqueKey(), // prevents Flutter from recycling
           ),
-          ...children,
-        ],
-      ),
+        ),
+        ...children,
+      ],
     );
   }
 }

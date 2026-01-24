@@ -26,6 +26,9 @@ class FileProvider with ChangeNotifier {
   String get switch2Content => streamData?.switch2Content?.content ?? 'current';
   String get switch2Game => streamData?.switch2Content?.game ?? 'shield';
 
+  String get switch3Content => streamData?.switch3Content?.content ?? 'current';
+  String get switch3Game => streamData?.switch3Content?.game ?? 'shield';
+
   final List<String> logs1 = [];
 
   final List<String> logs2 = [];

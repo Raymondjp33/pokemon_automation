@@ -21,14 +21,14 @@ class PokemonDisplay extends StatelessWidget {
     }
 
     return Center(
-      child: pokemon.length > 3
+      child: pokemon.length > 2
           ? Container(
-              height: 139,
+              height: 137,
               child: ScrollingWidget(
                 scrollSpeed: 30,
                 child: PokemonRow(
                   targets: pokemon,
-                  pokemonGifSize: 70,
+                  pokemonGifSize: 68,
                 ),
               ),
             )

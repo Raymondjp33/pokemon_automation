@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../constants/app_assets.dart';
+import '../../models/pokemon.model.dart';
+import '../../services/file_provider.dart';
 import '../../widgets/scrolling_widget.dart';
-import '../two_switch/components/main_content/right_switch_content.dart';
+import '../two_switch/components/switch_content.dart';
 
 BorderSide containerBoarder({width = 5}) => BorderSide(
       color: Color(0xFF4C6CBF),
@@ -14,6 +17,13 @@ class OneSwitchView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String screen2Content =
+        context.select((FileProvider state) => state.switch2Content);
+    String game2Name =
+        context.select((FileProvider state) => state.switch2Game);
+    List<PokemonModel> pokemon2 =
+        context.select((FileProvider state) => state.switch2Pokemon);
+
     return Scaffold(
       body: Container(
         width: 1280,
@@ -63,7 +73,11 @@ class OneSwitchView extends StatelessWidget {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        RightSwitchContent(),
+                        SwitchContent(
+                          screenContent: screen2Content,
+                          gameName: game2Name,
+                          pokemon: pokemon2,
+                        ),
                       ],
                     ),
                   ),
