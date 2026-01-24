@@ -57,8 +57,9 @@ def emit_pokemon_data():
 
     switch1_hunt_id = stream_data['switch1_hunt_id']
     switch2_hunt_id = stream_data['switch2_hunt_id']
+    switch3_hunt_id = stream_data['switch3_hunt_id']
 
-    cursor.execute("SELECT * FROM hunt_encounters WHERE hunt_id = ? OR hunt_id = ?", (switch1_hunt_id, switch2_hunt_id,))
+    cursor.execute("SELECT * FROM hunt_encounters WHERE hunt_id = ? OR hunt_id = ? OR hunt_id = ?", (switch1_hunt_id, switch2_hunt_id, switch3_hunt_id))
     pokemon_rows = cursor.fetchall()
 
     pokemon_data = []
