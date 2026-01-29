@@ -45,7 +45,7 @@ def increment_counter(pokemon_name, log_frame=None):
         cursor.execute(
             "INSERT INTO catches (pokemon_id, caught_timestamp, encounters, encounter_method, switch, name, total_dens, hunt_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
             (
-                pokemon_row[0],
+                pokemon_row[1],
                 int(time.time() * 1000),
                 count_difference,
                 "wild",
