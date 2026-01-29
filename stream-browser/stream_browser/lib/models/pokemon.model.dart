@@ -85,7 +85,7 @@ class PokemonModel {
   }
 
   static String showdownGifUrl(int num) {
-    return 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/shiny/$num.gif';
+    return 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/$num.png';
   }
 
   factory PokemonModel.fromJson(Map<String, dynamic>? json) {
