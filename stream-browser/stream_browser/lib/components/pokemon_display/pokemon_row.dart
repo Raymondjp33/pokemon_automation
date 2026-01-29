@@ -31,7 +31,7 @@ class PokemonRow extends StatelessWidget {
                     PokemonGifImage(
                       width: pokemonGifSize,
                       height: pokemonGifSize,
-                      dexNum: '${pokemon.gifNumber}',
+                      gifUrl: pokemon.gifUrl,
                     ),
                     Text(
                       '${pokemon.encounters}',

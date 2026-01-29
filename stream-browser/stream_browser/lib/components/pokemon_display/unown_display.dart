@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:gif/gif.dart';
 
 import '../../constants/app_styles.dart';
 import '../../models/catch.model.dart';
 import '../../models/pokemon.model.dart';
+import 'pokemon_gif_image.dart';
 
 class UnownDisplay extends StatelessWidget {
   const UnownDisplay({required this.pokemon, super.key});
@@ -38,22 +38,16 @@ class UnownDisplay extends StatelessWidget {
             children: [
               for (int i = 0; i < 4; i++)
                 Container(
-                  height: 54,
                   child: Row(
                     children: [
                       for (int j = 0; j < 7; j++)
                         Container(
                           child: Column(
                             children: [
-                              Gif(
+                              PokemonGifImage(
                                 width: 40,
-                                height: 30,
-                                image: NetworkImage(
-                                  unownGifURL(unownMap[i * 7 + j]),
-                                ),
-                                fit: BoxFit.contain,
-                                autostart: Autostart.loop,
-                                useCache: false,
+                                height: 29,
+                                gifUrl: unownGifURL(unownMap[i * 7 + j]),
                               ),
                               Text(
                                 '${catchCounter[unownMap[i * 7 + j]] ?? 0}',

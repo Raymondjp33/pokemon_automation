@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../components/pokemon_display/pokemon_gif_image.dart';
+import '../../models/pokemon.model.dart';
 
 class SandboxView extends StatelessWidget {
   const SandboxView({super.key});
@@ -15,7 +16,7 @@ class SandboxView extends StatelessWidget {
             children: [
               for (int i = 926; i < 958; i++)
                 PokemonGifImage(
-                  dexNum: '$i',
+                  gifUrl: PokemonModel.baseGifUrl(i),
                   height: 50,
                   width: 50,
                 ),

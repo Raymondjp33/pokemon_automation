@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:gif/gif.dart';
 import 'package:provider/provider.dart';
 
+import '../../../components/pokemon_display/pokemon_gif_image.dart';
 import '../../../constants/app_styles.dart';
 import '../../../models/pokemon.model.dart';
 import '../../../services/file_provider.dart';
@@ -19,22 +19,15 @@ class Switch1Content extends StatelessWidget {
     int currentEncounters = pokemon?.encounters ?? 0;
     String shinyCounts =
         '${(pokemon?.catches ?? []).length}/${pokemon?.targets ?? 0}';
-    String switch1GifNumber = '${pokemon?.gifNumber ?? 1}';
     int? startTime = pokemon?.startedHuntTimestamp?.toInt();
 
     return Center(
       child: Row(
         children: [
-          Container(
+          PokemonGifImage(
+            gifUrl: pokemon?.gifUrl ?? '',
             width: 120,
             height: 108,
-            child: Gif(
-              image: NetworkImage(
-                'https://raw.githubusercontent.com/adamsb0303/Shiny_Hunt_Tracker/master/Images/Sprites/3d/$switch1GifNumber.gif',
-              ),
-              fit: BoxFit.contain,
-              autostart: Autostart.loop,
-            ),
           ),
           HorizontalSpace(10),
           Flexible(

@@ -32,15 +32,12 @@ class PokemonModel {
 
   static PokemonModel get emptyPokemon => PokemonModel();
 
-  int get gifNumber {
-    if (pokemonId.contains('-')) {
-      return specificGifNumber;
-    }
-
+  String get gifUrl {
     int? pokemonIdNum = int.tryParse(pokemonId);
+    pokemonIdNum ??= 1;
 
-    if (pokemonIdNum == null) {
-      return 1;
+    if (pokemonId.contains('-') || pokemonIdNum > 1010) {
+      return specificGifNumber;
     }
 
     int gifValue = pokemonIdNum - 1;
@@ -59,26 +56,36 @@ class PokemonModel {
       gifValue = gifValue + 23;
     }
 
-    return gifValue;
+    return baseGifUrl(gifValue);
   }
 
-  int get specificGifNumber {
+  String get specificGifNumber {
     switch (pokemonId) {
       // Alolan Meowth
       case '52-1':
-        return 811;
+        return baseGifUrl(811);
       // Hisuian Sneasel
       case '215-1':
-        return 948;
+        return baseGifUrl(948);
       // Hisuian Qwilfish
       case '211-1':
-        return 947;
+        return baseGifUrl(947);
       // Hisuian Basculin (White)
       case '550-1':
-        return 951;
+        return baseGifUrl(951);
+      case '1012':
+        return showdownGifUrl(1012);
     }
 
-    return 1;
+    return baseGifUrl(1);
+  }
+
+  static String baseGifUrl(int num) {
+    return 'https://raw.githubusercontent.com/adamsb0303/Shiny_Hunt_Tracker/master/Images/Sprites/3d/$num.gif';
+  }
+
+  static String showdownGifUrl(int num) {
+    return 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/shiny/$num.gif';
   }
 
   factory PokemonModel.fromJson(Map<String, dynamic>? json) {

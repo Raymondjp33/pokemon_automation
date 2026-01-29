@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:gif/gif.dart';
 
 import '../../constants/app_styles.dart';
 import '../../models/pokemon.model.dart';
 import '../../widgets/spacing.dart';
 import 'encounter_timer.dart';
+import 'pokemon_gif_image.dart';
 
 class SinglePokemonDisplay extends StatelessWidget {
   const SinglePokemonDisplay({required this.pokemon, super.key});
 
   final PokemonModel pokemon;
   int get currentEnc => pokemon.encounters;
-  String get pokemonGifNumber => '${pokemon.gifNumber}';
   String get shinyCounts =>
       '${pokemon.catches?.length ?? 0}/${pokemon.targets}';
   int? get startTime => pokemon.startedHuntTimestamp?.toInt();
@@ -21,16 +20,10 @@ class SinglePokemonDisplay extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
+        PokemonGifImage(
           width: 100,
           height: 100,
-          child: Gif(
-            image: NetworkImage(
-              'https://raw.githubusercontent.com/adamsb0303/Shiny_Hunt_Tracker/master/Images/Sprites/3d/$pokemonGifNumber.gif',
-            ),
-            fit: BoxFit.contain,
-            autostart: Autostart.loop,
-          ),
+          gifUrl: pokemon.gifUrl,
         ),
         HorizontalSpace(10),
         Flexible(
