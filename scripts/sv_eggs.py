@@ -11,12 +11,16 @@ import serial
 import json
 import redis
 import sqlite3
+import argparse
 
 from services.common import *
 from services.config_manager import ConfigManager
 
 redis_client = redis.StrictRedis(host='localhost', port=6379, decode_responses=True)
 config = ConfigManager(Path(__file__).resolve().parent / 'configs' / 'sv_egg_data.json')
+config3 = ConfigManager(Path(__file__).resolve().parent / 'configs' / 'sv_egg_data3.json')
+
+switch_num = 2
 
 ###
 ###     DATABASE/FILE RELATED
@@ -35,7 +39,7 @@ def increment_counter(caught_index=None):
     with stream_data_path.open("r") as stream_data_file:
         stream_data = json.load(stream_data_file)
 
-    hunt_id = stream_data['switch2_hunt_id']
+    hunt_id = stream_data['switch2_hunt_id' if switch_num == 2 else 'switch3_hunt_id']
 
     pokemon = cursor.execute("SELECT * FROM hunt_encounters WHERE hunt_id = ?", (hunt_id,)).fetchone()
 
@@ -54,7 +58,7 @@ def increment_counter(caught_index=None):
 
         cursor.execute(
             "INSERT INTO catches (pokemon_id, caught_timestamp, encounters, encounter_method, switch, name, total_dens, hunt_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-            (pokemon[1], int(time.time() * 1000), count_difference, "egg", 2, pokemon_name, None, hunt_id)
+            (pokemon[1], int(time.time() * 1000), count_difference, "egg", 2 if switch_num == 2 else 3, pokemon_name, None, hunt_id)
         )
         
         if len(catches) + 1 >= pokemon[6]:
@@ -97,12 +101,12 @@ def handle_update_hunt(ser: serial.Serial,  vid: cv2.VideoCapture):
 
     cursor.execute(
     "INSERT INTO hunt_encounters (pokemon_id, hunt_id, encounters, pokemon_name, switch, targets, started_hunt_ts, encounter_method, total_dens) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-    (pokemon[0], new_hunt_id, 0, new_target['name'], 2, new_target['target'], int(time.time() * 1000), 'egg', None)
+    (pokemon[0], new_hunt_id, 0, new_target['name'], 2 if switch_num == 2 else 3, new_target['target'], int(time.time() * 1000), 'egg', None)
     )
 
     with open(STREAM_DATA_PATH, 'r') as f:
         data = json.load(f)
-    data['switch2_hunt_id'] = new_hunt_id
+    data['switch2_hunt_id' if switch_num == 2 else 'switch3_hunt_id'] = new_hunt_id
     with open(STREAM_DATA_PATH, 'w') as f:
         json.dump(data, f, indent=4)
 
@@ -315,7 +319,10 @@ def check_menu(ser: serial.Serial, vid: cv2.VideoCapture, leave_open:bool = Fals
         if 'MAIN MENU' == get_text(frame=getframe(vid), top_left=Point(y=112, x=884), bottom_right=Point(y=154, x=1038), invert=True):
             break
 
-        if x > 28:
+        if x > 15:
+            handle_battle_check(ser, vid, full_reset=False)
+
+        if x > 27:
             return False
 
     if not leave_open:
@@ -331,7 +338,7 @@ def select_menu_item(ser: serial.Serial, vid: cv2.VideoCapture, menu_item: str):
     selected_color = (0, 204, 240)
 
     # Make sure we are on the right side of the menu
-    press(ser, 'd', sleep_time=.5)
+    press(ser, 'd', sleep_time=1)
 
     if color_near(frame[240][1077], selected_color):
         current_menu_item = 'Boxes'
@@ -492,13 +499,19 @@ def move_eggs_to_party(ser: serial.Serial, vid: cv2.VideoCapture, from_party=Fal
             condition = lambda: (not moving_pokemon(vid)),
         )
 
-def handle_battle_check(ser: serial.Serial,  vid: cv2.VideoCapture):
+def handle_battle_check(ser: serial.Serial,  vid: cv2.VideoCapture, full_reset = True):
 
-    if not 'Run' == get_text(frame=getframe(vid), top_left=Point(y=642, x=1048), bottom_right=Point(y=686, x=1106), invert=True):
+    in_battle = 'Run' == get_text(frame=getframe(vid), top_left=Point(y=642, x=1048), bottom_right=Point(y=686, x=1106), invert=True)
+    looking_at_pokeball = 'Check Details' == get_text(frame=getframe(vid), top_left=Point(y=669, x=601), bottom_right=Point(y=688, x=725), invert=True)
+
+    if not in_battle and not looking_at_pokeball:
         return
-
+    
     print('We are in battle, running and resetting')
     selected_color = (0, 206, 238)
+
+    if looking_at_pokeball: 
+        press(ser, 'B', sleep_time=1)
 
     frame=getframe(vid)
     while not color_near(frame[663][1116], selected_color):
@@ -508,7 +521,8 @@ def handle_battle_check(ser: serial.Serial,  vid: cv2.VideoCapture):
     time.sleep(1)
     # Now we should be over run
     press(ser, 'A', sleep_time=5)
-    reset_position(ser, vid, full_reset=True)
+    if full_reset:
+        reset_position(ser, vid, full_reset=True)
 
 def validate_and_extract_split(input_string: str | None):
     if input_string == None:
@@ -521,7 +535,7 @@ def validate_and_extract_split(input_string: str | None):
             num2 = int(parts[1])
             return (num1, num2)
     except ValueError:
-        return None
+        return input_string
     
     return None
     
@@ -536,8 +550,8 @@ def safe_move_box_cursor(ser: serial.Serial, vid: cv2.VideoCapture, to_pos: Posi
     current_pos = Position(col=current_pos[0], row=current_pos[1])
     move_position(ser, current_pos, to_pos)
 
-    print(current_pos)
-    print(get_box_cursor_position(vid))
+    # print(current_pos)
+    # print(get_box_cursor_position(vid))
 
     current_pos = validate_and_extract_split(get_box_cursor_position(vid))
     if current_pos[0] != to_pos.col or current_pos[1] != to_pos.row:
@@ -599,13 +613,21 @@ def handle_picnic_and_egg_fetching(ser: serial.Serial, vid: cv2.VideoCapture):
         end_program(ser, failure=False)
         return 0
     select_menu_item(ser, vid, "Picnic")
-    time.sleep(7)
+    time.sleep(10)
     press(ser, 'w', duration=.3)
     make_sandwich(ser)
 
+    try_again = False
     # # Get eggs from basket fill up boxes
-    take_basket_eggs(ser, vid)
+    if take_basket_eggs(ser, vid) == 'reset':
+        try_again = True
+
     prepare_party(ser, vid)
+
+    if try_again:
+        print('Trying to get eggs again')
+        reset_position(ser, vid, full_reset=True)
+        return handle_picnic_and_egg_fetching(ser, vid)
 
 # Against picnic table, goes into menu, ends once out of sandwich ui
 def make_sandwich(ser: serial.Serial):
@@ -614,9 +636,13 @@ def make_sandwich(ser: serial.Serial):
     press(ser, 'A', sleep_time= 6)
 
     # Select egg 2 sandwich
-    press(ser, 'd', sleep_time=0.4)
-    press(ser, 's', sleep_time=0.4, count=2)
-    press(ser, 'A', sleep_time=0.3, count=4)
+    if switch_num == 2:
+        press(ser, 'd', sleep_time=0.4)
+        press(ser, 's', sleep_time=0.4, count=2)
+        press(ser, 'A', sleep_time=0.3, count=4)
+    elif switch_num == 3:
+        press(ser, 's', sleep_time=0.4, count=8)
+        press(ser, 'A', sleep_time=0.3, count=4)
     time.sleep(9)
 
     # Put banana pieces on sandwich
@@ -642,6 +668,8 @@ def take_basket_eggs(ser: serial.Serial, vid: cv2.VideoCapture):
         press(ser, 'd', duration=0.4, sleep_time=0.5)
         press(ser, 's')
 
+        loop_attempt = 0
+        no_egg_count = 0
         fetched_eggs = config.get('fetched_eggs')
         while (fetched_eggs < 30):
             time.sleep(20)
@@ -654,19 +682,25 @@ def take_basket_eggs(ser: serial.Serial, vid: cv2.VideoCapture):
                 time.sleep(1)
                 
                 current_text = get_text(frame=getframe(vid), top_left=Point(y=543, x=358), bottom_right=Point(y=592, x=558), invert=True)
-                if current_text == 'Doesn’t look like':
+                if current_text == 'Doesn’t look like' or current_text == "Doesn't look like":
                     print('No egg')
                     press(ser, 'A')
                     taking_eggs = False
+                    loop_attempt = 0
+                    no_egg_count = no_egg_count + 1
                     continue
-                elif current_text == 'There’s a Pokéme':
+                elif current_text == 'There’s a Pokéme' or current_text == 'There’s a Pokémo':
                     print('Taking egg')
                     press(ser, 'A', count=3, sleep_time=0.5)
                     config.update({'fetched_eggs': fetched_eggs + 1})
+                    loop_attempt = 0
+                    no_egg_count = 0
                 elif current_text == '..Qh? There’s sor':
                     print('Taking egg')
                     press(ser, 'A', count=4, sleep_time=0.5)
                     config.update({'fetched_eggs': fetched_eggs + 1})
+                    loop_attempt = 0
+                    no_egg_count = 0
                 
                 end_time = time.time()
                 curr_time = end_time - start_time
@@ -675,9 +709,16 @@ def take_basket_eggs(ser: serial.Serial, vid: cv2.VideoCapture):
                     print('Attempting to break out of loop')
                     press(ser, 'B', sleep_time=1)
                     start_time = time.time()
+                    loop_attempt = loop_attempt + 1
                 
-                if curr_time > 2000:
-                    end_program()
+                if loop_attempt > 5 or curr_time > 2400 or no_egg_count > 10:
+                    time.sleep(1)
+                    press(ser, 'B', sleep_time=1, count=4)
+                    press(ser, 'Y', sleep_time=1.5)
+                    press(ser, 'A', sleep_time=4, count=2)
+                    press(ser, 'B', count=8)
+                    time.sleep(1)
+                    return 'reset'
 
                 fetched_eggs = config.get('fetched_eggs')
         # Exit picnic
@@ -728,12 +769,13 @@ def prepare_party(ser: serial.Serial,  vid: cv2.VideoCapture, breeding: bool = F
         safe_move_box_number(ser, vid, 5)
         move_eggs_to_party(ser, vid)
 
-    
     exit_menus(ser, vid)
 
 def hatch_eggs(ser: serial.Serial,  vid: cv2.VideoCapture, extra = None):
     if extra is not None:
         config.update({'hatched_eggs': 0})
+    elif config.get('fetched_eggs') < 30:
+        return
 
     total_hatched = config.get('hatched_eggs')
     party_hatched = total_hatched % 5
@@ -752,12 +794,12 @@ def hatch_eggs(ser: serial.Serial,  vid: cv2.VideoCapture, extra = None):
 
             if (party_hatched >= 5):
                 break
+            
 
+            handle_battle_check(ser, vid)
             end_time = time.time()
             current_time = end_time - start_time
-            if current_time > 150:
-                handle_battle_check(ser, vid)
-            elif current_time > 1000:
+            if current_time > 1000:
                 end_program(ser)
 
             # press(ser, '{', duration=0.03, write_null_byte=False)
@@ -780,6 +822,7 @@ def hatch_eggs(ser: serial.Serial,  vid: cv2.VideoCapture, extra = None):
             return
         
         time.sleep(1)
+        handle_battle_check(ser, vid)
         select_menu_item(ser, vid, 'Boxes')
         save_needed = False
         if extra == 'box':
@@ -874,13 +917,26 @@ def handle_process_eggs(ser: serial.Serial, vid: cv2.VideoCapture,):
     return any_shiny
 
 def main() -> int:
-    ser_str = SWITCH2_SERIAL
-    vid = make_vid(SWITCH2_VID_NUM)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--switch_num')
+    args = parser.parse_args()
 
+    if args.switch_num:
+        global switch_num 
+        switch_num = int(args.switch_num)
+
+    if switch_num == 3:
+        global config
+        config = config3
+
+    
+
+    ser_str = get_switch_serial(switch_num)
+    vid = make_vid(get_switch_vid_num(switch_num))
     start_time = time.time()
     # current_text = get_text(frame=getframe(vid), top_left=Point(y=543, x=358), bottom_right=Point(y=592, x=558), invert=True)
 
-    # print(current_text)
+    # print(check_if_shiny(vid))
     # return
 
     with serial.Serial(ser_str, 9600) as ser, shh(ser):
@@ -894,11 +950,12 @@ def main() -> int:
         # reset_position(ser, vid, full_reset=True)
         # prepare_party(ser, vid, breeding=False)
         # hatch_eggs(ser, vid, extra='box')
+        # handle_battle_check(ser, vid)
         # return 
     
         while True:
 
-            # print(get_box_cursor_position(vid))
+            # print(validate_and_extract_split(get_box_cursor_position(vid)))
             # print(color_near((getframe(vid))[540][482], (45, 40, 20)))
             # print(get_text(frame=getframe(vid), top_left=Point(y=681, x=676), bottom_right=Point(y=708, x=720), invert=True))
             # print(moving_pokemon(vid))
