@@ -392,7 +392,7 @@ def reset_position(ser: serial.Serial, vid: cv2.VideoCapture, full_reset=False):
             return
         
         press(ser, '+', sleep_time=1)
-        press(ser, button, sleep_time=1)
+        press(ser, button, sleep_time=1, duration=0.07)
         if map_on_zero(vid) == 1:
             ready_to_travel = True
             press(ser, 'A', sleep_time=1)
@@ -520,7 +520,7 @@ def handle_battle_check(ser: serial.Serial,  vid: cv2.VideoCapture, full_reset =
 
     time.sleep(1)
     # Now we should be over run
-    press(ser, 'A', sleep_time=5)
+    press(ser, 'A', sleep_time=7.5)
     if full_reset:
         reset_position(ser, vid, full_reset=True)
 
@@ -613,7 +613,7 @@ def handle_picnic_and_egg_fetching(ser: serial.Serial, vid: cv2.VideoCapture):
         end_program(ser, failure=False)
         return 0
     select_menu_item(ser, vid, "Picnic")
-    time.sleep(10)
+    time.sleep(12)
     press(ser, 'w', duration=.3)
     make_sandwich(ser)
 
@@ -641,7 +641,7 @@ def make_sandwich(ser: serial.Serial):
         press(ser, 's', sleep_time=0.4, count=2)
         press(ser, 'A', sleep_time=0.3, count=4)
     elif switch_num == 3:
-        press(ser, 's', sleep_time=0.4, count=8)
+        press(ser, 's', sleep_time=0.4, count=8, duration=0.05)
         press(ser, 'A', sleep_time=0.3, count=4)
     time.sleep(9)
 
@@ -688,7 +688,6 @@ def take_basket_eggs(ser: serial.Serial, vid: cv2.VideoCapture):
                     taking_eggs = False
                     loop_attempt = 0
                     no_egg_count = no_egg_count + 1
-                    continue
                 elif current_text == 'There’s a Pokéme' or current_text == 'There’s a Pokémo':
                     print('Taking egg')
                     press(ser, 'A', count=3, sleep_time=0.5)
@@ -707,22 +706,24 @@ def take_basket_eggs(ser: serial.Serial, vid: cv2.VideoCapture):
 
                 if curr_time > 100:
                     print('Attempting to break out of loop')
-                    press(ser, 'B', sleep_time=1)
+                    press(ser, 'B', sleep_time=1, count=4)
                     start_time = time.time()
                     loop_attempt = loop_attempt + 1
                 
                 if loop_attempt > 5 or curr_time > 2400 or no_egg_count > 10:
                     time.sleep(1)
-                    press(ser, 'B', sleep_time=1, count=4)
+                    press(ser, 'B', sleep_time=1, count=10)
                     press(ser, 'Y', sleep_time=1.5)
                     press(ser, 'A', sleep_time=4, count=2)
                     press(ser, 'B', count=8)
                     time.sleep(1)
+                    print('Resetting picnic')
                     return 'reset'
 
                 fetched_eggs = config.get('fetched_eggs')
         # Exit picnic
         time.sleep(1)
+        press(ser, 'B', sleep_time=1, count=10)
         press(ser, 'Y', sleep_time=1.5)
         press(ser, 'A', sleep_time=4, count=2)
         press(ser, 'B', count=8)
