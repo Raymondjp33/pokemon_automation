@@ -67,11 +67,12 @@ def emit_pokemon_data():
         cursor.execute("SELECT * FROM catches WHERE hunt_id = ? AND name LIKE '%' || ? || '%'", (pokemon[2], pokemon[4],))
         catch_rows = cursor.fetchall()
         pokemon_data.append({
-            "encounters": pokemon[3],
             "pokemon_id": str(pokemon[1]),
+            "hunt_id": pokemon[2],
+            "encounters": pokemon[3],
             "name": pokemon[4],
-            "targets": pokemon[6],
             "switchNum": pokemon[5],
+            "targets": pokemon[6],
             "started_hunt_ts": pokemon[7],
             "total_dens": pokemon[9],
             "catches": [{"catch_name": catch_name, "caught_timestamp": ts, "encounters": enc, "encounter_method": method, "switch": switchUsed, "total_dens": tdens} for _, _, ts, enc, method, switchUsed, catch_name, tdens, _ in catch_rows]
