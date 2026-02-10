@@ -3,8 +3,11 @@ from typing import NamedTuple
 from utils import Point, _press, _getframe, get_text, _color_near
 import cv2
 import numpy
+from pathlib import Path
 import serial
-from config_manager import ConfigManager
+from services.config_manager import ConfigManager
+
+config = ConfigManager(Path(__file__).resolve().parent / 'den_config.json')
 
 # E for effectivness and P for PP
 class Move(NamedTuple):
@@ -13,7 +16,7 @@ class Move(NamedTuple):
     index: int
 
 class BattleHandler:
-    def __init__(self, vid: cv2.VideoCapture, ser: serial.Serial, config: ConfigManager):
+    def __init__(self, vid: cv2.VideoCapture, ser: serial.Serial):
         self.vid = vid
         self.ser = ser
         self.config = config

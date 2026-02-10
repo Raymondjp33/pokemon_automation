@@ -1,42 +1,56 @@
 import time
-from utils import Point, _press, _getframe, get_text, increment_counter, check_if_shiny
 import cv2
 import serial
 import pytesseract
 import os
 import time
-import json
 import numpy as np
-from config_manager import ConfigManager
+from services.config_manager import ConfigManager
 from pathlib import Path
+from services.common import *
 
 os.environ['TESSDATA_PREFIX'] = '/opt/homebrew/Cellar/tesseract/5.5.0_1/share/tessdata'
 pytesseract.pytesseract.tesseract_cmd = r'/opt/homebrew/Cellar/tesseract/5.5.0_1/bin/tesseract'
 pokemon_data_path = Path(__file__).resolve().parent.parent / 'pokemon_data.json'
 
+config = ConfigManager(Path(__file__).resolve().parent / 'den_config.json')
+
+def check_if_shiny(vid: cv2.VideoCapture):
+    frame = getframe(vid)
+
+    y1, x1, y2, x2 = 383, 74, 418, 260
+    roi = frame[y1:y2, x1:x2]
+    target_color = (99, 22, 255)
+
+    found = any(color_near(pixel, target_color) for row in roi for pixel in row)
+
+    if found:
+        return True
+    
+    return False
 
 class DenHandler:
-    def __init__(self, vid: cv2.VideoCapture, ser: serial.Serial, config: ConfigManager):
+    def __init__(self, vid: cv2.VideoCapture, ser: serial.Serial):
         self.vid = vid
         self.ser = ser
         self.config = config
     
     def handle_catch(self, is_legend:bool):
         print('Catching')
-        _press(self.ser, 'A', sleep_time=1)
+        press(self.ser, 'A', sleep_time=1)
 
         if is_legend:
             ball_index = self.config.get('ball_index')
-            _press(self.ser, 'a', sleep_time=0.5, count=ball_index)
+            press(self.ser, 'a', sleep_time=0.5, count=ball_index)
 
-        _press(self.ser, 'A', sleep_time=1)
+        press(self.ser, 'A', sleep_time=1)
 
     def select_starter(self): 
         if (self.config.get('selected_starter')):
             return
         print('Selecting starter!')
-        _press(self.ser, '+', sleep_time=1.5)
-        frame = _getframe(self.vid)
+        press(self.ser, '+', sleep_time=1.5)
+        frame = getframe(self.vid)
         try: first_attack = int(get_text(frame=frame, top_left=Point(y=175, x=971), bottom_right=Point(y=207, x=1041), invert=True))
         except: first_attack = 0
         try: first_specattack = int(get_text(frame=frame, top_left=Point(y=138, x=1191), bottom_right=Point(y=171, x=1250), invert=True))
@@ -60,8 +74,8 @@ class DenHandler:
         sorted_list = sorted(values, key=lambda x: x[0], reverse=True)
 
         distance = sorted_list[0][1]
-        _press(self.ser, 's', count=distance, sleep_time=0.3)
-        _press(self.ser, 'A')
+        press(self.ser, 's', count=distance, sleep_time=0.3)
+        press(self.ser, 'A')
         self.config.update({'selected_starter': True})
 
     def handle_choose_pokemon(self):
@@ -69,11 +83,11 @@ class DenHandler:
         index = 0
         name_map = {}
 
-        _press(self.ser, 'A', sleep_time=1.5)
-        _press(self.ser, 's', sleep_time=1)
-        _press(self.ser, 'A', sleep_time=4)
+        press(self.ser, 'A', sleep_time=1.5)
+        press(self.ser, 's', sleep_time=1)
+        press(self.ser, 'A', sleep_time=4)
         
-        frame = _getframe(self.vid)
+        frame = getframe(self.vid)
         log_frames = []
         current_name = get_text(frame=frame, top_left=Point(y=87, x=279), bottom_right=Point(y=127, x=595), invert=True)
         while not any(value[0] == current_name for value in name_map.values()):
@@ -82,15 +96,15 @@ class DenHandler:
             name_map[index] = (current_name, pokemon_is_shiny)
             log_frames.append(frame)
             index += 1
-            _press(self.ser, 's')
+            press(self.ser, 's')
             time.sleep(3)
-            frame = _getframe(self.vid)
+            frame = getframe(self.vid)
             current_name = get_text(frame=frame, top_left=Point(y=87, x=279), bottom_right=Point(y=127, x=595), invert=True)
 
         contains_legendary = name_map.__len__() == 4
         print(f'Legendary: {contains_legendary}')
         print(f'We have processed all pokemon: {name_map}')
-        _press(self.ser, 'B', sleep_time=4)
+        press(self.ser, 'B', sleep_time=4)
 
         last_key, last_value = next(reversed(name_map.items()))
         increment_counter(self.config.get('currently_hunting'), frames=log_frames, caught_legend=contains_legendary, shiny_legend=contains_legendary and last_value[1])
@@ -100,7 +114,7 @@ class DenHandler:
         if (contains_legendary and last_value[1]):
             print(f'Shiny legendary at index: {last_key}')
             self.clear_streak_data()
-            _press(self.ser, 's', count=3, sleep_time=0.5)
+            press(self.ser, 's', count=3, sleep_time=0.5)
             return True
         
 
@@ -110,12 +124,12 @@ class DenHandler:
 
         if (first_true_key is None):
             print('Not taking any pokemon')
-            _press(self.ser, 'B', sleep_time=1)
-            _press(self.ser, 'A', sleep_time=1, count=3)
+            press(self.ser, 'B', sleep_time=1)
+            press(self.ser, 'A', sleep_time=1, count=3)
             return False
             
         print(f'Take according pokemon {first_true_key}')
-        _press(self.ser, 's', count=first_true_key)
+        press(self.ser, 's', count=first_true_key)
         self.take_pokemon()
         return False
     
@@ -160,13 +174,13 @@ class DenHandler:
         self.config.update({"streak_data":streak_data, "keep_dungeon": False})
 
     def take_pokemon(self):
-        _press(self.ser, 'A', sleep_time=3.5, count=5)
-        _press(self.ser, 'A', sleep_time=1)
+        press(self.ser, 'A', sleep_time=3.5, count=5)
+        press(self.ser, 'A', sleep_time=1)
 
     def swap_if_needed(self):
         print('Swapping')
-        _press(self.ser, '+', sleep_time=1.5)
-        frame = _getframe(self.vid)
+        press(self.ser, '+', sleep_time=1.5)
+        frame = getframe(self.vid)
 
         streak_data = self.config.get('streak_data')
         if (len(streak_data['swaps']) == 3 and streak_data['search_dens'] == True):
@@ -174,10 +188,10 @@ class DenHandler:
             print(f'Swapping based on streak: {would_swap}')
             if (would_swap):
                 print(f'Swaping')
-                _press(self.ser, 'A')
+                press(self.ser, 'A')
             else:
                 print('Keeping current')
-                _press(self.ser, 'B')
+                press(self.ser, 'B')
             return
 
         try: curr_attack = int(get_text(frame=frame, top_left=Point(y=211, x=969), bottom_right=Point(y=247, x=1056), invert=True))
@@ -197,16 +211,16 @@ class DenHandler:
 
         if (would_swap):
             print(f'Swaping')
-            _press(self.ser, 'A')
+            press(self.ser, 'A')
         else:
             print('Keeping current')
-            _press(self.ser, 'B')
+            press(self.ser, 'B')
 
         streak_data['swaps'].append(would_swap)
         self.config.update({"streak_data":streak_data})
 
     def extract_text(self, x1, y1, x2, y2, sortByX: bool):
-        image = _getframe(self.vid)
+        image = getframe(self.vid)
         hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
         lower_white = np.array([0, 0, 200], dtype=np.uint8)
         upper_white = np.array([180, 50, 255], dtype=np.uint8)
@@ -232,15 +246,15 @@ class DenHandler:
     
     def handle_select_item(self):
         print('Selecting item')
-        _press(self.ser, 'A')
+        press(self.ser, 'A')
     
     def handle_rental(self):
         print('Rental pokemon')
-        _press(self.ser, 'B')
+        press(self.ser, 'B')
     
     def handle_sus(self):
         print('Sus screen')
-        _press(self.ser, 'A', sleep_time=5, count=2)
+        press(self.ser, 'A', sleep_time=5, count=2)
 
     pathX1 = 174
     pathY1 = 62
@@ -248,7 +262,7 @@ class DenHandler:
     pathY2 = 567
 
     def find_white_arrow(self):
-        image = _getframe(self.vid)
+        image = getframe(self.vid)
         cropped_image = image[self.pathY1:self.pathY2, self.pathX1:self.pathX2]
         hsv = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2HSV)
 
@@ -287,8 +301,8 @@ class DenHandler:
         if (len(streak_data['paths']) == 3 and streak_data['search_dens'] == True):
             index = streak_data['paths'][self.config.get('battle_index')]
             print(f'Taking path based on streak: {index}')
-            _press(self.ser, 'd', count=index, sleep_time=0.3)
-            _press(self.ser, 'A')
+            press(self.ser, 'd', count=index, sleep_time=0.3)
+            press(self.ser, 'A')
             return
 
 
@@ -300,7 +314,7 @@ class DenHandler:
         while not any(new_pos < pos + 50 and new_pos > pos - 50 for pos in arrow_positions):
             print(f'Adding arrow position: {new_pos}')
             arrow_positions.append(new_pos)
-            _press(self.ser, 'd', sleep_time=0.75)
+            press(self.ser, 'd', sleep_time=0.75)
             new_pos = self.find_white_arrow()
 
         print(f'Arrow positions currently: {arrow_positions}')
@@ -321,35 +335,35 @@ class DenHandler:
         streak_data['paths'].append(best_index)
         self.config.update({"streak_data":streak_data})
         print(f'Taking path at index {best_index}')
-        _press(self.ser, 'd', count=best_index, sleep_time=0.3)
-        _press(self.ser, 'A')
+        press(self.ser, 'd', count=best_index, sleep_time=0.3)
+        press(self.ser, 'A')
 
     def restart_dungeon(self, keep_dungeon = False):
         if (keep_dungeon):
             self.reset_game()
 
-        frame = _getframe(self.vid)
+        frame = getframe(self.vid)
         curr_text = get_text(frame=frame, top_left=Point(y=641, x=269), bottom_right=Point(y=690, x=593), invert=True)
         while curr_text != 'Dynamax Adventure?':
-            _press(self.ser, 'A')
+            press(self.ser, 'A')
             time.sleep(2)
-            frame = _getframe(self.vid)
+            frame = getframe(self.vid)
             curr_text = get_text(frame=frame, top_left=Point(y=641, x=269), bottom_right=Point(y=690, x=593), invert=True)
         
         pokemon_den_index = self.config.get('pokemon_den_index')
         # Would you like to embark on a Dynamax Adventure?
-        _press(self.ser, 'A', sleep_time=2, count=4)
-        _press(self.ser, 's', sleep_time=0.5, count=pokemon_den_index)
-        _press(self.ser, 'A', sleep_time=2, count=3)
+        press(self.ser, 'A', sleep_time=2, count=4)
+        press(self.ser, 's', sleep_time=0.5, count=pokemon_den_index)
+        press(self.ser, 'A', sleep_time=2, count=3)
         time.sleep(4)
 
         # Dont invite others
-        _press(self.ser, 's', sleep_time=0.5)
-        _press(self.ser, 'A')
+        press(self.ser, 's', sleep_time=0.5)
+        press(self.ser, 'A')
 
     def reset_game(self):
-        _press(self.ser, 'H', sleep_time=1)
-        _press(self.ser, 'X', sleep_time=1)
-        _press(self.ser, 'A', sleep_time=1, count=3)
+        press(self.ser, 'H', sleep_time=1)
+        press(self.ser, 'X', sleep_time=1)
+        press(self.ser, 'A', sleep_time=1, count=3)
 
         print('game reset!')

@@ -9,32 +9,22 @@ import cv2
 import serial
 from battle_handler import BattleHandler
 from den_handler import DenHandler
-from config_manager import ConfigManager
+from services.config_manager import ConfigManager
 import utils 
 
+from services.common import *
 
-@contextlib.contextmanager
-def _shh(ser: serial.Serial) -> Generator[None]:
-    try:
-        yield
-    finally:
-        ser.write(b'.')    
+
 
 def main() -> int:
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--serial', default='/dev/tty.usbserial-110')
-    args = parser.parse_args()
-
-    vid = cv2.VideoCapture(2)
-    vid.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
-    vid.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
-    vid.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+    ser_str = SWITCH2_SERIAL
+    vid = make_vid(SWITCH2_VID_NUM)
 
     shiny_legend = False
 
     config = ConfigManager()
 
-    with serial.Serial(args.serial, 9600) as ser, _shh(ser):
+    with serial.Serial(ser_str, 9600) as ser, shh(ser):
         time.sleep(1)
 
         battle_handler = BattleHandler(vid, ser, config)
