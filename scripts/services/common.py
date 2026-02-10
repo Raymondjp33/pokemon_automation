@@ -281,8 +281,8 @@ def move_position(ser: serial.Serial, curr_pos: Position, next_pos: Position):
     col_diff = next_pos.col - curr_pos.col
     row_diff = next_pos.row - curr_pos.row
    
-    press(ser, '2' if row_diff >= 0 else '4', count=abs(row_diff), sleep_time=0.5)
-    press(ser, '1' if col_diff >= 0 else '3', count=abs(col_diff), sleep_time=0.5)
+    press(ser, '2' if row_diff >= 0 else '4', count=abs(row_diff), sleep_time=0.5, duration=0.08)
+    press(ser, '1' if col_diff >= 0 else '3', count=abs(col_diff), sleep_time=0.5, duration=0.08)
 
 def make_move(ser: serial.Serial, from_pos, to_pos, move_vertical = False,):
     difference = to_pos - from_pos
