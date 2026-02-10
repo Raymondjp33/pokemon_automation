@@ -13,6 +13,7 @@ PokemonModel _$PokemonModelFromJson(Map<String, dynamic> json) => PokemonModel(
       pokemonId: json['pokemon_id'] as String? ?? '1',
       encounters: (json['encounters'] as num?)?.toInt() ?? 0,
       totalDens: (json['total_dens'] as num?)?.toInt() ?? 0,
+      huntId: (json['hunt_id'] as num?)?.toInt() ?? 1,
       startedHuntTimestamp: json['started_hunt_ts'] as num?,
       catches: (json['catches'] as List<dynamic>?)
           ?.map((e) => CatchModel.fromJson(e as Map<String, dynamic>?))
@@ -27,6 +28,7 @@ Map<String, dynamic> _$PokemonModelToJson(PokemonModel instance) =>
       'encounters': instance.encounters,
       'pokemon_id': instance.pokemonId,
       'total_dens': instance.totalDens,
+      'hunt_id': instance.huntId,
       'started_hunt_ts': instance.startedHuntTimestamp,
       'catches': instance.catches?.map((e) => e.toJson()).toList(),
     };

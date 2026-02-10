@@ -8,17 +8,27 @@ class SandboxView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // int low = 926;
+    // int high = 958;
+    int low = 802;
+    int high = 819;
+
     return Scaffold(
       body: Container(
-        width: 400,
+        width: 600,
         child: Center(
           child: Wrap(
             children: [
-              for (int i = 926; i < 958; i++)
-                PokemonGifImage(
-                  gifUrl: PokemonModel.baseGifUrl(i),
-                  height: 50,
-                  width: 50,
+              for (int i = low; i < high; i++)
+                Column(
+                  children: [
+                    PokemonGifImage(
+                      gifUrl: PokemonModel.baseGifUrl(i),
+                      height: 75,
+                      width: 75,
+                    ),
+                    Text(i.toString())
+                  ],
                 ),
             ],
           ),

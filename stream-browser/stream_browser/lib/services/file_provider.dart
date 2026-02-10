@@ -22,12 +22,15 @@ class FileProvider with ChangeNotifier {
 
   String get switch1Content => streamData?.switch1Content?.content ?? 'current';
   String get switch1Game => streamData?.switch1Content?.game ?? 'shield';
+  num get switch1HuntId => streamData?.switch1HuntId ?? 1;
 
   String get switch2Content => streamData?.switch2Content?.content ?? 'current';
   String get switch2Game => streamData?.switch2Content?.game ?? 'shield';
+  num get switch2HuntId => streamData?.switch2HuntId ?? 1;
 
   String get switch3Content => streamData?.switch3Content?.content ?? 'current';
   String get switch3Game => streamData?.switch3Content?.game ?? 'shield';
+  num get switch3HuntId => streamData?.switch3HuntId ?? 1;
 
   final List<String> logs1 = [];
 
@@ -103,13 +106,16 @@ class FileProvider with ChangeNotifier {
   }
 
   List<PokemonModel> get switch1Pokemon =>
-      pokemonData?.pokemon.where((e) => e.switchNum == 1).toList() ?? [];
+      pokemonData?.pokemon.where((e) => e.huntId == switch1HuntId).toList() ??
+      [];
 
   List<PokemonModel> get switch2Pokemon =>
-      pokemonData?.pokemon.where((e) => e.switchNum == 2).toList() ?? [];
+      pokemonData?.pokemon.where((e) => e.huntId == switch2HuntId).toList() ??
+      [];
 
   List<PokemonModel> get switch3Pokemon =>
-      pokemonData?.pokemon.where((e) => e.switchNum == 3).toList() ?? [];
+      pokemonData?.pokemon.where((e) => e.huntId == switch3HuntId).toList() ??
+      [];
 
   StatsModel? get pokemonStats => pokemonData?.pokemonStats;
 

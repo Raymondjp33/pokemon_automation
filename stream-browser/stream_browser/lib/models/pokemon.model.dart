@@ -14,6 +14,8 @@ class PokemonModel {
   String pokemonId;
   @JsonKey(name: 'total_dens')
   int totalDens;
+  @JsonKey(name: 'hunt_id')
+  int huntId;
   @JsonKey(name: 'started_hunt_ts')
   num? startedHuntTimestamp;
 
@@ -26,6 +28,7 @@ class PokemonModel {
     this.pokemonId = '1',
     this.encounters = 0,
     this.totalDens = 0,
+    this.huntId = 1,
     this.startedHuntTimestamp,
     this.catches,
   });
@@ -61,9 +64,36 @@ class PokemonModel {
 
   String get specificGifNumber {
     switch (pokemonId) {
+      // Alolan Diglett
+      case '50-1':
+        return baseGifUrl(809);
+      // Alolan Vulpix
+      case '37-1':
+        return baseGifUrl(807);
+      // Alolan Grimer
+      case '88-1':
+        return baseGifUrl(816);
+      // Alolan Geodude
+      case '74-1':
+        return baseGifUrl(813);
+      // Alolan Sandshrew
+      case '27-1':
+        return baseGifUrl(805);
+      // Tauros Combat (Paldaen)
+      case '128-1':
+        return baseGifUrl(1038);
       // Alolan Meowth
       case '52-1':
         return baseGifUrl(811);
+      // Galarian Meowth
+      case '52-2':
+        return baseGifUrl(908);
+      // Hisuian Growlith
+      case '58-1':
+        return baseGifUrl(942);
+      // Hisuian Voltorb
+      case '100-1':
+        return baseGifUrl(944);
       // Hisuian Sneasel
       case '215-1':
         return baseGifUrl(948);
@@ -73,6 +103,9 @@ class PokemonModel {
       // Hisuian Basculin (White)
       case '550-1':
         return baseGifUrl(951);
+      // Hisuian Zorua
+      case '570-1':
+        return baseGifUrl(952);
       case '1012':
         return showdownGifUrl(1012);
     }

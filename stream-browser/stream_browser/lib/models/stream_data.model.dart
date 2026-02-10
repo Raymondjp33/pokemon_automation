@@ -12,6 +12,13 @@ class StreamData {
   DisplayContent? switch2Content;
   DisplayContent? switch3Content;
 
+  @JsonKey(name: 'switch1_hunt_id')
+  num? switch1HuntId;
+  @JsonKey(name: 'switch2_hunt_id')
+  num? switch2HuntId;
+  @JsonKey(name: 'switch3_hunt_id')
+  num? switch3HuntId;
+
   StreamData({
     required this.away,
   });
