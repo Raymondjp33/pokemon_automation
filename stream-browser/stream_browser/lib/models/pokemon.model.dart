@@ -79,15 +79,24 @@ class PokemonModel {
       // Alolan Sandshrew
       case '27-1':
         return baseGifUrl(805);
-      // Tauros Combat (Paldaen)
-      case '128-1':
-        return baseGifUrl(1038);
       // Alolan Meowth
       case '52-1':
         return baseGifUrl(811);
       // Galarian Meowth
       case '52-2':
         return baseGifUrl(908);
+      // Galarian Ponyta
+      case '77-1':
+        return baseGifUrl(909);
+      // Galarian Farfetch'd
+      case '83-1':
+        return baseGifUrl(911);
+      // Galarian Zigzagoon
+      case '263-1':
+        return baseGifUrl(915);
+      // Galarian Darmanitan
+      case '555-1':
+        return baseGifUrl(917);
       // Hisuian Growlith
       case '58-1':
         return baseGifUrl(942);
@@ -106,6 +115,9 @@ class PokemonModel {
       // Hisuian Zorua
       case '570-1':
         return baseGifUrl(952);
+      // Tauros Combat (Paldaen)
+      case '128-1':
+        return baseGifUrl(1038);
       case '1012':
         return showdownGifUrl(1012);
     }

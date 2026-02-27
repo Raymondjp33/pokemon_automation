@@ -8,10 +8,17 @@ class SandboxView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Hisuian
     // int low = 926;
     // int high = 958;
-    int low = 802;
-    int high = 819;
+
+    // Alolan
+    // int low = 802;
+    // int high = 819;
+
+    // Alolan
+    int low = 908;
+    int high = 920;
 
     return Scaffold(
       body: Container(

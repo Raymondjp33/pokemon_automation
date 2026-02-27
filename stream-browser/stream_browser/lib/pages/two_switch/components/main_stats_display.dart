@@ -71,6 +71,17 @@ class MainStatsDisplay extends StatelessWidget {
           averageLeftText = 'Average encs';
           break;
 
+        case 'oldwild':
+          totalEncounters = pokemonStats?.totalOldWild ?? 0;
+          totalShinies = pokemonStats?.totalOldWildShinies ?? 0;
+          averageEncounters = pokemonStats?.averageOldWild ?? 0;
+          oddsLeftText = 'Odds (Pre charm)';
+          oddsRightText = '1/8192';
+          totalEncsLeftText = 'Total encs';
+          totalShiniesLeftText = 'Total shinies';
+          averageLeftText = 'Average encs';
+          break;
+
         case 'current':
         default:
           totalEncounters = pokemon.fold(

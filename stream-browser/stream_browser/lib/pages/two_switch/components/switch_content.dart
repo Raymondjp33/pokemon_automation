@@ -35,6 +35,7 @@ class SwitchContent extends StatelessWidget {
       case 'egg':
       case 'static':
       case 'wild':
+      case 'oldwild':
       case 'current':
       default:
         child = MainStatsDisplay(

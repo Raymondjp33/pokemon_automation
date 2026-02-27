@@ -16,6 +16,9 @@ StatsModel _$StatsModelFromJson(Map<String, dynamic> json) => StatsModel(
       totalWildShinies: (json['totalWildShinies'] as num?)?.toInt() ?? 0,
       totalWild: (json['totalWild'] as num?)?.toInt() ?? 0,
       averageWild: (json['averageWild'] as num?)?.toDouble() ?? 0,
+      totalOldWildShinies: (json['totalOldWildShinies'] as num?)?.toInt() ?? 0,
+      totalOldWild: (json['totalOldWild'] as num?)?.toInt() ?? 0,
+      averageOldWild: (json['averageOldWild'] as num?)?.toDouble() ?? 0,
     );
 
 Map<String, dynamic> _$StatsModelToJson(StatsModel instance) =>
@@ -29,4 +32,7 @@ Map<String, dynamic> _$StatsModelToJson(StatsModel instance) =>
       'totalWildShinies': instance.totalWildShinies,
       'totalWild': instance.totalWild,
       'averageWild': instance.averageWild,
+      'totalOldWildShinies': instance.totalOldWildShinies,
+      'totalOldWild': instance.totalOldWild,
+      'averageOldWild': instance.averageOldWild,
     };
