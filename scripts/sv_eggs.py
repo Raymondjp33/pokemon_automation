@@ -47,7 +47,7 @@ def increment_counter(caught_index=None):
 
     target_met = False
     if (caught_index is not None):
-        cursor.execute("SELECT * FROM catches WHERE name = ?", (pokemon_name,))
+        cursor.execute("SELECT * FROM catches WHERE name = ? AND hunt_id = ?", (pokemon_name, hunt_id,))
         catch_rows = cursor.fetchall()
         catches = [{"caught_timestamp": ts, "encounters": enc, "encounter_method": method, "total_dens": tdens} for _, _, ts, enc, method, _, _, tdens, _ in catch_rows]
         previous_encounters = 0

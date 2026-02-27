@@ -118,18 +118,24 @@ def get_pokemon_stats(cursor):
     totalStaticShinies = cursor.execute("SELECT COUNT(*) FROM catches WHERE encounter_method = ?", ('static',)).fetchone()[0]
     totalStaticFails = cursor.execute("SELECT COUNT(*) FROM fails WHERE encounter_method = ?", ('static',)).fetchone()[0]
     totalStatic = cursor.execute("SELECT SUM(encounters) FROM hunt_encounters WHERE encounter_method = ?", ('static',)).fetchone()[0]
-    averageStatic = totalStatic / (totalStaticShinies + totalStaticFails)
+    averageStatic = totalStatic / max(totalStaticShinies + totalStaticFails, 1)
 
     totalWildShinies = cursor.execute("SELECT COUNT(*) FROM catches WHERE encounter_method = ?", ('wild',)).fetchone()[0]
     totalWildFails = cursor.execute("SELECT COUNT(*) FROM fails WHERE encounter_method = ?", ('wild',)).fetchone()[0]
     totalWild = cursor.execute("SELECT SUM(encounters) FROM hunt_encounters WHERE encounter_method = ?", ('wild',)).fetchone()[0]
-    averageWild = totalWild / (totalWildShinies + totalWildFails) 
+    averageWild = totalWild / max(totalWildShinies + totalWildFails, 1) 
+
+    totalOldWildShinies = cursor.execute("SELECT COUNT(*) FROM catches WHERE encounter_method = ?", ('oldwild',)).fetchone()[0]
+    totalOldWildFails = cursor.execute("SELECT COUNT(*) FROM fails WHERE encounter_method = ?", ('oldwild',)).fetchone()[0]
+    totalOldWild = cursor.execute("SELECT SUM(encounters) FROM hunt_encounters WHERE encounter_method = ?", ('oldwild',)).fetchone()[0]
+    averageOldWild = totalOldWild / max(totalOldWildShinies + totalOldWildFails, 1) 
 
 
     return {
         "totalEggShinies": totalEggShinies, "totalEggs": totalEggs, "averageEggs": averageEggs, 
         "totalStaticShinies": totalStaticShinies, "totalStatic": totalStatic, "averageStatic": averageStatic,
         "totalWildShinies":totalWildShinies, "totalWild": totalWild, "averageWild": averageWild,
+        "totalOldWildShinies":totalOldWildShinies, "totalOldWild": totalOldWild, "averageOldWild": averageOldWild,
         }
 
 # http://0.0.0.0:5050/

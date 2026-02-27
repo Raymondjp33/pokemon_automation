@@ -16,7 +16,7 @@ from services.config_manager import ConfigManager
 redis_client = redis.StrictRedis(host='localhost', port=6379, decode_responses=True)
 
 def write_shiny_text():
-    shiny_text_path = SWITCH1_SHINY_TEXT_PATH
+    shiny_text_path = SWITCH2_SHINY_TEXT_PATH
     with shiny_text_path.open("w") as file1:
         file1.write("I got the target amount of\nshinies! My switch will be\noff until I'm back.")
 
@@ -29,7 +29,7 @@ def increment_counter(caught_index=None):
     with stream_data_path.open("r") as stream_data_file:
         stream_data = json.load(stream_data_file)
 
-    hunt_id = stream_data['switch1_hunt_id']
+    hunt_id = stream_data['switch2_hunt_id']
 
     pokemon = cursor.execute("SELECT * FROM hunt_encounters WHERE hunt_id = ?", (hunt_id,)).fetchone()
 
@@ -316,12 +316,12 @@ def handle_update_target():
 
     cursor.execute(
     "INSERT INTO hunt_encounters (pokemon_id, hunt_id, encounters, pokemon_name, switch, targets, started_hunt_ts, encounter_method, total_dens) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-    (pokemon[0], new_hunt_id, 0, new_target['name'], 1, new_target['target'], int(time.time() * 1000), 'egg', None)
+    (pokemon[0], new_hunt_id, 0, new_target['name'], 2, new_target['target'], int(time.time() * 1000), 'egg', None)
     )
 
     with open(STREAM_DATA_PATH, 'r') as f:
         data = json.load(f)
-    data['switch1_hunt_id'] = new_hunt_id
+    data['switch2_hunt_id'] = new_hunt_id
     with open(STREAM_DATA_PATH, 'w') as f:
         json.dump(data, f, indent=4)
 
@@ -332,8 +332,8 @@ def handle_update_target():
 config = ConfigManager(Path(__file__).resolve().parent / 'configs' / 'egg_data1.json')
 
 def main() -> int:
-    ser_str = SWITCH1_SERIAL
-    vid = make_vid(SWITCH1_VID_NUM)
+    ser_str = SWITCH2_SERIAL
+    vid = make_vid(SWITCH2_VID_NUM)
 
     start_time = time.time()
     # print(get_text(frame=getframe(vid), top_left=Point(y=586, x=262), bottom_right=Point(y=641, x=495), invert=True))

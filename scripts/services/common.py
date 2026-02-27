@@ -21,13 +21,14 @@ STREAM_DATA_PATH = Path(__file__).resolve().parent.parent.parent / 'backend' / '
 DB_FILE = Path(__file__).resolve().parent.parent.parent / 'backend' / 'my_pokemon.db'
 REDIS_CHANNEL = "update_data"
 
-SWITCH1_SERIAL = '/dev/tty.usbmodem14101'
-SWITCH2_SERIAL = '/dev/tty.usbserial-1420'
+SWITCH1_SERIAL = '/dev/tty.usbmodem14201'
+SWITCH2_SERIAL = '/dev/tty.usbserial-1410'
 SWITCH3_SERIAL = '/dev/tty.usbmodem1301'
 
-SWITCH1_VID_NUM = 0
-SWITCH2_VID_NUM = 2
-SWITCH3_VID_NUM = 1
+SWITCH1_VID_NUM = 1
+SWITCH2_VID_NUM = 0
+
+SWITCH3_VID_NUM = 2
 
 def make_vid(switch_num) -> cv2.VideoCapture:
     vid = cv2.VideoCapture(switch_num)
@@ -51,6 +52,14 @@ def get_switch_serial(switch_num):
         return SWITCH2_SERIAL
     if switch_num == 3:
         return SWITCH3_SERIAL
+    
+def get_switch_hunt_key(switch_num):
+    if switch_num == 1:
+        return 'switch1_hunt_id'
+    if switch_num == 2:
+        return 'switch2_hunt_id'
+    if switch_num == 3:
+        return 'switch3_hunt_id'
 class CatchModel:
 
     def __init__(self, catch):
