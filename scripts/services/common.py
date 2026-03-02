@@ -181,14 +181,17 @@ def get_text(
 
     return tess_text_u8(crop, tessapi=tessapi)
 
-def press(ser: serial.Serial, s: str, duration: float = .1, count: int = 1, sleep_time = .075, write_null_byte=True) -> None:
+def press(ser: serial.Serial, s: str, duration: float = .1, count: int = 1, sleep_time = .075, dont_clear=False) -> None:
     for _ in range(count):
         # print(f'{s=} {duration=}')
         ser.write(s.encode())
+        ser.write(b'\n')
         time.sleep(duration)
-        if (write_null_byte):
-            ser.write(b'0')
-            time.sleep(sleep_time)
+
+        if not dont_clear:
+            ser.write('0\n'.encode())
+
+        time.sleep(sleep_time)
 
 def getframe(vid: cv2.VideoCapture) -> numpy.ndarray:
     attempts = 0

@@ -83,14 +83,15 @@ def check_if_shiny(vid: cv2.VideoCapture):
         return not numpy.array_equal(frame[236][430], [41, 147, 255])
 
 def reset_game(ser: serial.Serial, sleep_time = 4):
-    press(ser, 'H', sleep_time=1.25)
-    press(ser, 'X', sleep_time=1)
-    press(ser, 'A', sleep_time=1.75)
-    press(ser, 'A', count=3, sleep_time=.75)
+    press(ser, 'ABXY', sleep_time=2)
+    # press(ser, 'H', sleep_time=1.25)
+    # press(ser, 'X', sleep_time=1)
+    # press(ser, 'A', sleep_time=1.75)
+    # press(ser, 'A', count=3, sleep_time=.75)
 
-    if (switch_num == 3):
-        sleep_time = 7
-    time.sleep(sleep_time)
+    # if (switch_num == 3):
+    #     sleep_time = 7
+    # time.sleep(sleep_time)
 
 
 def main() -> int:
@@ -123,8 +124,8 @@ def main() -> int:
         while True:
             start_time = time.time()
             reset_game(ser)
-            press(ser, 'A', count=10, sleep_time=0.5)
-            press(ser, 'B', count=4, sleep_time=0.5)
+            press(ser, 'A', count=14, sleep_time=0.5)
+            press(ser, 'B', count=8, sleep_time=0.5)
             press(ser, 'A', count=10, sleep_time=0.5)
             press(ser, 'B', count=20, sleep_time=0.5)
             press(ser, 'X', sleep_time=0.75)

@@ -15,3 +15,4 @@ scripts/configs/
 old_repo/
 test/
 *.pyc
+ArduinoCore-avr/

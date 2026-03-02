@@ -44,11 +44,14 @@ def main() -> int:
             
             elif user_input:  # Filter single character keys
                 for _ in range(count):
-                    ser.write(user_input[0].encode())
-                    time.sleep(duration)
-                    ser.write(b'.')
-                    time.sleep(.05)
-                    print(f"Sent: {user_input[0]}")
+                    # print(f'Here and user input is {inputs[0]}')
+                    # ser.write(inputs[0].encode())
+                    # ser.write(b'\n')
+                    # time.sleep(duration)
+                    # ser.write('0\n'.encode())
+                    # time.sleep(.05)
+                    # print(f"Sent: {inputs[0]}")
+                    press(ser, inputs[0], duration=duration, count=count)
 
 
 
