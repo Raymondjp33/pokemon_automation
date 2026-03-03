@@ -95,8 +95,9 @@ class MainStatsDisplay extends StatelessWidget {
           averageEncounters = totalShinies == 0
               ? totalEncounters.toDouble()
               : totalEncounters / totalShinies;
-          oddsLeftText = 'Odds (Shiny charm)';
-          oddsRightText = '1/1365';
+          // TODO come up with solution for this
+          oddsLeftText = 'Odds (Pre charm)';
+          oddsRightText = '1/8192';
           totalEncsLeftText = 'Current total encs';
           totalShiniesLeftText = 'Current total shinies';
           averageLeftText = 'Average encs';

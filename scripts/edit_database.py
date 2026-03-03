@@ -142,11 +142,11 @@ from services.common import *
 ###             ADD NEW HUNT
 ###
 
-# pokemon_name = 'thievul'
-# targets = 0
+# pokemon_name = 'pidgey'
+# targets = 1
 # hunt_id = run_db_query("SELECT MAX(hunt_id) FROM hunt_encounters", (), function='fetchone')[0] + 1
-# encounter_method = 'wild'
-# switch = 1
+# encounter_method = 'oldwild'
+# switch = 3
 # total_dens = None
 # encounters = 0
 
@@ -177,8 +177,8 @@ from services.common import *
 ###             ADD NEW Pokemon
 ###
 
-# id = '52-1'
-# name = 'meowth:alolan'
+# id = '263-1'
+# name = 'zigzagoon:galarian'
 # total_encounters = 0
 
 # run_db_query(
@@ -189,8 +189,8 @@ from services.common import *
 ###             ADD NAME MAPPING
 ###
 
-# text = 'Stuffull'
-# name = 'stufful'
+# text = 'piogey'
+# name = 'pidgey'
 
 # pokemon = run_db_query("SELECT * FROM pokemon WHERE name = ?", (name,),function= "fetchone")
 
@@ -242,6 +242,24 @@ from services.common import *
 #         ALTER TABLE tempmons
 #         ADD hunt_id INTEGER;
 #  """)
+# query = """
+# SELECT *
+# FROM catches t
+# WHERE t.name IN (
+#     SELECT name
+#     FROM catches
+#     WHERE encounter_method = 'egg'
+#     GROUP BY name
+#     HAVING COUNT(DISTINCT hunt_id) >= 2
+# )
+# AND t.encounter_method = 'egg'
+# """
+
+# cursor.execute(query)
+# rows = cursor.fetchall()
+
+# for row in rows:
+#     print(row)
 
 # conn.commit()
 # conn.close()

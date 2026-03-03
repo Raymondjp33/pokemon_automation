@@ -34,7 +34,7 @@ class SandboxView extends StatelessWidget {
                       height: 75,
                       width: 75,
                     ),
-                    Text(i.toString())
+                    Text(i.toString()),
                   ],
                 ),
             ],
