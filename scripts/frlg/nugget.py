@@ -44,9 +44,21 @@ def main() -> int:
             press(ser, 'aB', dont_clear=True)
             while not numpy.array_equal(getframe(vid)[272][1079], [85, 239, 145]):
                 time.sleep(0.5)
+                if time.time() - start_time > 100:
+                    print('Error 1')
+                    press(ser, 'H', duration=1.5, sleep_time=3)
+                    press(ser, 'A')
+                    return
 
             press(ser, 'wB', duration=1.5)
-            press(ser, 'dB', duration=2)
+            press(ser, 'dB', duration=2, sleep_time=0.5)
+
+            if numpy.array_equal(getframe(vid)[274][342], [85, 239, 145]):
+                press(ser, 'd')
+            elif numpy.array_equal(getframe(vid)[277][203], [85, 238, 147]):
+                press(ser, 'a')
+                press(ser, 'a')
+
             press(ser, 'wB', duration=8)
 
             current_text = None
@@ -54,6 +66,12 @@ def main() -> int:
             while current_text != 'RAY scurried':
                 press(ser, 'A', sleep_time=0.3)
                 current_text = get_text(getframe(vid), Point(y=215, x=119), Point(y=275, x=436), invert=True)
+
+                if time.time() - start_time > 500:
+                    print('Error 2')
+                    press(ser, 'H', duration=1.5, sleep_time=3)
+                    press(ser, 'A')
+                    return
             
             press(ser, 'B', count=18, sleep_time=0.5)
      
