@@ -3,20 +3,19 @@ import 'package:flutter/material.dart';
 import '../../../../constants/app_styles.dart';
 import '../../../../models/pokemon.model.dart';
 import '../../../../components/pokemon_display/unown_display.dart';
+import '../../../models/display_content.model.dart';
 import 'main_stats_display.dart';
 
 class SwitchContent extends StatelessWidget {
   const SwitchContent({
     required this.screenContent,
-    required this.gameName,
     required this.pokemon,
     this.includeTitle = true,
     this.includeAverage = true,
     super.key,
   });
 
-  final String screenContent;
-  final String gameName;
+  final DisplayContent? screenContent;
   final List<PokemonModel> pokemon;
   final bool includeTitle;
   final bool includeAverage;
@@ -24,7 +23,7 @@ class SwitchContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget child;
-    switch (screenContent) {
+    switch (screenContent?.huntType ?? '') {
       case 'unown':
         child = UnownDisplay(
           key: ValueKey(screenContent),
@@ -52,7 +51,7 @@ class SwitchContent extends StatelessWidget {
       children: [
         if (includeTitle)
           Text(
-            gameName,
+            screenContent?.game ?? '',
             style: AppTextStyles.minecraftTen(fontSize: 36),
           ),
         Expanded(

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 
+import '../models/display_content.model.dart';
 import '../models/pokemon.model.dart';
 import '../models/stats.model.dart';
 import '../models/stream_data.model.dart';
@@ -20,17 +21,14 @@ class FileProvider with ChangeNotifier {
   StreamData? streamData;
   DateTime now = DateTime.now();
 
-  String get switch1Content => streamData?.switch1Content?.content ?? 'current';
-  String get switch1Game => streamData?.switch1Content?.game ?? 'shield';
-  num get switch1HuntId => streamData?.switch1HuntId ?? 1;
+  DisplayContent? get switch1Content => streamData?.switch1Content;
+  num get switch1HuntId => switch1Content?.huntId ?? 1;
 
-  String get switch2Content => streamData?.switch2Content?.content ?? 'current';
-  String get switch2Game => streamData?.switch2Content?.game ?? 'shield';
-  num get switch2HuntId => streamData?.switch2HuntId ?? 1;
+  DisplayContent? get switch2Content => streamData?.switch2Content;
+  num get switch2HuntId => switch2Content?.huntId ?? 1;
 
-  String get switch3Content => streamData?.switch3Content?.content ?? 'current';
-  String get switch3Game => streamData?.switch3Content?.game ?? 'shield';
-  num get switch3HuntId => streamData?.switch3HuntId ?? 1;
+  DisplayContent? get switch3Content => streamData?.switch3Content;
+  num get switch3HuntId => switch3Content?.huntId ?? 1;
 
   final List<String> logs1 = [];
 

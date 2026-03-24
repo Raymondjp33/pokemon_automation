@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../models/display_content.model.dart';
 import '../../../models/pokemon.model.dart';
 import '../../../models/stats.model.dart';
 import '../../../services/file_provider.dart';
@@ -16,7 +17,7 @@ class MainStatsDisplay extends StatelessWidget {
   });
 
   final List<PokemonModel> pokemon;
-  final String screenContent;
+  final DisplayContent? screenContent;
   final bool includeAverage;
 
   @override
@@ -37,7 +38,7 @@ class MainStatsDisplay extends StatelessWidget {
     double averageEncounters = 0;
 
     void setTexts() {
-      switch (screenContent) {
+      switch (screenContent?.huntType ?? '') {
         case 'egg':
           totalEncounters = pokemonStats?.totalEggs ?? 0;
           totalShinies = pokemonStats?.totalEggShinies ?? 0;
@@ -95,7 +96,6 @@ class MainStatsDisplay extends StatelessWidget {
           averageEncounters = totalShinies == 0
               ? totalEncounters.toDouble()
               : totalEncounters / totalShinies;
-          // TODO come up with solution for this
           oddsLeftText = 'Odds (Pre charm)';
           oddsRightText = '1/8192';
           totalEncsLeftText = 'Current total encs';

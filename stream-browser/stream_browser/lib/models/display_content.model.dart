@@ -5,11 +5,17 @@ part 'display_content.model.g.dart';
 @JsonSerializable(explicitToJson: true)
 class DisplayContent {
   String game;
-  String content;
+  String huntType;
+  String? oddsString;
+
+  @JsonKey(name: 'hunt_id')
+  num? huntId;
 
   DisplayContent({
     required this.game,
-    required this.content,
+    required this.huntType,
+    this.oddsString,
+    this.huntId,
   });
 
   factory DisplayContent.fromJson(Map<String, dynamic>? json) {

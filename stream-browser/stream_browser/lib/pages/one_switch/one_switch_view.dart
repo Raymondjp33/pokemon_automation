@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../constants/app_assets.dart';
+import '../../models/display_content.model.dart';
 import '../../models/pokemon.model.dart';
 import '../../services/file_provider.dart';
 import '../../widgets/scrolling_widget.dart';
@@ -17,10 +18,8 @@ class OneSwitchView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String screen2Content =
+    DisplayContent? screen2Content =
         context.select((FileProvider state) => state.switch2Content);
-    String game2Name =
-        context.select((FileProvider state) => state.switch2Game);
     List<PokemonModel> pokemon2 =
         context.select((FileProvider state) => state.switch2Pokemon);
 
@@ -75,7 +74,6 @@ class OneSwitchView extends StatelessWidget {
                       children: [
                         SwitchContent(
                           screenContent: screen2Content,
-                          gameName: game2Name,
                           pokemon: pokemon2,
                         ),
                       ],

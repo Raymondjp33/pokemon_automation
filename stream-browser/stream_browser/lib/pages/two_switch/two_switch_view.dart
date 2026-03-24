@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../components/bordered_box.dart';
 import '../../components/main_background.dart';
+import '../../models/display_content.model.dart';
 import '../../models/pokemon.model.dart';
 import '../../services/file_provider.dart';
 import 'components/middle_content.dart';
@@ -13,17 +14,13 @@ class TwoSwitchView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String screen1Content =
+    DisplayContent? screen1Content =
         context.select((FileProvider state) => state.switch1Content);
-    String game1Name =
-        context.select((FileProvider state) => state.switch1Game);
     List<PokemonModel> pokemon1 =
         context.select((FileProvider state) => state.switch1Pokemon);
 
-    String screen2Content =
+    DisplayContent? screen2Content =
         context.select((FileProvider state) => state.switch2Content);
-    String game2Name =
-        context.select((FileProvider state) => state.switch2Game);
     List<PokemonModel> pokemon2 =
         context.select((FileProvider state) => state.switch2Pokemon);
 
@@ -68,7 +65,6 @@ class TwoSwitchView extends StatelessWidget {
                             EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                         child: SwitchContent(
                           screenContent: screen1Content,
-                          gameName: game1Name,
                           pokemon: pokemon1,
                         ),
                       ),
@@ -89,7 +85,6 @@ class TwoSwitchView extends StatelessWidget {
                             EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                         child: SwitchContent(
                           screenContent: screen2Content,
-                          gameName: game2Name,
                           pokemon: pokemon2,
                         ),
                       ),

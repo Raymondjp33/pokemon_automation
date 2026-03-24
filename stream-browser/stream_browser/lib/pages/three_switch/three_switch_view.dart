@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../components/bordered_box.dart';
 import '../../components/main_background.dart';
 import '../../constants/app_styles.dart';
+import '../../models/display_content.model.dart';
 import '../../models/pokemon.model.dart';
 import '../../services/file_provider.dart';
 import '../two_switch/components/middle_content.dart';
@@ -16,16 +17,13 @@ class ThreeSwitchView extends StatelessWidget {
   Widget build(BuildContext context) {
     final fileProvider = context.watch<FileProvider>();
 
-    String screen1Content = fileProvider.switch1Content;
-    String game1Name = fileProvider.switch1Game;
+    DisplayContent? screen1Content = fileProvider.switch1Content;
     List<PokemonModel> pokemon1 = fileProvider.switch1Pokemon;
 
-    String screen2Content = fileProvider.switch2Content;
-    String game2Name = fileProvider.switch2Game;
+    DisplayContent? screen2Content = fileProvider.switch2Content;
     List<PokemonModel> pokemon2 = fileProvider.switch2Pokemon;
 
-    String screen3Content = fileProvider.switch3Content;
-    String game3Name = fileProvider.switch3Game;
+    DisplayContent? screen3Content = fileProvider.switch3Content;
     List<PokemonModel> pokemon3 = fileProvider.switch3Pokemon;
 
     DateTime now = DateTime.now();
@@ -85,9 +83,9 @@ class ThreeSwitchView extends StatelessWidget {
                             ),
                             child: SwitchContent(
                               screenContent: screen1Content,
-                              gameName: game1Name,
                               pokemon: pokemon1,
-                              includeAverage: screen1Content != 'current',
+                              includeAverage:
+                                  screen1Content?.huntType != 'current',
                               includeTitle: false,
                             ),
                           ),
@@ -111,19 +109,19 @@ class ThreeSwitchView extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Text(
-                                  game1Name,
+                                  screen1Content?.game ?? '',
                                   style: AppTextStyles.minecraftTen(
                                     fontSize: 32,
                                   ),
                                 ),
                                 Text(
-                                  game2Name,
+                                  screen2Content?.game ?? '',
                                   style: AppTextStyles.minecraftTen(
                                     fontSize: 32,
                                   ),
                                 ),
                                 Text(
-                                  game3Name,
+                                  screen3Content?.game ?? '',
                                   style: AppTextStyles.minecraftTen(
                                     fontSize: 32,
                                   ),
@@ -166,9 +164,9 @@ class ThreeSwitchView extends StatelessWidget {
                             ),
                             child: SwitchContent(
                               screenContent: screen3Content,
-                              gameName: game3Name,
                               pokemon: pokemon3,
-                              includeAverage: screen3Content != 'current',
+                              includeAverage:
+                                  screen3Content?.huntType != 'current',
                               includeTitle: false,
                             ),
                           ),
@@ -195,9 +193,8 @@ class ThreeSwitchView extends StatelessWidget {
                             EdgeInsets.symmetric(horizontal: 5, vertical: 15),
                         child: SwitchContent(
                           screenContent: screen2Content,
-                          gameName: game2Name,
                           pokemon: pokemon2,
-                          includeAverage: screen2Content != 'current',
+                          includeAverage: screen2Content?.huntType != 'current',
                           includeTitle: false,
                         ),
                       ),
