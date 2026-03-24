@@ -12,23 +12,27 @@ import serial
 import functools
 import tesserocr
 import sqlite3
+import json
+import redis
 
 
-SWITCH1_SHINY_TEXT_PATH = Path(__file__).resolve().parent.parent / 'configs' / 'switch1-shiny-text.txt'
-SWITCH2_SHINY_TEXT_PATH = Path(__file__).resolve().parent.parent / 'configs' / 'switch2-shiny-text.txt'
-STREAM_DATA_PATH = Path(__file__).resolve().parent.parent.parent / 'backend' / 'stream_data.json'
+SWITCH1_SHINY_TEXT_PATH = Path(__file__).resolve().parent.parent / "configs" / "switch1-shiny-text.txt"
+SWITCH2_SHINY_TEXT_PATH = Path(__file__).resolve().parent.parent / "configs" / "switch2-shiny-text.txt"
+STREAM_DATA_PATH = Path(__file__).resolve().parent.parent.parent / "backend" / "stream_data.json"
 
-DB_FILE = Path(__file__).resolve().parent.parent.parent / 'backend' / 'my_pokemon.db'
+DB_FILE = Path(__file__).resolve().parent.parent.parent / "backend" / "my_pokemon.db"
 REDIS_CHANNEL = "update_data"
+REDIS_CLIENT = redis.StrictRedis(host="localhost", port=6379, decode_responses=True)
 
-SWITCH1_SERIAL = '/dev/tty.usbmodem14201'
-SWITCH2_SERIAL = '/dev/tty.usbserial-1410'
-SWITCH3_SERIAL = '/dev/tty.usbmodem1301'
+SWITCH1_SERIAL = "/dev/tty.usbmodem14201"
+SWITCH2_SERIAL = "/dev/tty.usbserial-1410"
+SWITCH3_SERIAL = "/dev/tty.usbmodem1301"
 
 SWITCH1_VID_NUM = 1
 SWITCH2_VID_NUM = 0
 
 SWITCH3_VID_NUM = 2
+
 
 def make_vid(switch_num) -> cv2.VideoCapture:
     vid = cv2.VideoCapture(switch_num)
@@ -37,6 +41,7 @@ def make_vid(switch_num) -> cv2.VideoCapture:
     vid.set(cv2.CAP_PROP_BUFFERSIZE, 1)  # default: 3
     return vid
 
+
 def get_switch_vid_num(switch_num):
     if switch_num == 1:
         return SWITCH1_VID_NUM
@@ -44,7 +49,8 @@ def get_switch_vid_num(switch_num):
         return SWITCH2_VID_NUM
     if switch_num == 3:
         return SWITCH3_VID_NUM
-    
+
+
 def get_switch_serial(switch_num):
     if switch_num == 1:
         return SWITCH1_SERIAL
@@ -52,16 +58,18 @@ def get_switch_serial(switch_num):
         return SWITCH2_SERIAL
     if switch_num == 3:
         return SWITCH3_SERIAL
-    
+
+
 def get_switch_hunt_key(switch_num):
     if switch_num == 1:
-        return 'switch1_hunt_id'
+        return "switch1_hunt_id"
     if switch_num == 2:
-        return 'switch2_hunt_id'
+        return "switch2_hunt_id"
     if switch_num == 3:
-        return 'switch3_hunt_id'
-class CatchModel:
+        return "switch3_hunt_id"
 
+
+class CatchModel:
     def __init__(self, catch):
         self.id = catch[0]
         self.pokemon_id = catch[1]
@@ -73,16 +81,16 @@ class CatchModel:
         self.total_dens = catch[7]
         self.hunt_id = catch[8]
 
-class PokemonModel:
 
+class PokemonModel:
     def __init__(self, pokemon):
         self.id = pokemon[0]
         self.name = pokemon[1]
         self.total_encounters = pokemon[2]
         self.started_ts = pokemon[3]
 
-class HuntEncounterModel:
 
+class HuntEncounterModel:
     def __init__(self, hunt_encounter):
         self.id = hunt_encounter[0]
         self.pokemon_id = hunt_encounter[1]
@@ -95,13 +103,14 @@ class HuntEncounterModel:
         self.encounter_method = hunt_encounter[8]
         self.total_dens = hunt_encounter[9]
 
+
 def run_db_query(query, params, function=None):
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
 
-    if function == None:
+    if function is None:
         return_value = cursor.execute(query, params)
-    elif function == 'fetchone':
+    elif function == "fetchone":
         return_value = cursor.execute(query, params).fetchone()
     else:
         return_value = cursor.execute(query, params).fetchall()
@@ -110,10 +119,13 @@ def run_db_query(query, params, function=None):
     conn.close()
 
     return return_value
+
+
 class Color(NamedTuple):
     b: int
     g: int
     r: int
+
 
 class Point(NamedTuple):
     y: int
@@ -131,23 +143,27 @@ class Point(NamedTuple):
             int(self.x / dims[1] * NORM.x),
         )
 
+
 NORM = Point(y=720, x=1280)
+
 
 class Matcher(Protocol):
     def __call__(self, frame: numpy.ndarray) -> bool: ...
 
+
 @functools.lru_cache
 def _tessapi() -> tesserocr.PyTessBaseAPI:
     return tesserocr.PyTessBaseAPI(
-        '/opt/homebrew/share/tessdata',
-        'eng',
+        "/opt/homebrew/share/tessdata",
+        "eng",
         psm=tesserocr.PSM.SINGLE_LINE,
     )
 
+
 def tess_text_u8(
-        img: numpy.ndarray,
-        *,
-        tessapi: tesserocr.PyTessBaseAPI | None = None,
+    img: numpy.ndarray,
+    *,
+    tessapi: tesserocr.PyTessBaseAPI | None = None,
 ) -> str:
     tessapi = tessapi or _tessapi()
 
@@ -160,38 +176,51 @@ def tess_text_u8(
     )
     return tessapi.GetUTF8Text().strip()
 
+
 def get_text(
-        frame: numpy.ndarray,
-        top_left: Point,
-        bottom_right: Point,
-        *,
-        invert: bool,
-        tessapi: tesserocr.PyTessBaseAPI | None = None,
+    frame: numpy.ndarray,
+    top_left: Point,
+    bottom_right: Point,
+    *,
+    invert: bool,
+    tessapi: tesserocr.PyTessBaseAPI | None = None,
 ) -> str:
     tl_norm = top_left.norm(frame.shape)
     br_norm = bottom_right.norm(frame.shape)
 
-    crop = frame[tl_norm.y:br_norm.y, tl_norm.x:br_norm.x]
+    crop = frame[tl_norm.y : br_norm.y, tl_norm.x : br_norm.x]
     crop = cv2.cvtColor(crop, cv2.COLOR_BGR2GRAY)
     _, crop = cv2.threshold(
-        crop, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU,
+        crop,
+        0,
+        255,
+        cv2.THRESH_BINARY | cv2.THRESH_OTSU,
     )
     if invert:
         crop = cv2.bitwise_not(crop)
 
     return tess_text_u8(crop, tessapi=tessapi)
 
-def press(ser: serial.Serial, s: str, duration: float = .1, count: int = 1, sleep_time = .075, dont_clear=False) -> None:
+
+def press(
+    ser: serial.Serial,
+    s: str,
+    duration: float = 0.1,
+    count: int = 1,
+    sleep_time=0.075,
+    dont_clear=False,
+) -> None:
     for _ in range(count):
         # print(f'{s=} {duration=}')
         ser.write(s.encode())
-        ser.write(b'\n')
+        ser.write(b"\n")
         time.sleep(duration)
 
         if not dont_clear:
-            ser.write('0\n'.encode())
+            ser.write("0\n".encode())
 
         time.sleep(sleep_time)
+
 
 def getframe(vid: cv2.VideoCapture) -> numpy.ndarray:
     attempts = 0
@@ -203,7 +232,7 @@ def getframe(vid: cv2.VideoCapture) -> numpy.ndarray:
         except Exception as e:
             attempts += 1
             last_exception = e
-            
+
             if attempts < 3:
                 print(f"Attempt {attempts} failed: {str(e)}. Retrying in 0.05 seconds.")
                 time.sleep(0.05)
@@ -213,30 +242,32 @@ def getframe(vid: cv2.VideoCapture) -> numpy.ndarray:
     # If we get here, all attempts failed
     raise last_exception
 
+
 def tryGetframe(vid: cv2.VideoCapture) -> numpy.ndarray:
     _, frame = vid.read()
     # cv2.imshow('game', frame)
-    if cv2.waitKey(1) & 0xFF == ord('q'):
+    if cv2.waitKey(1) & 0xFF == ord("q"):
         raise SystemExit(0)
     if not isinstance(frame, numpy.ndarray):
         raise Exception("Frame is None")
     return frame
+
 
 def wait_and_render(vid: cv2.VideoCapture, t: float) -> None:
     end = time.time() + t
     while time.time() < end:
         getframe(vid)
 
+
 def await_pixel(
-        vid: cv2.VideoCapture,
-        *,
-        x: int,
-        y: int,
-        pixel: tuple[int, int, int],
-        timeout: float = 90,
-        exact_pixel: bool = True,
+    vid: cv2.VideoCapture,
+    *,
+    x: int,
+    y: int,
+    pixel: tuple[int, int, int],
+    timeout: float = 90,
+    exact_pixel: bool = True,
 ) -> None:
-    end = time.time() + timeout
     frame = getframe(vid)
 
     compare = numpy.array_equal if exact_pixel else color_near
@@ -244,20 +275,21 @@ def await_pixel(
     while not compare(frame[y][x], pixel):
         frame = getframe(vid)
 
+
 def await_not_pixel(
-        vid: cv2.VideoCapture,
-        *,
-        x: int,
-        y: int,
-        pixel: tuple[int, int, int],
-        timeout: float = 90,
-        exact_pixel: bool = True,
+    vid: cv2.VideoCapture,
+    *,
+    x: int,
+    y: int,
+    pixel: tuple[int, int, int],
+    timeout: float = 90,
+    exact_pixel: bool = True,
 ) -> None:
-    end = time.time() + timeout
     frame = getframe(vid)
     compare = numpy.array_equal if exact_pixel else color_near
     while compare(frame[y][x], pixel):
         frame = getframe(vid)
+
 
 def color_near(pixel: numpy.ndarray, expected: tuple[int, int, int]) -> bool:
     total = 0
@@ -266,55 +298,80 @@ def color_near(pixel: numpy.ndarray, expected: tuple[int, int, int]) -> bool:
 
     return total < 76
 
+
 @contextlib.contextmanager
 def shh(ser: serial.Serial) -> Generator[None]:
     try:
         yield
     finally:
-        ser.write(b'.')
+        ser.write(b".")
+
+
 class Position(NamedTuple):
     col: int
     row: int
 
-def get_location(num):  
+
+def get_location(num):
     box_pos = num % 30
-    if (box_pos == 0):
+    if box_pos == 0:
         box_pos = 30
-    row = int((box_pos - 1)/6) 
+    row = int((box_pos - 1) / 6)
     col = box_pos % 6
-    if (col == 0):
+    if col == 0:
         col = 5
     else:
         col = col - 1
-    
+
     return Position(col=col, row=row)
+
 
 def move_position(ser: serial.Serial, curr_pos: Position, next_pos: Position):
     col_diff = next_pos.col - curr_pos.col
     row_diff = next_pos.row - curr_pos.row
-   
-    press(ser, '2' if row_diff >= 0 else '4', count=abs(row_diff), sleep_time=0.5, duration=0.08)
-    press(ser, '1' if col_diff >= 0 else '3', count=abs(col_diff), sleep_time=0.5, duration=0.08)
 
-def make_move(ser: serial.Serial, from_pos, to_pos, move_vertical = False,):
+    press(
+        ser,
+        "2" if row_diff >= 0 else "4",
+        count=abs(row_diff),
+        sleep_time=0.5,
+        duration=0.08,
+    )
+    press(
+        ser,
+        "1" if col_diff >= 0 else "3",
+        count=abs(col_diff),
+        sleep_time=0.5,
+        duration=0.08,
+    )
+
+
+def make_move(
+    ser: serial.Serial,
+    from_pos,
+    to_pos,
+    move_vertical=False,
+):
     difference = to_pos - from_pos
 
     invert = True
-    if (difference >= 0):
+    if difference >= 0:
         invert = False
 
-    if (move_vertical):
-        press(ser, '2' if not invert else '4', count=abs(difference), sleep_time=0.5)
+    if move_vertical:
+        press(ser, "2" if not invert else "4", count=abs(difference), sleep_time=0.5)
     else:
-        press(ser, '1' if not invert else '3', count=abs(difference), sleep_time=0.5)
+        press(ser, "1" if not invert else "3", count=abs(difference), sleep_time=0.5)
+
 
 def get_mapped_name(text: str):
-    name_map = run_db_query("SELECT * FROM name_mappings WHERE text = ?", (text,), function='fetchone')
+    name_map = run_db_query("SELECT * FROM name_mappings WHERE text = ?", (text,), function="fetchone")
 
     if name_map is None:
-            return text
+        return text
 
-    return run_db_query("SELECT * FROM pokemon WHERE id = ?", (name_map[2],), function='fetchone')[1]
+    return run_db_query("SELECT * FROM pokemon WHERE id = ?", (name_map[2],), function="fetchone")[1]
+
 
 def increment_txt_counter(file_path, count=1):
     # Read the existing count (default to 0 if file does not exist)
@@ -332,3 +389,104 @@ def increment_txt_counter(file_path, count=1):
 
     with file_path.open("w") as file1:
         file1.write(str(count))
+
+
+def increment_counter(switch_num, pokemon_name=None, add_catch=False, log_frame=None):
+    conn = sqlite3.connect(DB_FILE)
+    cursor = conn.cursor()
+
+    stream_data_path = STREAM_DATA_PATH
+
+    with stream_data_path.open("r") as stream_data_file:
+        stream_data = json.load(stream_data_file)
+
+    hunt_id = stream_data.get(f"switch{switch_num}_hunt_id", -1)
+
+    if pokemon_name is not None:
+        cursor.execute(
+            "SELECT * FROM hunt_encounters WHERE pokemon_name = ? AND hunt_id = ?",
+            (
+                pokemon_name,
+                hunt_id,
+            ),
+        )
+    else:
+        cursor.execute(
+            "SELECT * FROM hunt_encounters WHERE hunt_id = ?",
+            (hunt_id,),
+        )
+
+    hunt_row = cursor.fetchone()
+    if add_catch:
+        cursor.execute(
+            "SELECT SUM(encounters) FROM catches WHERE name = ? AND hunt_id = ?",
+            (
+                pokemon_name,
+                hunt_id,
+            ),
+        )
+        result = cursor.fetchone()[0]
+        previous_encounters = result if result is not None else 0
+        count_difference = hunt_row[3] - previous_encounters
+        cursor.execute(
+            "INSERT INTO catches (pokemon_id, caught_timestamp, encounters, encounter_method, switch, name, total_dens, hunt_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            (
+                hunt_row[1],
+                int(time.time() * 1000),
+                count_difference,
+                hunt_row[8],
+                switch_num,
+                pokemon_name,
+                None,
+                hunt_id,
+            ),
+        )
+
+    if log_frame is not None:
+        print("here about to log frame")
+        try:
+            cv2.imwrite(
+                f"/Volumes/DexDrive/temp/{switch_num}-{pokemon_name}-{int(time.time() * 1000)}.png",
+                log_frame,
+            )
+        except Exception:
+            print("Unable to log frame properly")
+
+    if hunt_row:
+        cursor.execute(
+            """
+            UPDATE pokemon
+            SET total_encounters = total_encounters + 1
+            WHERE name = ?
+        """,
+            (pokemon_name,),
+        )
+
+        cursor.execute(
+            """
+                UPDATE hunt_encounters
+                SET encounters = encounters + 1
+                WHERE pokemon_name = ? AND hunt_id = ?
+            """,
+            (
+                pokemon_name if pokemon_name is not None else hunt_row[4],
+                hunt_id,
+            ),
+        )
+    else:
+        cursor.execute(
+            """
+            INSERT INTO tempmons (name, encounters, hunt_id)
+            VALUES (?, 1, ?)
+            ON CONFLICT(name) DO UPDATE SET
+                encounters = encounters + 1
+        """,
+            (
+                pokemon_name,
+                hunt_id,
+            ),
+        )
+
+    REDIS_CLIENT.publish(REDIS_CHANNEL, json.dumps({"update_data": True}))
+    conn.commit()
+    conn.close()

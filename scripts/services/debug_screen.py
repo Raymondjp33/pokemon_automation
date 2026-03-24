@@ -5,25 +5,29 @@ import argparse
 import cv2
 import numpy
 
-from common import Color
-from common import get_text
-from common import make_vid
-from common import Point
-from common import SWITCH1_VID_NUM, SWITCH2_VID_NUM, SWITCH3_VID_NUM
+from common import Color, Point, get_text, make_vid, get_switch_vid_num
 
-SWITCH_NUM = SWITCH3_VID_NUM
+switch_num = 1
+
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument('--image')
-    parser.add_argument('--screenshot')
+
+    parser.add_argument("--switch_num")
+    parser.add_argument("--image")
+    parser.add_argument("--screenshot")
     args = parser.parse_args()
 
+    if args.switch_num:
+        global switch_num
+        switch_num = int(args.switch_num)
+
     if args.image:
+
         def getframe() -> numpy.ndarray:
             return cv2.imread(args.image)
     else:
-        vid = make_vid(SWITCH_NUM)
+        vid = make_vid(get_switch_vid_num(switch_num))
 
         def getframe() -> numpy.ndarray:
             return vid.read()[1]
@@ -45,24 +49,24 @@ def main() -> int:
 
             current = getframe()
             if start == end:
-                print(f'match_px({end}, {Color(*current[y][x])})')
+                print(f"match_px({end}, {Color(*current[y][x])})")
                 arr = numpy.array([[current[y][x]]])
-                print(f'hsv: {cv2.cvtColor(arr, cv2.COLOR_BGR2HSV)}')
+                print(f"hsv: {cv2.cvtColor(arr, cv2.COLOR_BGR2HSV)}")
             else:
                 start, end = min(start, end), max(start, end)
                 for invert in (True, False):
                     text = get_text(current, start, end, invert=invert)
-                    print('match_text(')
-                    print(f'    {text!r},')
-                    print(f'    {start},')
-                    print(f'    {end},')
-                    print(f'    invert={invert},')
-                    print(')')
+                    print("match_text(")
+                    print(f"    {text!r},")
+                    print(f"    {start},")
+                    print(f"    {end},")
+                    print(f"    invert={invert},")
+                    print(")")
 
             start = None
 
-    cv2.namedWindow('game2')
-    cv2.setMouseCallback('game2', cb)
+    cv2.namedWindow("game2")
+    cv2.setMouseCallback("game2", cb)
 
     if args.screenshot:
         frame = getframe()
@@ -91,15 +95,15 @@ def main() -> int:
         #     1,
         # )
 
-        cv2.imshow('game2', frame)
+        cv2.imshow("game2", frame)
         key = cv2.waitKey(1) & 0xFF
-        if key == ord('q'):
+        if key == ord("q"):
             raise SystemExit(0)
-        elif key == ord('s'):
-            cv2.imwrite('screen.png', frame)
+        elif key == ord("s"):
+            cv2.imwrite("screen.png", frame)
 
     return 0
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     raise SystemExit(main())
