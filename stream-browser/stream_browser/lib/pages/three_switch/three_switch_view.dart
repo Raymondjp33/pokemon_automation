@@ -191,11 +191,14 @@ class ThreeSwitchView extends StatelessWidget {
                         top: 0,
                         padding:
                             EdgeInsets.symmetric(horizontal: 5, vertical: 15),
-                        child: SwitchContent(
-                          screenContent: screen2Content,
-                          pokemon: pokemon2,
-                          includeAverage: screen2Content?.huntType != 'current',
-                          includeTitle: false,
+                        child: Container(
+                          child: SwitchContent(
+                            screenContent: screen2Content,
+                            pokemon: pokemon2,
+                            includeAverage:
+                                screen2Content?.huntType != 'current',
+                            includeTitle: false,
+                          ),
                         ),
                       ),
                       BorderedBox(

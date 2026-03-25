@@ -40,11 +40,25 @@ class SinglePokemonDisplay extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Text(
-                        '$currentEnc',
-                        style: AppTextStyles.pokePixel(
-                          fontSize: smallText ? 48 : 60,
-                        ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '$currentEnc',
+                            style: AppTextStyles.pokePixel(
+                              fontSize: smallText || pokemon.totalDens != null
+                                  ? 48
+                                  : 60,
+                            ),
+                          ),
+                          if (pokemon.totalDens != null)
+                            Text(
+                              '(${pokemon.totalDens} Total dens)',
+                              style: AppTextStyles.pokePixel(
+                                fontSize: 20,
+                              ),
+                            ),
+                        ],
                       ),
                       Spacer(),
                       Text(

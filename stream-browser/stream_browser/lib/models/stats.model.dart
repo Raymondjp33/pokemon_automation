@@ -7,15 +7,22 @@ class StatsModel {
   int totalEggShinies;
   int totalEggs;
   double averageEggs;
+
   int totalStaticShinies;
   int totalStatic;
   double averageStatic;
+
   int totalWildShinies;
   int totalWild;
   double averageWild;
+
   int totalOldWildShinies;
   int totalOldWild;
   double averageOldWild;
+
+  int totalDAShinies;
+  int totalDA;
+  double averageDA;
 
   StatsModel({
     this.totalEggShinies = 0,
@@ -30,6 +37,9 @@ class StatsModel {
     this.totalOldWildShinies = 0,
     this.totalOldWild = 0,
     this.averageOldWild = 0,
+    this.totalDAShinies = 0,
+    this.totalDA = 0,
+    this.averageDA = 0,
   });
 
   static StatsModel get emptyPokemon => StatsModel();

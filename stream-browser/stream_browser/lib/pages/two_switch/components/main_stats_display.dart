@@ -96,8 +96,8 @@ class MainStatsDisplay extends StatelessWidget {
           averageEncounters = totalShinies == 0
               ? totalEncounters.toDouble()
               : totalEncounters / totalShinies;
-          oddsLeftText = 'Odds (Pre charm)';
-          oddsRightText = '1/8192';
+          oddsLeftText = 'Odds (Shiny charm)';
+          oddsRightText = '1/1365';
           totalEncsLeftText = 'Current total encs';
           totalShiniesLeftText = 'Current total shinies';
           averageLeftText = 'Average encs';
@@ -107,6 +107,11 @@ class MainStatsDisplay extends StatelessWidget {
     }
 
     setTexts();
+    if (screenContent?.leftOddString != null &&
+        screenContent?.rightOddsString != null) {
+      oddsLeftText = screenContent?.leftOddString ?? '';
+      oddsRightText = screenContent?.rightOddsString ?? '';
+    }
 
     return Column(
       children: [

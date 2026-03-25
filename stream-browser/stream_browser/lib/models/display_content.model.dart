@@ -18,6 +18,14 @@ class DisplayContent {
     this.huntId,
   });
 
+  String? get leftOddString => (oddsString?.split('-') ?? []).isNotEmpty
+      ? (oddsString?.split('-')[0])
+      : null;
+
+  String? get rightOddsString => (oddsString?.split('-') ?? []).length > 1
+      ? (oddsString?.split('-')[1])
+      : null;
+
   factory DisplayContent.fromJson(Map<String, dynamic>? json) {
     if (json == null) throw Exception('DisplayContent: json was null');
     try {

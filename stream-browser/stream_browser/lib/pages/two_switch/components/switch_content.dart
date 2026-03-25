@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../constants/app_styles.dart';
 import '../../../../models/pokemon.model.dart';
 import '../../../../components/pokemon_display/unown_display.dart';
+import '../../../components/pokemon_display/da_display.dart';
 import '../../../models/display_content.model.dart';
 import 'main_stats_display.dart';
 
@@ -26,6 +27,13 @@ class SwitchContent extends StatelessWidget {
     switch (screenContent?.huntType ?? '') {
       case 'unown':
         child = UnownDisplay(
+          key: ValueKey(screenContent),
+          pokemon: pokemon,
+        );
+        break;
+
+      case 'da':
+        child = DaDisplay(
           key: ValueKey(screenContent),
           pokemon: pokemon,
         );

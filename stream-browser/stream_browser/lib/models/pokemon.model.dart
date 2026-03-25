@@ -13,7 +13,7 @@ class PokemonModel {
   @JsonKey(name: 'pokemon_id')
   String pokemonId;
   @JsonKey(name: 'total_dens')
-  int totalDens;
+  int? totalDens;
   @JsonKey(name: 'hunt_id')
   int huntId;
   @JsonKey(name: 'started_hunt_ts')
@@ -27,8 +27,8 @@ class PokemonModel {
     this.switchNum = 1,
     this.pokemonId = '1',
     this.encounters = 0,
-    this.totalDens = 0,
     this.huntId = 1,
+    this.totalDens,
     this.startedHuntTimestamp,
     this.catches,
   });
