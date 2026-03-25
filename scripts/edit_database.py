@@ -26,66 +26,66 @@ from services.common import *
 
 #                         run_db_query("UPDATE hunt_encounters SET started_hunt_ts = ? WHERE id = ?", (None, encounter[0],))
 
-        # hunt_encounters = 0
-        # total_hunts = 0
-        # encounter_exists = False
-        # index = 0
-        # for encounter in encounters:
+# hunt_encounters = 0
+# total_hunts = 0
+# encounter_exists = False
+# index = 0
+# for encounter in encounters:
 
-        #         if (index > len(encounters) ):
-        #                 break
+#         if (index > len(encounters) ):
+#                 break
 
-        #         hunt_encounters = hunt_encounters + encounter[3]
-        #         encounter_exists = True
-        #         total_hunts = total_hunts + 1
-
-        
-        # if (total_encounters != hunt_encounters):
-        #         print(f'\nhunt encounters {total_encounters}, encounters {encounter[3]}')
-        #         print(f'Pokemon: {pokemon}')
-        #         print(f'Encounter: {encounter}')
-
-        #         # run_db_query("UPDATE hunt_encounters SET encounters = ? WHERE id = ?", (total_encounters - encounter[3], encounter[0],))
-
-        # continue
+#         hunt_encounters = hunt_encounters + encounter[3]
+#         encounter_exists = True
+#         total_hunts = total_hunts + 1
 
 
-        # user_input = input("> ").strip()
-        # inputs = user_input.split(' ')
-        # hunt_id = int(inputs[0])
+# if (total_encounters != hunt_encounters):
+#         print(f'\nhunt encounters {total_encounters}, encounters {encounter[3]}')
+#         print(f'Pokemon: {pokemon}')
+#         print(f'Encounter: {encounter}')
 
-        # # if total_hunts > 1 and total_encounters != hunt_encounters and encounter_exists:
-        # #         print(f'\nPokemon: {pokemon}')
+#         # run_db_query("UPDATE hunt_encounters SET encounters = ? WHERE id = ?", (total_encounters - encounter[3], encounter[0],))
 
-        # # print(catch)
-        # # catch_id = catch[0]
-        # # pokemon_id = catch[1]
-        # # caught_timestamp = catch[2]
-        # # encounters = catch[3]
-        # # encounter_method = catch[4]
-        # # switch = catch[5]
-        # name = pokemon[1]
-        # # total_dens = catch[7]
+# continue
 
-        # # pokemon = run_db_query("SELECT * FROM pokemon WHERE name = ?", (name,),function= "fetchone")
 
-        # hunt_encounter = run_db_query("SELECT * FROM hunt_encounters WHERE pokemon_id = ? AND encounter_method = ?", (pokemon_id, 'egg',), function='fetchone')
-        # new_hunt = hunt_encounter == None
-        # print(hunt_id)
+# user_input = input("> ").strip()
+# inputs = user_input.split(' ')
+# hunt_id = int(inputs[0])
 
-        # if new_hunt:
-        #         pokemon = run_db_query("SELECT * FROM pokemon WHERE name = ?", (name,), function='fetchone')
-        #         run_db_query(
-        #         "INSERT INTO hunt_encounters (pokemon_id, hunt_id, encounters, pokemon_name, switch, targets, started_hunt_ts, encounter_method, total_dens) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        #         (pokemon[0], hunt_id, total_encounters, name, 2, 1, started_ts, '', None, ))
-        #         print(f'Added hunt {hunt_id}')
-        # # else:
-        # #         hunt_id = hunt_encounter[2]
-        # #         run_db_query("UPDATE hunt_encounters SET encounters = ? WHERE hunt_id = ? AND pokemon_id = ?", (hunt_encounter[3] + encounters, hunt_id, pokemon_id))
-        # #         run_db_query("UPDATE hunt_encounters SET targets = ? WHERE hunt_id = ? AND pokemon_id = ?", (hunt_encounter[6] + 1, hunt_id, pokemon_id))
-        # #         print(f'Updates hunt {hunt_id}')
+# # if total_hunts > 1 and total_encounters != hunt_encounters and encounter_exists:
+# #         print(f'\nPokemon: {pokemon}')
 
-        # run_db_query("UPDATE pokemon SET started_hunt_ms = ? WHERE id = ?", (None, pokemon_id,))
+# # print(catch)
+# # catch_id = catch[0]
+# # pokemon_id = catch[1]
+# # caught_timestamp = catch[2]
+# # encounters = catch[3]
+# # encounter_method = catch[4]
+# # switch = catch[5]
+# name = pokemon[1]
+# # total_dens = catch[7]
+
+# # pokemon = run_db_query("SELECT * FROM pokemon WHERE name = ?", (name,),function= "fetchone")
+
+# hunt_encounter = run_db_query("SELECT * FROM hunt_encounters WHERE pokemon_id = ? AND encounter_method = ?", (pokemon_id, 'egg',), function='fetchone')
+# new_hunt = hunt_encounter == None
+# print(hunt_id)
+
+# if new_hunt:
+#         pokemon = run_db_query("SELECT * FROM pokemon WHERE name = ?", (name,), function='fetchone')
+#         run_db_query(
+#         "INSERT INTO hunt_encounters (pokemon_id, hunt_id, encounters, pokemon_name, switch, targets, started_hunt_ts, encounter_method, total_dens) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+#         (pokemon[0], hunt_id, total_encounters, name, 2, 1, started_ts, '', None, ))
+#         print(f'Added hunt {hunt_id}')
+# # else:
+# #         hunt_id = hunt_encounter[2]
+# #         run_db_query("UPDATE hunt_encounters SET encounters = ? WHERE hunt_id = ? AND pokemon_id = ?", (hunt_encounter[3] + encounters, hunt_id, pokemon_id))
+# #         run_db_query("UPDATE hunt_encounters SET targets = ? WHERE hunt_id = ? AND pokemon_id = ?", (hunt_encounter[6] + 1, hunt_id, pokemon_id))
+# #         print(f'Updates hunt {hunt_id}')
+
+# run_db_query("UPDATE pokemon SET started_hunt_ms = ? WHERE id = ?", (None, pokemon_id,))
 
 
 ###
@@ -263,7 +263,7 @@ from services.common import *
 
 # conn.commit()
 # conn.close()
-   
+
 
 # user_input = input("> ").strip()
 # inputs = user_input.split(' ')
