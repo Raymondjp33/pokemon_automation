@@ -8,6 +8,7 @@ outdated/old_data_files
 backend/*.json
 backend/my_pokemon.db
 scripts/configs/
+scripts/dynamax_adventures/den_config.json
 
 
 
