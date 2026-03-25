@@ -180,6 +180,12 @@ def get_pokemon_stats(cursor):
     ).fetchone()[0]
     averageOldWild = totalOldWild / max(totalOldWildShinies + totalOldWildFails, 1)
 
+    totalDAShinies = cursor.execute("SELECT COUNT(*) FROM catches WHERE encounter_method = ?", ("da",)).fetchone()[0]
+    totalDA = cursor.execute(
+        "SELECT SUM(encounters) FROM hunt_encounters WHERE encounter_method = ?", ("da",)
+    ).fetchone()[0]
+    averageDA = totalDA / max(totalDAShinies, 1)
+
     return {
         "totalEggShinies": totalEggShinies,
         "totalEggs": totalEggs,
@@ -193,6 +199,9 @@ def get_pokemon_stats(cursor):
         "totalOldWildShinies": totalOldWildShinies,
         "totalOldWild": totalOldWild,
         "averageOldWild": averageOldWild,
+        "totalDAShinies": totalDAShinies,
+        "totalDA": totalDA,
+        "averageDA": averageDA,
     }
 
 
