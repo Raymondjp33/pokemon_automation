@@ -391,16 +391,28 @@ def increment_txt_counter(file_path, count=1):
         file1.write(str(count))
 
 
-def increment_counter(switch_num, pokemon_name=None, add_catch=False, log_frame=None):
-    conn = sqlite3.connect(DB_FILE)
-    cursor = conn.cursor()
-
+def get_hunt_id(switch_num):
     stream_data_path = STREAM_DATA_PATH
 
     with stream_data_path.open("r") as stream_data_file:
         stream_data = json.load(stream_data_file)
 
-    hunt_id = stream_data.get(f"switch{switch_num}_hunt_id", -1)
+    return stream_data.get(f"switch{switch_num}Content", {}).get("hunt_id", -1)
+
+
+def get_hunt_row(
+    switch_num,
+    pokemon_name,
+    currentDBConnection=None,
+):
+
+    if currentDBConnection is None:
+        conn = sqlite3.connect(DB_FILE)
+        cursor = conn.cursor()
+    else:
+        cursor = currentDBConnection
+
+    hunt_id = get_hunt_id(switch_num)
 
     if pokemon_name is not None:
         cursor.execute(
@@ -417,6 +429,19 @@ def increment_counter(switch_num, pokemon_name=None, add_catch=False, log_frame=
         )
 
     hunt_row = cursor.fetchone()
+    if currentDBConnection is None:
+        conn.commit()
+        conn.close()
+
+    return hunt_row
+
+
+def increment_counter(switch_num, pokemon_name=None, add_catch=False, log_frame=None):
+    conn = sqlite3.connect(DB_FILE)
+    cursor = conn.cursor()
+
+    hunt_row = get_hunt_row(switch_num, pokemon_name, cursor)
+    hunt_id = get_hunt_id(switch_num)
     if add_catch:
         cursor.execute(
             "SELECT SUM(encounters) FROM catches WHERE name = ? AND hunt_id = ?",
@@ -437,7 +462,7 @@ def increment_counter(switch_num, pokemon_name=None, add_catch=False, log_frame=
                 hunt_row[8],
                 switch_num,
                 pokemon_name,
-                None,
+                hunt_row[9],
                 hunt_id,
             ),
         )
