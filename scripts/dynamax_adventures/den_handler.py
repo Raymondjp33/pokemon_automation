@@ -2,14 +2,23 @@ import time
 import cv2
 import serial
 import pytesseract
-import os
 import numpy as np
 from services.config_manager import ConfigManager
 from pathlib import Path
-from services.common import getframe, color_near, press, get_text, Point, increment_counter
+from services.common import (
+    getframe,
+    color_near,
+    press,
+    get_text,
+    run_db_query,
+    increment_counter,
+    get_hunt_row,
+    get_hunt_id,
+    Point,
+)
 
-os.environ["TESSDATA_PREFIX"] = "/opt/homebrew/Cellar/tesseract/5.5.0_1/share/tessdata"
-pytesseract.pytesseract.tesseract_cmd = r"/opt/homebrew/Cellar/tesseract/5.5.0_1/bin/tesseract"
+# os.environ["TESSDATA_PREFIX"] = "/opt/homebrew/Cellar/tesseract/5.5.0_1/share/tessdata"
+# pytesseract.pytesseract.tesseract_cmd = r"/opt/homebrew/Cellar/tesseract/5.5.0_1/bin/tesseract"
 pokemon_data_path = Path(__file__).resolve().parent.parent / "pokemon_data.json"
 
 config = ConfigManager(Path(__file__).resolve().parent / "den_config.json")
@@ -41,6 +50,7 @@ class DenHandler:
         press(self.ser, "A", sleep_time=1)
 
         if is_legend:
+            print("Catching legendary")
             ball_index = self.config.get("ball_index")
             press(self.ser, "a", sleep_time=0.5, count=ball_index)
 
@@ -101,7 +111,7 @@ class DenHandler:
         distance = sorted_list[0][1]
         press(self.ser, "s", count=distance, sleep_time=0.3)
         press(self.ser, "A")
-        self.config.update({"selected_starter": True})
+        self.config.update({"selected_starter": True, "battle_index": 0})
 
     def handle_choose_pokemon(self):
         print("Choosing")
@@ -134,15 +144,20 @@ class DenHandler:
         press(self.ser, "B", sleep_time=4)
 
         last_key, last_value = next(reversed(name_map.items()))
-        increment_counter(
-            self.config.get("currently_hunting"),
-            frames=log_frames,
-            caught_legend=contains_legendary,
-            shiny_legend=contains_legendary and last_value[1],
-        )
+        shiny_legend = contains_legendary and last_value[1]
+
+        if contains_legendary:
+            increment_counter(
+                switch_num=2,
+                pokemon_name=None,
+                add_catch=shiny_legend,
+                log_frame=log_frames[-1],
+            )
+
         first_true_key = next((key for key, (_, flag) in name_map.items() if flag), None)
         self.handle_den_search(contains_shiny=first_true_key is not None, beat_legend=contains_legendary)
         self.config.update({"move_index": 0, "battle_index": 0, "dynamax_turns": None, "selected_starter": False})
+        self.incremenet_total_dens()
         if contains_legendary and last_value[1]:
             print(f"Shiny legendary at index: {last_key}")
             self.clear_streak_data()
@@ -161,7 +176,47 @@ class DenHandler:
         print(f"Take according pokemon {first_true_key}")
         press(self.ser, "s", count=first_true_key)
         self.take_pokemon()
+        self.add_random_catch(name_map[first_true_key][0], log_frames[first_true_key])
         return False
+
+    def incremenet_total_dens(self):
+        hunt_row = get_hunt_row(2, None)
+        run_db_query(
+            """
+                UPDATE hunt_encounters
+                SET total_dens = total_dens + 1
+                WHERE pokemon_name = ? AND hunt_id = ?
+            """,
+            (
+                hunt_row[4],
+                hunt_row[2],
+            ),
+        )
+
+    def add_random_catch(self, pokemon_name, log_frame):
+        print("Adding random shiny from hunt")
+
+        hunt_row = get_hunt_row(2)
+
+        pokemon_id = None
+        hunt_id = get_hunt_id(2)
+
+        if hunt_row is not None:
+            pokemon_id = hunt_row[1]
+
+        run_db_query(
+            "INSERT INTO catches (pokemon_id, caught_timestamp, encounters, encounter_method, switch, name, total_dens, hunt_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            (pokemon_id, int(time.time() * 1000), None, "da", 2, pokemon_name.lower(), None, hunt_id),
+        )
+
+        print("here about to log frame")
+        try:
+            cv2.imwrite(
+                f"/Volumes/DexDrive/temp-da/{2}-{pokemon_name}-{int(time.time() * 1000)}.png",
+                log_frame,
+            )
+        except Exception:
+            print("Unable to log frame properly")
 
     def handle_den_search(self, contains_shiny: bool, beat_legend: bool):
         streak_data = self.config.get("streak_data")
@@ -363,12 +418,14 @@ class DenHandler:
 
         arrow_positions = []
         new_pos = self.find_white_arrow()
+        timeout_count = 0
 
-        while not any(new_pos < pos + 50 and new_pos > pos - 50 for pos in arrow_positions):
+        while not any(new_pos < pos + 50 and new_pos > pos - 50 for pos in arrow_positions) and timeout_count < 10:
             print(f"Adding arrow position: {new_pos}")
             arrow_positions.append(new_pos)
             press(self.ser, "d", sleep_time=0.75)
             new_pos = self.find_white_arrow()
+            timeout_count += 1
 
         print(f"Arrow positions currently: {arrow_positions}")
 
