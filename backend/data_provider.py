@@ -62,9 +62,9 @@ def emit_pokemon_data():
     with open(STREAM_DATA_FILE) as stream_data_file:
         stream_data = json.load(stream_data_file)
 
-    switch1_hunt_id = stream_data["switch1_hunt_id"]
-    switch2_hunt_id = stream_data["switch2_hunt_id"]
-    switch3_hunt_id = stream_data["switch3_hunt_id"]
+    switch1_hunt_id = stream_data["switch1Content"]["hunt_id"]
+    switch2_hunt_id = stream_data["switch2Content"]["hunt_id"]
+    switch3_hunt_id = stream_data["switch3Content"]["hunt_id"]
 
     cursor.execute(
         "SELECT * FROM hunt_encounters WHERE hunt_id = ? OR hunt_id = ? OR hunt_id = ?",
