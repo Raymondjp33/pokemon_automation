@@ -146,10 +146,11 @@ class DenHandler:
         last_key, last_value = next(reversed(name_map.items()))
         shiny_legend = contains_legendary and last_value[1]
 
+        self.incremenet_total_dens()
         if contains_legendary:
             increment_counter(
                 switch_num=2,
-                pokemon_name=None,
+                pokemon_name=self.config.get("currently_hunting"),
                 add_catch=shiny_legend,
                 log_frame=log_frames[-1],
             )
@@ -157,7 +158,6 @@ class DenHandler:
         first_true_key = next((key for key, (_, flag) in name_map.items() if flag), None)
         self.handle_den_search(contains_shiny=first_true_key is not None, beat_legend=contains_legendary)
         self.config.update({"move_index": 0, "battle_index": 0, "dynamax_turns": None, "selected_starter": False})
-        self.incremenet_total_dens()
         if contains_legendary and last_value[1]:
             print(f"Shiny legendary at index: {last_key}")
             self.clear_streak_data()
@@ -196,13 +196,13 @@ class DenHandler:
     def add_random_catch(self, pokemon_name, log_frame):
         print("Adding random shiny from hunt")
 
-        hunt_row = get_hunt_row(2)
-
-        pokemon_id = None
+        pokemon_id = -1
         hunt_id = get_hunt_id(2)
 
-        if hunt_row is not None:
-            pokemon_id = hunt_row[1]
+        pokemon_row = run_db_query("SELECT * FROM pokemon WHERE name = ?", (pokemon_name,), function="fetchone")
+
+        if pokemon_row is not None:
+            pokemon_id = pokemon_row[0]
 
         run_db_query(
             "INSERT INTO catches (pokemon_id, caught_timestamp, encounters, encounter_method, switch, name, total_dens, hunt_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",

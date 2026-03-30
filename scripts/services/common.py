@@ -402,7 +402,7 @@ def get_hunt_id(switch_num):
 
 def get_hunt_row(
     switch_num,
-    pokemon_name,
+    pokemon_name=None,
     currentDBConnection=None,
 ):
 
@@ -442,40 +442,6 @@ def increment_counter(switch_num, pokemon_name=None, add_catch=False, log_frame=
 
     hunt_row = get_hunt_row(switch_num, pokemon_name, cursor)
     hunt_id = get_hunt_id(switch_num)
-    if add_catch:
-        cursor.execute(
-            "SELECT SUM(encounters) FROM catches WHERE name = ? AND hunt_id = ?",
-            (
-                pokemon_name,
-                hunt_id,
-            ),
-        )
-        result = cursor.fetchone()[0]
-        previous_encounters = result if result is not None else 0
-        count_difference = hunt_row[3] - previous_encounters
-        cursor.execute(
-            "INSERT INTO catches (pokemon_id, caught_timestamp, encounters, encounter_method, switch, name, total_dens, hunt_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-            (
-                hunt_row[1],
-                int(time.time() * 1000),
-                count_difference,
-                hunt_row[8],
-                switch_num,
-                pokemon_name,
-                hunt_row[9],
-                hunt_id,
-            ),
-        )
-
-    if log_frame is not None:
-        print("here about to log frame")
-        try:
-            cv2.imwrite(
-                f"/Volumes/DexDrive/temp/{switch_num}-{pokemon_name}-{int(time.time() * 1000)}.png",
-                log_frame,
-            )
-        except Exception:
-            print("Unable to log frame properly")
 
     if hunt_row:
         cursor.execute(
@@ -511,6 +477,41 @@ def increment_counter(switch_num, pokemon_name=None, add_catch=False, log_frame=
                 hunt_id,
             ),
         )
+
+    if add_catch:
+        cursor.execute(
+            "SELECT SUM(encounters) FROM catches WHERE name = ? AND hunt_id = ?",
+            (
+                pokemon_name,
+                hunt_id,
+            ),
+        )
+        result = cursor.fetchone()[0]
+        previous_encounters = result if result is not None else 0
+        count_difference = hunt_row[3] - previous_encounters
+        cursor.execute(
+            "INSERT INTO catches (pokemon_id, caught_timestamp, encounters, encounter_method, switch, name, total_dens, hunt_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            (
+                hunt_row[1],
+                int(time.time() * 1000),
+                count_difference,
+                hunt_row[8],
+                switch_num,
+                pokemon_name,
+                hunt_row[9],
+                hunt_id,
+            ),
+        )
+
+    if log_frame is not None:
+        print("here about to log frame")
+        try:
+            cv2.imwrite(
+                f"/Volumes/DexDrive/temp/{switch_num}-{pokemon_name}-{int(time.time() * 1000)}.png",
+                log_frame,
+            )
+        except Exception:
+            print("Unable to log frame properly")
 
     REDIS_CLIENT.publish(REDIS_CHANNEL, json.dumps({"update_data": True}))
     conn.commit()
