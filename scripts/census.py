@@ -1,24 +1,25 @@
 from __future__ import annotations
 
-import argparse
+from pathlib import Path
 import time
-
 import cv2
 import numpy as np
 import serial
-
 import json
-
-from services.common import *
+from services.common import getframe, get_switch_serial, make_vid, get_switch_vid_num, shh, press
 
 SWITCH_NUM = 3
 
-def get_pokemon_spots(box_num, vid: cv2.VideoCapture,):
-    template = cv2.imread('templates/home_empty_spot.png', cv2.IMREAD_COLOR)
+
+def get_pokemon_spots(
+    box_num,
+    vid: cv2.VideoCapture,
+):
+    template = cv2.imread("templates/home_empty_spot.png", cv2.IMREAD_COLOR)
     threshold = 0.9
     num_cols = 6
-    cell_width = 50   # Adjust to your grid cell width
-    cell_height = 50 
+    cell_width = 50  # Adjust to your grid cell width
+    cell_height = 50
 
     frame = getframe(vid)
     # Run template matching
@@ -35,11 +36,11 @@ def get_pokemon_spots(box_num, vid: cv2.VideoCapture,):
         cell_width = 90
         cell_height = 75
 
-        num_cols = 6  
+        num_cols = 6
 
         matched_indices = []
 
-        for (x, y) in points:
+        for x, y in points:
             col = round((x - min_x) / cell_width)
             row = round((y - min_y) / cell_height)
 
@@ -66,7 +67,9 @@ def get_pokemon_spots(box_num, vid: cv2.VideoCapture,):
 
     return matched_indices
 
-boxed_pokemon_path = Path(__file__).resolve().parent / 'configs' / 'boxed_pokemon.json'
+
+boxed_pokemon_path = Path(__file__).resolve().parent / "configs" / "boxed_pokemon.json"
+
 
 def main() -> int:
     ser_str = get_switch_serial(SWITCH_NUM)
@@ -87,25 +90,25 @@ def main() -> int:
         while box_num <= 35:
             pokemon = get_pokemon_spots(box_num, vid)
             owned_pokemon.update(pokemon)
-        
-            press(ser, 'L' if shiny_census else 'R', sleep_time=2)
-            box_num += 1
 
+            press(ser, "L" if shiny_census else "R", sleep_time=2)
+            box_num += 1
 
     with open(boxed_pokemon_path, "w") as f:
         if shiny_census:
-            boxed_pokemon['shiny'] = sorted(list(owned_pokemon))
+            boxed_pokemon["shiny"] = sorted(list(owned_pokemon))
         else:
-            boxed_pokemon['normal'] = sorted(list(owned_pokemon))
+            boxed_pokemon["normal"] = sorted(list(owned_pokemon))
         json.dump(boxed_pokemon, f)
 
     end_time = time.time()
 
-    print(f'Total run took {end_time-start_time:.3f}s')
+    print(f"Total run took {end_time - start_time:.3f}s")
 
     vid.release()
     cv2.destroyAllWindows()
     return 0
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     raise SystemExit(main())

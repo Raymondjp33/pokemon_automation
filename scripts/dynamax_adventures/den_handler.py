@@ -146,7 +146,7 @@ class DenHandler:
         last_key, last_value = next(reversed(name_map.items()))
         shiny_legend = contains_legendary and last_value[1]
 
-        self.incremenet_total_dens()
+        self.increment_total_dens()
         if contains_legendary:
             increment_counter(
                 switch_num=2,
@@ -179,7 +179,9 @@ class DenHandler:
         self.add_random_catch(name_map[first_true_key][0], log_frames[first_true_key])
         return False
 
-    def incremenet_total_dens(self):
+    def increment_total_dens(self):
+        if self.config.get("currently_hunting") == "unknown":
+            return
         hunt_row = get_hunt_row(2, None)
         run_db_query(
             """

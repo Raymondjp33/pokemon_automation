@@ -12,9 +12,20 @@ import csv
 import bisect
 import argparse
 
-from services.common import *
+from services.common import (
+    Point,
+    getframe,
+    get_text,
+    color_near,
+    press,
+    get_switch_serial,
+    make_vid,
+    get_switch_vid_num,
+    shh,
+)
 
 SWITCH_NUM = 3
+
 
 def get_pokemon_name(vid: cv2.VideoCapture):
     frame = getframe(vid)
@@ -24,6 +35,7 @@ def get_pokemon_name(vid: cv2.VideoCapture):
         return get_text(frame=frame, top_left=Point(y=571, x=67), bottom_right=Point(y=603, x=205), invert=True)
     elif SWITCH_NUM == 3:
         return get_text(frame=frame, top_left=Point(y=571, x=63), bottom_right=Point(y=603, x=210), invert=True)
+
 
 def check_if_shiny(vid: cv2.VideoCapture):
     frame = getframe(vid)
@@ -36,77 +48,88 @@ def check_if_shiny(vid: cv2.VideoCapture):
 
     if found:
         return True
-    
+
     return False
+
 
 def load_pokemon_species_ids():
     name_to_species_id = {}
 
-    with open(Path(__file__).resolve().parent / 'configs' / 'pokemon.csv', mode='r', encoding='utf-8') as file:
+    with open(Path(__file__).resolve().parent / "configs" / "pokemon.csv", mode="r", encoding="utf-8") as file:
         reader = csv.DictReader(file)
         for row in reader:
-            name = row['identifier'].strip().lower()  # Normalize name
-            species_id = int(row['species_id'])
+            name = row["identifier"].strip().lower()  # Normalize name
+            species_id = int(row["species_id"])
             name_to_species_id[name] = species_id
 
     return name_to_species_id
+
 
 class Position(NamedTuple):
     col: int
     row: int
     boxOrPage: int
 
-def get_box_location(dex_num, shiny):  
+
+def get_box_location(dex_num, shiny):
     box_num = int((dex_num - 1) / 30)
-    if (shiny):
+    if shiny:
         box_num = 199 - box_num
     box_pos = dex_num % 30
-    if (box_pos == 0):
+    if box_pos == 0:
         box_pos = 30
-    row = int((box_pos - 1)/6) 
+    row = int((box_pos - 1) / 6)
     col = box_pos % 6
-    if (col == 0):
+    if col == 0:
         col = 5
     else:
         col = col - 1
-    
+
     return Position(col=col, row=row, boxOrPage=box_num)
 
-def make_move(ser: serial.Serial, from_pos, to_pos, move_vertical = False,):
+
+def make_move(
+    ser: serial.Serial,
+    from_pos,
+    to_pos,
+    move_vertical=False,
+):
     difference = to_pos - from_pos
 
     invert = True
-    if (difference >= 0):
+    if difference >= 0:
         invert = False
 
-    if (move_vertical):
-        press(ser, '2' if not invert else '4', count=abs(difference))
+    if move_vertical:
+        press(ser, "2" if not invert else "4", count=abs(difference))
     else:
-        press(ser, '1' if not invert else '3', count=abs(difference))
+        press(ser, "1" if not invert else "3", count=abs(difference))
 
-def move_to_box(ser: serial.Serial, from_box: Position, to_box: Position, from_old = True):
+
+def move_to_box(ser: serial.Serial, from_box: Position, to_box: Position, from_old=True):
     if not from_old:
         temp = from_box
         from_box = to_box
         to_box = temp
-    
+
     page_dif = to_box.boxOrPage - from_box.boxOrPage
 
-    if (page_dif != 0):
+    if page_dif != 0:
         move_left = page_dif < 0
-        press(ser, 'L' if move_left else 'R', count=abs(page_dif), sleep_time=1.25)
+        press(ser, "L" if move_left else "R", count=abs(page_dif), sleep_time=1.25)
 
     make_move(ser, from_box.row, to_box.row, move_vertical=True)
     make_move(ser, from_box.col, to_box.col, move_vertical=False)
 
-    press(ser, 'A', sleep_time=1)
+    press(ser, "A", sleep_time=1)
 
-boxed_pokemon_path = Path(__file__).resolve().parent / 'configs' / 'boxed_pokemon.json'
+
+boxed_pokemon_path = Path(__file__).resolve().parent / "configs" / "boxed_pokemon.json"
+
 
 def main() -> int:
-    parser = argparse.ArgumentParser(
-        description='')
-    parser.add_argument('--starting_box', type=int, required=True)
+    parser = argparse.ArgumentParser(description="")
+    parser.add_argument("--starting_box", type=int, required=True)
     args = parser.parse_args()
 
     ser_str = get_switch_serial(SWITCH_NUM)
@@ -118,29 +141,29 @@ def main() -> int:
     with open(boxed_pokemon_path, "r") as f:
         boxed_pokemon = json.load(f)
 
-    owned_pokemon = boxed_pokemon['normal']
-    owned_shiny_pokemon = boxed_pokemon['shiny']
+    owned_pokemon = boxed_pokemon["normal"]
+    owned_shiny_pokemon = boxed_pokemon["shiny"]
 
     from_box = get_box_location(starting_box, False)
     from_pokemon_num = 1
     from_pokemon = get_box_location(from_pokemon_num, False)
 
     start_time = time.time()
-  
+
     with serial.Serial(ser_str, 9600) as ser, shh(ser):
         time.sleep(1)
         while True:
-            if (from_pokemon_num > 30):
+            if from_pokemon_num > 30:
                 break
 
             pokemon_is_shiny = check_if_shiny(vid)
             dex_num = pokemon_map.get(get_pokemon_name(vid).lower())
 
-            if dex_num == None:
+            if dex_num is None:
                 try:
                     user_input = input("Dex num: ")
 
-                    if (user_input == 'exit'):
+                    if user_input == "exit":
                         break
                     dex_num = int(user_input)
                     if dex_num > 1025 or dex_num < 1:
@@ -148,18 +171,23 @@ def main() -> int:
                 except ValueError:
                     print("Skipping")
 
-            already_boxed =  owned_pokemon.__contains__(dex_num) if not pokemon_is_shiny else owned_shiny_pokemon.__contains__(dex_num)
+            already_boxed = (
+                owned_pokemon.__contains__(dex_num)
+                if not pokemon_is_shiny
+                else owned_shiny_pokemon.__contains__(dex_num)
+            )
 
-            if dex_num != None:
-                print(f'{from_pokemon_num} - {get_pokemon_name(vid)} - {dex_num} - {"Boxed" if already_boxed else "Not Boxed"} - {"Shiny" if pokemon_is_shiny else "Not Shiny"}')
+            if dex_num is not None:
+                print(
+                    f"{from_pokemon_num} - {get_pokemon_name(vid)} - {dex_num} - {'Boxed' if already_boxed else 'Not Boxed'} - {'Shiny' if pokemon_is_shiny else 'Not Shiny'}"
+                )
             else:
                 print(f"{from_pokemon_num} - Could not find pokemon, read name: {get_pokemon_name(vid)}")
 
             # if not already_boxed:
             #     print(f'{old_pokemon_num} needs home: {get_pokemon_name(vid).lower()}')
-            
 
-            if (dex_num == None or already_boxed ):
+            if dex_num is None or already_boxed:
                 from_row = from_pokemon.row
                 from_col = from_pokemon.col
                 from_pokemon_num += 1
@@ -167,7 +195,7 @@ def main() -> int:
                 make_move(ser, from_pos=from_col, to_pos=from_pokemon.col, move_vertical=False)
                 make_move(ser, from_pos=from_row, to_pos=from_pokemon.row, move_vertical=True)
                 continue
-            
+
             if pokemon_is_shiny:
                 bisect.insort(owned_shiny_pokemon, dex_num)
             else:
@@ -181,12 +209,12 @@ def main() -> int:
             to_box = get_box_location(to_pokemon.boxOrPage + 1, False)
 
             # Pick up pokemon
-            press(ser, 'A', sleep_time = .5)
+            press(ser, "A", sleep_time=0.5)
 
             # Go down to box list
             make_move(ser, from_pos=from_pokemon.col, to_pos=3, move_vertical=False)
             make_move(ser, from_pos=from_pokemon.row, to_pos=5, move_vertical=True)
-            press(ser, 'A', sleep_time = 2)
+            press(ser, "A", sleep_time=2)
 
             # Go to new box number
             move_to_box(ser, from_box, to_box, from_old=True)
@@ -194,12 +222,12 @@ def main() -> int:
             # Put pokemon in correct spot
             make_move(ser, from_pos=0, to_pos=to_pokemon.row, move_vertical=True)
             make_move(ser, from_pos=0, to_pos=to_pokemon.col, move_vertical=False)
-            press(ser, 'A', sleep_time = 1)
+            press(ser, "A", sleep_time=1)
 
             # Go back to box list
             make_move(ser, from_pos=to_pokemon.col, to_pos=3, move_vertical=False)
             make_move(ser, from_pos=to_pokemon.row, to_pos=5, move_vertical=True)
-            press(ser, 'A', sleep_time = 2)
+            press(ser, "A", sleep_time=2)
 
             # Go to old box number
             move_to_box(ser, from_box, to_box, from_old=False)
@@ -213,11 +241,12 @@ def main() -> int:
 
     end_time = time.time()
 
-    print(f'Total run took {end_time-start_time:.3f}s')
+    print(f"Total run took {end_time - start_time:.3f}s")
 
     vid.release()
     cv2.destroyAllWindows()
     return 0
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     raise SystemExit(main())
