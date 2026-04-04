@@ -143,7 +143,7 @@ import time
 ###             ADD NEW HUNT
 ###
 
-pokemon_name = "entei"
+pokemon_name = "xerneas"
 targets = 1
 hunt_id = run_db_query("SELECT MAX(hunt_id) FROM hunt_encounters", (), function="fetchone")[0] + 1
 encounter_method = "da"
