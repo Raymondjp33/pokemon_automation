@@ -1,19 +1,22 @@
 import os
 import cv2
 import numpy as np
+import time
 
 
 check_both = True
 # check_both = False
 check_num = 3
-# directory = "/Volumes/DexDrive/Current Hunt/"
-directory = "/Volumes/DexDrive/temp/"
+directory = "/Volumes/DexDrive/Current Hunt/"
+# directory = "/Volumes/DexDrive/temp/"
 
 bulb_colors = [[246, 176, 210]]
 snorlax_colors = [[91, 110, 50], [79, 113, 48], [74, 113, 38]]
+count = 0
 
 
 def check_images_for_pixel():
+    global count
     for file in os.listdir(directory):
         if not file.lower().endswith(".png"):
             continue
@@ -37,6 +40,7 @@ def check_images_for_pixel():
         image_frame = img[101][157] if switch_num == "1" else img[240][944]
         rgb_list = bulb_colors if switch_num == "1" else snorlax_colors
         print(f"checking {path}: {image_frame}")
+        count = count + 1
         if not any(np.array_equal(image_frame, rgb) for rgb in rgb_list):
             print(path)
             cv2.imshow("game2", img)
@@ -47,4 +51,10 @@ def check_images_for_pixel():
                 break
 
 
+t0 = time.time()
 check_images_for_pixel()
+t1 = time.time()
+
+
+delay = t1 - t0
+print(f"Total time to check {count} images: {delay:.3f}s")
