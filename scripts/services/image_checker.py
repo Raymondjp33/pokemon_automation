@@ -7,8 +7,8 @@ import time
 check_both = True
 # check_both = False
 check_num = 3
-# directory = "/Volumes/DexDrive/Current Hunt/"
-directory = "/Volumes/DexDrive/temp/"
+directory = "/Volumes/DexDrive/Current Hunt/"
+# directory = "/Volumes/DexDrive/temp/"
 
 bulb_colors = [[246, 176, 210]]
 snorlax_colors = [[91, 110, 50], [79, 113, 48], [74, 113, 38]]
@@ -110,6 +110,6 @@ print(f"Current ranges for 1: {ranges['min1']} - {ranges['max1']}")
 print(f"Current ranges for 3: {ranges['min3']} - {ranges['max3']}")
 
 # 1
-# 93811 - 96154
+# 90762 - 96156
 # 3
-# 113640 - 116820
+# 109507 - 116823
