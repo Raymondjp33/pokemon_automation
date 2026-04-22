@@ -66,6 +66,9 @@ def get_screen(vid: cv2.VideoCapture):
     ):
         return "Sus"
 
+    if get_text(frame=frame, top_left=Point(y=57, x=872), bottom_right=Point(y=112, x=994), invert=True) == "Reward":
+        return "Reward"
+
 
 def main() -> int:
     ser_str = SWITCH2_SERIAL
@@ -135,6 +138,12 @@ def main() -> int:
 
             if screen == "Sus":
                 den_handler.handle_sus()
+
+            if screen == "Reward":
+                den_handler.handle_reward()
+
+                if config.get("end_run"):
+                    break
 
             time.sleep(5)
 

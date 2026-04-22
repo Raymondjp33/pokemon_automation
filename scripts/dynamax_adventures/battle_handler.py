@@ -114,7 +114,7 @@ class BattleHandler:
 
         # Attempt using move on self if using it in general failed
         press(self.ser, "s", sleep_time=0.5)
-        press(self.ser, "A", sleep_time=0.5)
+        press(self.ser, "A", count=2, sleep_time=0.5)
 
         # Go back if all else fails
         press(self.ser, "B", sleep_time=0.5, count=3)

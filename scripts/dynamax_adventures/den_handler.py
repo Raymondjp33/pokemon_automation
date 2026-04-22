@@ -164,8 +164,20 @@ class DenHandler:
             press(self.ser, "s", count=3, sleep_time=0.5)
             return True
 
-        if self.config.get("end_run"):
-            return True
+        end_run = self.config.get("end_run")
+
+        if isinstance(end_run, bool):
+            if end_run:
+                return True
+        else:
+            end_run = end_run - 1
+
+            if end_run < 1:
+                end_run = True
+                self.config.update({"end_run": True})
+                return True
+
+            self.config.update({"end_run": end_run})
 
         if first_true_key is None:
             print("Not taking any pokemon")
@@ -366,6 +378,27 @@ class DenHandler:
     def handle_sus(self):
         print("Sus screen")
         press(self.ser, "A", sleep_time=5, count=2)
+
+    def handle_reward(self):
+        if not self.config.get("infinite_adventures"):
+            return
+
+        print("Reward")
+        self.clear_streak_data()
+
+        if self.config.get("end_run"):
+            return
+
+        while (
+            get_text(
+                frame=getframe(self.vid), top_left=Point(y=612, x=962), bottom_right=Point(y=646, x=1059), invert=True
+            )
+            != "Quit"
+        ):
+            press(self.ser, "A", sleep_time=1)
+
+        press(self.ser, "s", sleep_time=0.5)
+        press(self.ser, "A", sleep_time=0.5)
 
     pathX1 = 174
     pathY1 = 62
