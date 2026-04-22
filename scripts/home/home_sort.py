@@ -24,6 +24,9 @@ from services.common import (
     shh,
 )
 
+boxed_pokemon_path = Path(__file__).resolve().parent.parent / "configs" / "boxed_pokemon.json"
+pokemon_csv_path = Path(__file__).resolve().parent.parent / "configs" / "pokemon.csv"
+
 SWITCH_NUM = 3
 
 
@@ -55,7 +58,7 @@ def check_if_shiny(vid: cv2.VideoCapture):
 def load_pokemon_species_ids():
     name_to_species_id = {}
 
-    with open(Path(__file__).resolve().parent / "configs" / "pokemon.csv", mode="r", encoding="utf-8") as file:
+    with open(pokemon_csv_path, mode="r", encoding="utf-8") as file:
         reader = csv.DictReader(file)
         for row in reader:
             name = row["identifier"].strip().lower()  # Normalize name
@@ -122,9 +125,6 @@ def move_to_box(ser: serial.Serial, from_box: Position, to_box: Position, from_o
     make_move(ser, from_box.col, to_box.col, move_vertical=False)
 
     press(ser, "A", sleep_time=1)
-
-
-boxed_pokemon_path = Path(__file__).resolve().parent / "configs" / "boxed_pokemon.json"
 
 
 def main() -> int:

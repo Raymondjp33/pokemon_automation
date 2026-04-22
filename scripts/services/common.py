@@ -442,6 +442,7 @@ def increment_counter(switch_num, pokemon_name=None, add_catch=False, log_frame=
 
     hunt_row = get_hunt_row(switch_num, pokemon_name, cursor)
     hunt_id = get_hunt_id(switch_num)
+    hunt_encounters = -1
 
     if hunt_row:
         cursor.execute(
@@ -464,6 +465,7 @@ def increment_counter(switch_num, pokemon_name=None, add_catch=False, log_frame=
                 hunt_id,
             ),
         )
+        hunt_encounters = hunt_row[3] + 1
     else:
         cursor.execute(
             """
@@ -504,12 +506,12 @@ def increment_counter(switch_num, pokemon_name=None, add_catch=False, log_frame=
         )
 
     if log_frame is not None:
-        print("here about to log frame")
         try:
-            cv2.imwrite(
-                f"/Volumes/DexDrive/temp/{switch_num}-{pokemon_name}-{int(time.time() * 1000)}.png",
+            success = cv2.imwrite(
+                f"/Volumes/DexDrive/temp/{switch_num}-{pokemon_name}-{hunt_encounters}-{int(time.time() * 1000)}.png",
                 log_frame,
             )
+            print(f"Frame logged: {success}")
         except Exception:
             print("Unable to log frame properly")
 

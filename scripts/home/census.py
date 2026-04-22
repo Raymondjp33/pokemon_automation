@@ -8,14 +8,19 @@ import serial
 import json
 from services.common import getframe, get_switch_serial, make_vid, get_switch_vid_num, shh, press
 
+
+boxed_pokemon_path = Path(__file__).resolve().parent.parent / "configs" / "boxed_pokemon.json"
+empty_spot_template_path = Path(__file__).resolve().parent / "templates" / "home_empty_spot.png"
+
 SWITCH_NUM = 3
+shiny_census = True
 
 
 def get_pokemon_spots(
     box_num,
     vid: cv2.VideoCapture,
 ):
-    template = cv2.imread("templates/home_empty_spot.png", cv2.IMREAD_COLOR)
+    template = cv2.imread(empty_spot_template_path, cv2.IMREAD_COLOR)
     threshold = 0.9
     num_cols = 6
     cell_width = 50  # Adjust to your grid cell width
@@ -68,16 +73,11 @@ def get_pokemon_spots(
     return matched_indices
 
 
-boxed_pokemon_path = Path(__file__).resolve().parent / "configs" / "boxed_pokemon.json"
-
-
 def main() -> int:
     ser_str = get_switch_serial(SWITCH_NUM)
     vid = make_vid(get_switch_vid_num(SWITCH_NUM))
 
     owned_pokemon = set()
-    shiny_census = False
-
     box_num = 1
 
     with open(boxed_pokemon_path, "r") as f:

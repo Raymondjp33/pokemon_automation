@@ -89,6 +89,7 @@ def main() -> int:
                 timeout += 1
                 if timeout > 6000:
                     print("Returning from encounter check early!")
+                    log_frame = getframe(vid)
                     return
                 if "Wild" in current_text:
                     t1 = time.time()
@@ -128,6 +129,8 @@ def main() -> int:
                 switch_num=switch_num,
                 log_frame=log_frame,
             )
+
+            log_frame = None
 
             end_time = time.time()
             print(f"Full encounter took {(end_time - start_time):.3f}s")

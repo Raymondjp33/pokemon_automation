@@ -1,4 +1,4 @@
-from services.common import run_db_query
+from common import run_db_query
 import time
 
 # catches = run_db_query("SELECT * FROM catches", (), function='fetchall')
