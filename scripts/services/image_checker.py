@@ -110,6 +110,6 @@ print(f"Current ranges for 1: {ranges['min1']} - {ranges['max1']}")
 print(f"Current ranges for 3: {ranges['min3']} - {ranges['max3']}")
 
 # 1
-# 90762 - 104310
+# 90762 - 106467
 # 3
-# 109507 - 127663
+# 109507 - 130591
