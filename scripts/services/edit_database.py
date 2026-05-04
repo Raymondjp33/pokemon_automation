@@ -123,50 +123,53 @@ import time
 ###             ADD NEW CATCH
 ###
 
-# pokemon = run_db_query("SELECT * FROM pokemon WHERE name = ?", ('regirock',),function= "fetchone")
 
-# pokemon_id = pokemon[0]
+# hunt_encounter_id = 550
+
+# hunt = run_db_query("SELECT * FROM hunt_encounters WHERE id = ?", (hunt_encounter_id,), function="fetchone")
+# pokemon_id = hunt[1]
+# hunt_id = hunt[2]
+# encounters = hunt[3]
+# pokemon_name = hunt[4]
+# switch = hunt[5]
 # caught_timestamp = int(time.time() * 1000)
-# encounters = 20325
-# encounter_method = 'static'
-# switch = 2
-# name = 'regirock'
-# total_dens = None
-# hunt_id = 4
+# encounter_method = hunt[8]
+# total_dens = hunt[9]
 
 
 # run_db_query(
-#             "INSERT INTO catches (pokemon_id, caught_timestamp, encounters, encounter_method, switch, name, total_dens, hunt_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-#             ( pokemon_id, caught_timestamp, encounters, encounter_method, switch, name, total_dens, hunt_id))
+#     "INSERT INTO catches (pokemon_id, caught_timestamp, encounters, encounter_method, switch, name, total_dens, hunt_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+#     (pokemon_id, caught_timestamp, encounters, encounter_method, switch, pokemon_name, total_dens, hunt_id),
+# )
 
 ###
 ###             ADD NEW HUNT
 ###
 
-pokemon_name = "xerneas"
-targets = 1
-hunt_id = run_db_query("SELECT MAX(hunt_id) FROM hunt_encounters", (), function="fetchone")[0] + 1
-encounter_method = "da"
-switch = 2
-total_dens = 0  # None
-encounters = 0
+# pokemon_name = "nidorino"
+# targets = 1
+# hunt_id = run_db_query("SELECT MAX(hunt_id) FROM hunt_encounters", (), function="fetchone")[0] + 1
+# encounter_method = "oldwild"
+# switch = 3
+# total_dens = None
+# encounters = 0
 
-pokemon = run_db_query("SELECT * FROM pokemon WHERE name = ?", (pokemon_name,), function="fetchone")
-run_db_query(
-    "INSERT INTO hunt_encounters (pokemon_id, hunt_id, encounters, pokemon_name, switch, targets, started_hunt_ts, encounter_method, total_dens) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-    (
-        pokemon[0],
-        hunt_id,
-        encounters,
-        pokemon_name,
-        switch,
-        targets,
-        int(time.time() * 1000),
-        encounter_method,
-        total_dens,
-    ),
-)
-print(f"Added hunt {hunt_id}")
+# pokemon = run_db_query("SELECT * FROM pokemon WHERE name = ?", (pokemon_name,), function="fetchone")
+# run_db_query(
+#     "INSERT INTO hunt_encounters (pokemon_id, hunt_id, encounters, pokemon_name, switch, targets, started_hunt_ts, encounter_method, total_dens) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+#     (
+#         pokemon[0],
+#         hunt_id,
+#         encounters,
+#         pokemon_name,
+#         switch,
+#         targets,
+#         int(time.time() * 1000),
+#         encounter_method,
+#         total_dens,
+#     ),
+# )
+# print(f"Added hunt {hunt_id}")
 
 ###
 ###             ADD NEW Catch
