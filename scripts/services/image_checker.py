@@ -29,8 +29,12 @@ def check_images_for_pixel():
         if not file.lower().endswith(".png"):
             continue
         filename_parts = (file.split(".")[0]).split("-")
+
+        if len(filename_parts) < 3:
+            continue
         switch_num = filename_parts[0]
         # pokemon_name = filename_parts[1]
+
         encounter_num = int(filename_parts[2])
         # timestamp = int(filename_parts[3])
 
@@ -110,6 +114,6 @@ print(f"Current ranges for 1: {ranges['min1']} - {ranges['max1']}")
 print(f"Current ranges for 3: {ranges['min3']} - {ranges['max3']}")
 
 # 1
-# 90762 - 107621
+# 90762 - 119586
 # 3
-# 109507 - 132158
+# 109507 - 132190
