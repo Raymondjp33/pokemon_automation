@@ -47,6 +47,12 @@ class DenHandler:
 
     def handle_catch(self, is_legend: bool):
         print("Catching")
+
+        if not self.config.get("catch_legend") and is_legend:
+            press(self.ser, "s", sleep_time=0.5)
+            press(self.ser, "A", sleep_time=1)
+            return
+
         press(self.ser, "A", sleep_time=1)
 
         if is_legend:
