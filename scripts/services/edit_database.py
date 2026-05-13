@@ -146,11 +146,11 @@ import time
 ###             ADD NEW HUNT
 ###
 
-# pokemon_name = "nidorino"
+# pokemon_name = "stakataka"
 # targets = 1
 # hunt_id = run_db_query("SELECT MAX(hunt_id) FROM hunt_encounters", (), function="fetchone")[0] + 1
-# encounter_method = "oldwild"
-# switch = 3
+# encounter_method = "da"
+# switch = 2
 # total_dens = None
 # encounters = 0
 
@@ -218,18 +218,24 @@ import time
 ###             MOVE CATCH TO FAIL
 ###
 
-# catch_id = 49
+# catch_id = 840
 
-# catch = run_db_query("SELECT * FROM catches WHERE id = ?", (catch_id,), function='fetchone')
+# catch = run_db_query("SELECT * FROM catches WHERE id = ?", (catch_id,), function="fetchone")
 # run_db_query(
-#  "INSERT INTO fails (pokemon_id, caught_timestamp, encounters, encounter_method, switch, name, total_dens, hunt_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-#  (catch[1], catch[2], catch[3], catch[4], catch[5], catch[6], catch[7], catch[8],)
+#     "INSERT INTO fails (pokemon_id, caught_timestamp, encounters, encounter_method, switch, name, total_dens, hunt_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+#     (
+#         catch[1],
+#         catch[2],
+#         catch[3],
+#         catch[4],
+#         catch[5],
+#         catch[6],
+#         catch[7],
+#         catch[8],
+#     ),
 # )
 
-# run_db_query(
-#     "DELETE FROM catches WHERE id = ? ",
-#     (catch_id,)
-# )
+# run_db_query("DELETE FROM catches WHERE id = ? ", (catch_id,))
 
 ###
 ###             OTHER USEFUL FUNCTIONS
