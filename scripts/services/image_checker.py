@@ -72,10 +72,10 @@ def check_images_for_pixel():
         handle_encounter_misses(encountered_nums3)
 
     ranges = {
-        "max1": max(encountered_nums1),
-        "min1": min(encountered_nums1),
-        "max3": max(encountered_nums3),
-        "min3": min(encountered_nums3),
+        "max1": max(encountered_nums1) if encountered_nums1 else None,
+        "min1": min(encountered_nums1) if encountered_nums1 else None,
+        "max3": max(encountered_nums3) if encountered_nums3 else None,
+        "min3": min(encountered_nums3) if encountered_nums3 else None,
     }
 
     # Second pass: process images
@@ -110,10 +110,12 @@ t1 = time.time()
 
 delay = t1 - t0
 print(f"Total time to check {count} images: {delay:.3f}s")
-print(f"Current ranges for 1: {ranges['min1']} - {ranges['max1']}")
-print(f"Current ranges for 3: {ranges['min3']} - {ranges['max3']}")
+if ranges["min1"] is not None:
+    print(f"Current ranges for 1: {ranges['min1']} - {ranges['max1']}")
+if ranges["min3"] is not None:
+    print(f"Current ranges for 3: {ranges['min3']} - {ranges['max3']}")
 
 # 1
-# 90762 - 125462
+# 90762 - 129662
 # 3
 # 109507 - 132190
