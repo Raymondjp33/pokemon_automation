@@ -77,6 +77,15 @@ class FileProvider with ChangeNotifier {
       }
     });
 
+    socket!.on('pokemon_update', (data) {
+      try {
+        _mergePokemonUpdate(data);
+        notifyListeners();
+      } catch (e) {
+        print('Error with pokemon_update $e');
+      }
+    });
+
     socket!.on('process_output', (data) {
       addToLogs('Log: ${data['line']}', logs1);
       // Update UI with log line
@@ -128,5 +137,28 @@ class FileProvider with ChangeNotifier {
       }
     }
     return null;
+  }
+
+  void _mergePokemonUpdate(dynamic data) {
+    if (pokemonData == null) return;
+
+    final updated = (data['pokemon'] as List)
+        .map((e) => PokemonModel.fromJson(e as Map<String, dynamic>))
+        .toList();
+
+    final merged = List<PokemonModel>.from(pokemonData!.pokemon);
+    for (final p in updated) {
+      final idx = merged.indexWhere((e) => e.huntId == p.huntId && e.name == p.name);
+      if (idx >= 0) {
+        merged[idx] = p;
+      } else {
+        merged.add(p);
+      }
+    }
+
+    pokemonData = PokemonData(
+      pokemon: merged,
+      pokemonStats: StatsModel.fromJson(data['pokemonStats'] as Map<String, dynamic>),
+    );
   }
 }
