@@ -194,7 +194,11 @@ class DenHandler:
         print(f"Take according pokemon {first_true_key}")
         press(self.ser, "s", count=first_true_key)
         self.take_pokemon()
-        self.add_random_catch(name_map[first_true_key][0], log_frames[first_true_key])
+
+        streak_data = self.config.get("streak_data")
+        will_reset = streak_data.get("search_dens", False) and self.config.get("keep_dungeon", False)
+        if not will_reset:
+            self.add_random_catch(name_map[first_true_key][0], log_frames[first_true_key])
         return False
 
     def increment_total_dens(self):
