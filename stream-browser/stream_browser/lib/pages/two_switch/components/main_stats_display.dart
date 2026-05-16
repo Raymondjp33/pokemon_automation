@@ -91,7 +91,7 @@ class MainStatsDisplay extends StatelessWidget {
           );
           totalShinies = pokemon.fold(
             0,
-            (p, e) => p + (e.catches?.length ?? 0),
+            (p, e) => p + (e.catches?.length ?? 0) + (e.fails?.length ?? 0),
           );
           averageEncounters = totalShinies == 0
               ? totalEncounters.toDouble()

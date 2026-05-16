@@ -77,9 +77,10 @@ class PokemonData:
     started_hunt_ts: int
     total_dens: int
     catches: list[CatchData]
+    fails: list[CatchData]
 
     @classmethod
-    def from_model(cls, he: HuntEncounterModel, catches: list[CatchModel]) -> PokemonData:
+    def from_model(cls, he: HuntEncounterModel, catches: list[CatchModel], fails: list[CatchModel]) -> PokemonData:
         return cls(
             pokemon_id=str(he.pokemon_id),
             hunt_id=he.hunt_id,
@@ -90,6 +91,7 @@ class PokemonData:
             started_hunt_ts=he.started_ts,
             total_dens=he.total_dens,
             catches=[CatchData.from_model(c) for c in catches],
+            fails=[CatchData.from_model(f) for f in fails],
         )
 
     def to_dict(self) -> dict:
@@ -103,6 +105,7 @@ class PokemonData:
             "started_hunt_ts": self.started_hunt_ts,
             "total_dens": self.total_dens,
             "catches": [asdict(c) for c in self.catches],
+            "fails": [asdict(f) for f in self.fails],
         }
 
 
@@ -118,7 +121,12 @@ def _build_pokemon_data(cursor: sqlite3.Cursor, row: tuple) -> PokemonData:
         (he.hunt_id, he.pokemon_name),
     )
     catches = [CatchModel(r) for r in cursor.fetchall()]
-    return PokemonData.from_model(he, catches)
+    cursor.execute(
+        "SELECT * FROM fails WHERE hunt_id = ? AND name LIKE '%' || ? || '%'",
+        (he.hunt_id, he.pokemon_name),
+    )
+    fails = [CatchModel(r) for r in cursor.fetchall()]
+    return PokemonData.from_model(he, catches, fails)
 
 
 def _fetch_all_pokemon(hunt_ids: tuple[int, int, int]) -> tuple[list[PokemonData], dict]:
@@ -209,7 +217,7 @@ def _compute_diff(pokemon_list: list[PokemonData]) -> list[PokemonData]:
     changed = []
     for p in pokemon_list:
         key = (p.hunt_id, p.name)
-        state = (p.encounters, len(p.catches))
+        state = (p.encounters, len(p.catches), len(p.fails))
         if _pokemon_cache.get(key) != state:
             changed.append(p)
             _pokemon_cache[key] = state
@@ -230,7 +238,7 @@ def emit_pokemon_data(*, full: bool = False) -> None:
 
     if full:
         for p in pokemon_list:
-            _pokemon_cache[(p.hunt_id, p.name)] = (p.encounters, len(p.catches))
+            _pokemon_cache[(p.hunt_id, p.name)] = (p.encounters, len(p.catches), len(p.fails))
         print("[WebSocket] Emitting full pokemon data")
         socketio.emit(
             "pokemon_data",

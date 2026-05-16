@@ -20,6 +20,7 @@ class PokemonModel {
   num? startedHuntTimestamp;
 
   List<CatchModel>? catches;
+  List<CatchModel>? fails;
 
   PokemonModel({
     this.name = '',
@@ -31,6 +32,7 @@ class PokemonModel {
     this.totalDens,
     this.startedHuntTimestamp,
     this.catches,
+    this.fails,
   });
 
   static PokemonModel get emptyPokemon => PokemonModel();
