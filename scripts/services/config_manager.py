@@ -1,9 +1,8 @@
 import json
 import threading
-import time
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
-from pathlib import Path
+
 
 class ConfigHandler(FileSystemEventHandler):
     def __init__(self, config_manager):
@@ -13,6 +12,7 @@ class ConfigHandler(FileSystemEventHandler):
         if event.src_path == self.config_manager.file_path:
             self.config_manager.reload()
 
+
 class ConfigManager:
     def __init__(self, file_path):
         self.file_path = file_path
@@ -21,11 +21,11 @@ class ConfigManager:
 
         event_handler = ConfigHandler(self)
         self.observer = Observer()
-        self.observer.schedule(event_handler, path='.', recursive=False)
+        self.observer.schedule(event_handler, path=".", recursive=False)
         self.observer.start()
 
     def _load(self):
-        with open(self.file_path, 'r') as f:
+        with open(self.file_path, "r") as f:
             return json.load(f)
 
     def reload(self):
@@ -42,7 +42,7 @@ class ConfigManager:
         self.reload()
         with self._lock:
             self._data.update(updates)
-            with open(self.file_path, 'w') as f:
+            with open(self.file_path, "w") as f:
                 json.dump(self._data, f, indent=4)
 
     def stop(self):
