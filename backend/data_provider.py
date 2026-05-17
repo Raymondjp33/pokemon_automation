@@ -217,7 +217,7 @@ def _compute_diff(pokemon_list: list[PokemonData]) -> list[PokemonData]:
     changed = []
     for p in pokemon_list:
         key = (p.hunt_id, p.name)
-        state = (p.encounters, len(p.catches), len(p.fails))
+        state = (p.encounters, len(p.catches), len(p.fails), p.total_dens)
         if _pokemon_cache.get(key) != state:
             changed.append(p)
             _pokemon_cache[key] = state
@@ -238,7 +238,7 @@ def emit_pokemon_data(*, full: bool = False) -> None:
 
     if full:
         for p in pokemon_list:
-            _pokemon_cache[(p.hunt_id, p.name)] = (p.encounters, len(p.catches), len(p.fails))
+            _pokemon_cache[(p.hunt_id, p.name)] = (p.encounters, len(p.catches), len(p.fails), p.total_dens)
         print("[WebSocket] Emitting full pokemon data")
         socketio.emit(
             "pokemon_data",

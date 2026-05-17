@@ -1,4 +1,5 @@
 import time
+import json
 import cv2
 import serial
 import pytesseract
@@ -15,6 +16,8 @@ from services.common import (
     get_hunt_row,
     get_hunt_id,
     Point,
+    REDIS_CLIENT,
+    REDIS_CHANNEL,
 )
 
 # os.environ["TESSDATA_PREFIX"] = "/opt/homebrew/Cellar/tesseract/5.5.0_1/share/tessdata"
@@ -216,6 +219,7 @@ class DenHandler:
                 hunt_row[2],
             ),
         )
+        REDIS_CLIENT.publish(REDIS_CHANNEL, json.dumps({"update_data": True}))
 
     def add_random_catch(self, pokemon_name, log_frame):
         print("Adding random shiny from hunt")

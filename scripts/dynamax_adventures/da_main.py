@@ -84,7 +84,6 @@ def main() -> int:
         battle_handler = BattleHandler(vid, ser)
         den_handler = DenHandler(vid, ser)
 
-        # den_handler.swap_hunts()
         # go_to_change_grip(ser)
         # connect_and_go_to_game(ser)
         # handle_choose_pokemon()
@@ -92,6 +91,7 @@ def main() -> int:
         # restart_dungeon(vid, ser)
         # select_starter(vid, ser)
         # handle_choose_pokemon(vid, ser)
+        # den_handler.swap_hunts()
         # return 0
 
         while not shiny_legend:
