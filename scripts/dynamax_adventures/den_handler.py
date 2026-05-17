@@ -493,19 +493,50 @@ class DenHandler:
         press(self.ser, "d", count=best_index, sleep_time=0.3)
         press(self.ser, "A")
 
+    def swap_hunts(self):
+        print("Swapping hunt to get more money!")
+        swap = self.config.get("swap_pokemon")
+        fields = ["currently_hunting", "ball_index", "catch_legend", "pokemon_den_index", "type_order"]
+        new_swap = {**swap, **{f: self.config.get(f) for f in fields}}
+        new_swap["search_dens"] = self.config.get("streak_data").get("search_dens", False)
+        self.config.update(
+            {
+                **{f: swap.get(f) for f in fields},
+                "swap_pokemon": new_swap,
+            }
+        )
+        streak_data = self.config.get("streak_data")
+        streak_data["search_dens"] = swap.get("search_dens", False)
+        self.config.update({"streak_data": streak_data})
+        self.clear_streak_data()
+
+    def get_dynite_amount(self, frame) -> int:
+        try:
+            return int(
+                get_text(frame=frame, top_left=Point(y=3, x=1217), bottom_right=Point(y=42, x=1272), invert=True)
+            )
+        except (ValueError, TypeError):
+            return 999
+
     def restart_dungeon(self, keep_dungeon=False):
         if keep_dungeon:
             self.reset_game()
 
         frame = getframe(self.vid)
         curr_text = get_text(frame=frame, top_left=Point(y=641, x=269), bottom_right=Point(y=690, x=593), invert=True)
+        dynite_amount = self.get_dynite_amount(frame)
+
         while curr_text != "Dynamax Adventure?":
+            if dynite_amount < 50:
+                self.swap_hunts()
+
             press(self.ser, "A")
             time.sleep(2)
             frame = getframe(self.vid)
             curr_text = get_text(
                 frame=frame, top_left=Point(y=641, x=269), bottom_right=Point(y=690, x=593), invert=True
             )
+            dynite_amount = self.get_dynite_amount(frame)
 
         pokemon_den_index = self.config.get("pokemon_den_index")
         # Would you like to embark on a Dynamax Adventure?

@@ -83,6 +83,8 @@ def main() -> int:
 
         battle_handler = BattleHandler(vid, ser)
         den_handler = DenHandler(vid, ser)
+
+        # den_handler.swap_hunts()
         # go_to_change_grip(ser)
         # connect_and_go_to_game(ser)
         # handle_choose_pokemon()
