@@ -483,14 +483,19 @@ def increment_counter(switch_num, pokemon_name=None, add_catch=False, log_frame=
     if add_catch:
         cursor.execute(
             "SELECT SUM(encounters) FROM catches WHERE name = ? AND hunt_id = ?",
-            (
-                pokemon_name,
-                hunt_id,
-            ),
+            (pokemon_name, hunt_id),
         )
         result = cursor.fetchone()[0]
-        previous_encounters = result if result is not None else 0
-        count_difference = hunt_row[3] - previous_encounters
+        previous_catch_encounters = result if result is not None else 0
+
+        cursor.execute(
+            "SELECT SUM(encounters) FROM fails WHERE name = ? AND hunt_id = ?",
+            (pokemon_name, hunt_id),
+        )
+        fail_result = cursor.fetchone()[0]
+        previous_fail_encounters = fail_result if fail_result is not None else 0
+
+        count_difference = hunt_row[3] - previous_catch_encounters - previous_fail_encounters
         cursor.execute(
             "INSERT INTO catches (pokemon_id, caught_timestamp, encounters, encounter_method, switch, name, total_dens, hunt_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
             (
