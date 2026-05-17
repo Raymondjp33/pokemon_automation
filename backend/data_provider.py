@@ -22,9 +22,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
 from services.common import (  # noqa: E402
     REDIS_CHANNEL,
     STREAM_DATA_PATH,
-    DB_FILE,
     CatchModel,
     HuntEncounterModel,
+    _get_connection,
 )
 
 app = Flask(
@@ -130,7 +130,7 @@ def _build_pokemon_data(cursor: sqlite3.Cursor, row: tuple) -> PokemonData:
 
 
 def _fetch_all_pokemon(hunt_ids: tuple[int, int, int]) -> tuple[list[PokemonData], dict]:
-    conn = sqlite3.connect(str(DB_FILE))
+    conn = _get_connection()
     cursor = conn.cursor()
     try:
         cursor.execute(

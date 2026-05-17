@@ -104,8 +104,15 @@ class HuntEncounterModel:
         self.total_dens = hunt_encounter[9]
 
 
+def _get_connection() -> sqlite3.Connection:
+    conn = sqlite3.connect(DB_FILE, timeout=10)
+    conn.execute("PRAGMA journal_mode=WAL")
+    conn.execute("PRAGMA synchronous=NORMAL")
+    return conn
+
+
 def run_db_query(query, params, function=None):
-    conn = sqlite3.connect(DB_FILE)
+    conn = _get_connection()
     cursor = conn.cursor()
 
     if function is None:
@@ -407,7 +414,7 @@ def get_hunt_row(
 ):
 
     if currentDBConnection is None:
-        conn = sqlite3.connect(DB_FILE)
+        conn = _get_connection()
         cursor = conn.cursor()
     else:
         cursor = currentDBConnection
@@ -437,7 +444,7 @@ def get_hunt_row(
 
 
 def increment_counter(switch_num, pokemon_name=None, add_catch=False, log_frame=None):
-    conn = sqlite3.connect(DB_FILE)
+    conn = _get_connection()
     cursor = conn.cursor()
 
     hunt_row = get_hunt_row(switch_num, pokemon_name, cursor)
