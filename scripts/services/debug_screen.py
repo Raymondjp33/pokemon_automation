@@ -16,6 +16,8 @@ def main() -> int:
     parser.add_argument("--switch_num")
     parser.add_argument("--image")
     parser.add_argument("--screenshot")
+    parser.add_argument("--x", type=int)
+    parser.add_argument("--y", type=int)
     args = parser.parse_args()
 
     if args.switch_num:
@@ -83,6 +85,15 @@ def main() -> int:
                 (start.x, start.y),
                 (pos.x, pos.y),
                 Color(b=255, g=0, r=0),
+                1,
+            )
+
+        if args.x is not None and args.y is not None:
+            cv2.rectangle(
+                frame,
+                (args.x - 3, args.y - 3),
+                (args.x + 3, args.y + 3),
+                Color(b=0, g=0, r=255),
                 1,
             )
 
