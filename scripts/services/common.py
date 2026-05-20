@@ -22,6 +22,7 @@ STREAM_DATA_PATH = Path(__file__).resolve().parent.parent.parent / "backend" / "
 
 DB_FILE = Path(__file__).resolve().parent.parent.parent / "backend" / "my_pokemon.db"
 REDIS_CHANNEL = "update_data"
+SHINY_CAUGHT_CHANNEL = "shiny_caught"
 REDIS_CLIENT = redis.StrictRedis(host="localhost", port=6379, decode_responses=True)
 
 SWITCH1_SERIAL = "/dev/tty.usbmodem14201"
@@ -527,6 +528,11 @@ def increment_counter(switch_num, pokemon_name=None, add_catch=False, log_frame=
         except Exception:
             print("Unable to log frame properly")
 
+    if add_catch:
+        REDIS_CLIENT.publish(
+            SHINY_CAUGHT_CHANNEL,
+            json.dumps({"hunt_id": hunt_id, "pokemon_name": pokemon_name, "encounters": count_difference}),
+        )
     REDIS_CLIENT.publish(REDIS_CHANNEL, json.dumps({"update_data": True}))
     conn.commit()
     conn.close()
