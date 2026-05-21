@@ -116,6 +116,6 @@ if ranges["min3"] is not None:
     print(f"Current ranges for 3: {ranges['min3']} - {ranges['max3']}")
 
 # 1
-# 90762 - 142699
+# 90762 - 144685
 # 3
-# 109507 - 132190
+# 109507 - 134629
