@@ -546,8 +546,15 @@ class DenHandler:
         # Would you like to embark on a Dynamax Adventure?
         press(self.ser, "A", sleep_time=2, count=4)
         press(self.ser, "s", sleep_time=0.5, count=pokemon_den_index)
-        press(self.ser, "A", sleep_time=2, count=3)
-        time.sleep(4)
+
+        curr_text = get_text(
+            frame=getframe(self.vid), top_left=Point(y=581, x=30), bottom_right=Point(y=610, x=166), invert=True
+        )
+        while curr_text != "The adventure":
+            press(self.ser, "A", sleep_time=2)
+            curr_text = get_text(
+                frame=getframe(self.vid), top_left=Point(y=581, x=30), bottom_right=Point(y=610, x=166), invert=True
+            )
 
         # Dont invite others
         press(self.ser, "s", sleep_time=0.5)
