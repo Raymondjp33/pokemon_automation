@@ -74,7 +74,7 @@ def main() -> int:
             frame = getframe(vid)
 
             while not color_near(frame[y_val][x_val], (0, 0, 0)):
-                press(ser, "A", sleep_time=0.3)
+                press(ser, "A", sleep_time=0.1)
                 frame = getframe(vid)
 
             t0 = time.time()
@@ -104,7 +104,7 @@ def main() -> int:
             delay = t1 - t0
             print(f"dialog delay: {delay:.3f}s")
 
-            if (delay) > 4.0:
+            if (delay) > 4.2:
                 print("SHINY!!!")
                 press(ser, "C", duration=2)
                 press(ser, "H", duration=1)
