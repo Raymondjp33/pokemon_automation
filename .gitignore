@@ -7,6 +7,9 @@ outdated/old_data_files
 # Files not needed to be tracked
 backend/*.json
 backend/my_pokemon.db
+backend/my_pokemon.db-shm
+backend/my_pokemon.db-wal
+
 scripts/configs/
 scripts/dynamax_adventures/den_config.json
 
