@@ -17,8 +17,8 @@ def do_heal_route(ser: serial.Serial):
 
     # Get into the mountain
     press(ser, "wB", duration=1.75)
-    press(ser, "d", duration=0.3)
-    press(ser, "w", duration=0.3, sleep_time=2)
+    press(ser, "dB", duration=0.3)
+    press(ser, "wB", duration=0.3, sleep_time=2)
 
     # Get into the spring water
     press(ser, "wB", duration=2.75)
@@ -26,7 +26,7 @@ def do_heal_route(ser: serial.Serial):
     press(ser, "wB", duration=2)
     press(ser, "dB", duration=0.3)
     press(ser, "sB", duration=0.3, sleep_time=0.5)
-    press(ser, "a", count=11, sleep_time=0.2)
+    press(ser, "a", count=11, sleep_time=0.25)
     press(ser, "sB", duration=1, sleep_time=1)
 
     # Get out of the spring water and then out of the mountain
