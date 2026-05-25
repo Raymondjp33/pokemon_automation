@@ -17,11 +17,11 @@ def main() -> int:
     # parser.add_argument('--serial', default=SERIAL_DEFAULT)
     # parser.add_argument('--serial', default=switch2) # Switch 2
     parser.add_argument("--serial", default=switch1)  # Switch 1
-    parser.add_argument("--switch", type=float, default=1)
+    parser.add_argument("--switch_num", type=float, default=1)
 
     args = parser.parse_args()
 
-    serial_input = switch1 if args.switch == 1 else switch2 if args.switch == 2 else switch3
+    serial_input = switch1 if args.switch_num == 1 else switch2 if args.switch_num == 2 else switch3
 
     with serial.Serial(serial_input, 9600) as ser:
         time.sleep(1)
