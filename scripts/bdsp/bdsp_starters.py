@@ -145,7 +145,7 @@ def main() -> int:
                 )
                 return 0
 
-            increment_counter(switch_num=switch_num, pokemon_name="chimchar", log_frame=current_frame)
+            increment_counter(switch_num=switch_num, pokemon_name="chimchar")
 
             time.sleep(1)
             end_time = time.time()

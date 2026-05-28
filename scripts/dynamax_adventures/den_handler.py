@@ -161,7 +161,7 @@ class DenHandler:
                 switch_num=2,
                 pokemon_name=self.config.get("currently_hunting"),
                 add_catch=shiny_legend,
-                log_frame=log_frames[-1],
+                log_frame=log_frames[-1] if shiny_legend else None,
             )
 
         first_true_key = next((key for key, (_, flag) in name_map.items() if flag), None)
@@ -528,11 +528,11 @@ class DenHandler:
 
         frame = getframe(self.vid)
         curr_text = get_text(frame=frame, top_left=Point(y=641, x=269), bottom_right=Point(y=690, x=593), invert=True)
-        dynite_amount = self.get_dynite_amount(frame)
+        # dynite_amount = self.get_dynite_amount(frame)
 
         while curr_text != "Dynamax Adventure?":
-            if dynite_amount < 50:
-                self.swap_hunts()
+            # if dynite_amount < 50:
+            #     self.swap_hunts()
 
             press(self.ser, "A")
             time.sleep(2)
@@ -540,7 +540,7 @@ class DenHandler:
             curr_text = get_text(
                 frame=frame, top_left=Point(y=641, x=269), bottom_right=Point(y=690, x=593), invert=True
             )
-            dynite_amount = self.get_dynite_amount(frame)
+            # dynite_amount = self.get_dynite_amount(frame)
 
         pokemon_den_index = self.config.get("pokemon_den_index")
         # Would you like to embark on a Dynamax Adventure?
