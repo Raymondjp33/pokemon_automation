@@ -8,12 +8,18 @@ check_both = True
 # check_both = False
 check_num = 3
 directory = "/Volumes/DexDrive/Current Hunt/"
+# directory = "/Volumes/DexDrive/Checked/snorlax/1/"
 # directory = "/Volumes/DexDrive/temp/"
 
 bulb_colors = [[246, 176, 210]]
 snorlax_colors = [[91, 110, 50], [79, 113, 48], [74, 113, 38]]
 count = 0
 ranges = {}
+PIXEL_THRESHOLD = 20
+
+
+def pixel_matches_expected(pixel, expected_colors):
+    return any(np.linalg.norm(pixel.astype(int) - np.array(rgb)) < PIXEL_THRESHOLD for rgb in expected_colors)
 
 
 def check_images_for_pixel():
@@ -94,7 +100,8 @@ def check_images_for_pixel():
         print(f"checking {path}: {image_frame}")
         count += 1
 
-        if not any(np.array_equal(image_frame, rgb) for rgb in rgb_list):
+        # if not any(np.array_equal(image_frame, rgb) for rgb in rgb_list):
+        if not pixel_matches_expected(image_frame, rgb_list):
             print(path)
             cv2.imshow("game2", img)
             key = cv2.waitKey(0)
