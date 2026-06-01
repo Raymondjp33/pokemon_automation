@@ -8,8 +8,8 @@ from concurrent.futures import ThreadPoolExecutor
 check_both = True
 # check_both = False
 check_num = 3
-directory = "/Volumes/DexDrive/Current Hunt/"
-# directory = "/Volumes/DexDrive/Checked/snorlax/2/"
+# directory = "/Volumes/DexDrive/Current Hunt/"
+directory = "/Volumes/DexDrive/Checked/snorlax/1/"
 # directory = "/Volumes/DexDrive/temp/"
 
 bulb_colors = [[246, 176, 210]]
@@ -162,4 +162,4 @@ if end_warnings:
 # 1
 # 90762 - 153758
 # 3
-# 109507 - 153136
+# 109507 - 155596
