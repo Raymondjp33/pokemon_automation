@@ -3,13 +3,14 @@ import cv2
 import numpy as np
 import time
 from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime
 
 
 check_both = True
 # check_both = False
 check_num = 3
 directory = "/Volumes/DexDrive/Current Hunt/"
-# directory = "/Volumes/DexDrive/Checked/snorlax/6/"
+# directory = "/Volumes/DexDrive/Checked/snorlax/7/"
 # directory = "/Volumes/DexDrive/temp/"
 
 bulb_colors = [[246, 176, 210]]
@@ -111,7 +112,8 @@ def check_images_for_pixel():
                 curr_ts, curr_count = entries[i]
                 gap = (curr_ts - prev_ts) / 1000
                 if gap > TIMESTAMP_WINDOW:
-                    end_warnings.append(f"{prev_count} - {curr_count} ~ {gap:.0f}s")
+                    ts_str = datetime.fromtimestamp(curr_ts / 1000).strftime("%-I:%M %p %B %-d %Y")
+                    end_warnings.append(f"{prev_count} - {curr_count} ~ {gap:.0f}s ({ts_str})")
 
     ranges = {
         "max1": max(encountered_nums1) if encountered_nums1 else None,
