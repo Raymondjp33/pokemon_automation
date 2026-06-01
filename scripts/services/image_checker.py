@@ -9,8 +9,8 @@ from datetime import datetime
 check_both = True
 # check_both = False
 check_num = 3
-# directory = "/Volumes/DexDrive/Current Hunt/"
-directory = "/Volumes/DexDrive/Checked/snorlax/8 done/"
+directory = "/Volumes/DexDrive/Current Hunt/"
+# directory = "/Volumes/DexDrive/Checked/snorlax/8 done/"
 # directory = "/Volumes/DexDrive/temp/"
 
 bulb_colors = [[246, 176, 210]]
@@ -164,4 +164,4 @@ if end_warnings:
 # 1
 # 90762 - 153758
 # 3
-# 109507 - 165054
+# 109507 - 166280
