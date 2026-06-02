@@ -10,7 +10,7 @@ import numpy
 from services.common import shh, increment_counter, getframe, press, make_vid, get_switch_serial, get_switch_vid_num
 
 redis_client = redis.StrictRedis(host="localhost", port=6379, decode_responses=True)
-switch_num = 2
+switch_num = 1
 
 
 def check_if_shiny(frame):
@@ -80,7 +80,7 @@ def main() -> int:
                 return 0
 
             increment_counter(switch_num=switch_num, log_frame=current_frame)
-
+            current_frame = None
             time.sleep(1)
             end_time = time.time()
             print(f"Full encounter took {(end_time - start_time):.3f}s")
