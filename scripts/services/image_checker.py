@@ -10,8 +10,8 @@ check_both = True
 # check_both = False
 check_num = 3
 # directory = "/Volumes/DexDrive/Current Hunt/"
-directory = "/Volumes/DexDrive/Checked/snorlax/11/"
-# directory = "/Volumes/DexDrive/Checked/bulbasaur/2/"
+# directory = "/Volumes/DexDrive/Checked/snorlax/12/"
+directory = "/Volumes/DexDrive/Checked/bulbasaur/3/"
 # directory = "/Volumes/DexDrive/temp/"
 
 bulb_colors = [[246, 176, 210]]
@@ -20,8 +20,7 @@ count = 0
 ranges = {}
 PIXEL_THRESHOLD = 20
 check_timestamps = True
-TIMESTAMP_WINDOW = 42  # seconds
-# TIMESTAMP_WINDOW = 30  # seconds
+TIMESTAMP_WINDOW = {"1": 42, "3": 30}  # seconds per switch
 
 
 def pixel_matches_expected(pixel, expected_colors):
@@ -113,7 +112,7 @@ def check_images_for_pixel():
                 prev_ts, prev_count = entries[i - 1]
                 curr_ts, curr_count = entries[i]
                 gap = (curr_ts - prev_ts) / 1000
-                if gap > TIMESTAMP_WINDOW:
+                if gap > TIMESTAMP_WINDOW[sw]:
                     ts_str = datetime.fromtimestamp(curr_ts / 1000).strftime("%-I:%M %p %B %-d %Y")
                     end_warnings.append(f"{prev_count} - {curr_count} ~ {gap:.0f}s ({ts_str})")
 
@@ -164,6 +163,6 @@ if end_warnings:
         print(w)
 
 # 1
-# 90762 - 155786
+# 90762 - 156473
 # 3
-# 109507 - 169126
+# 109507 - 170077
