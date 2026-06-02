@@ -9,8 +9,9 @@ from datetime import datetime
 check_both = True
 # check_both = False
 check_num = 3
-directory = "/Volumes/DexDrive/Current Hunt/"
-# directory = "/Volumes/DexDrive/Checked/snorlax/8 done/"
+# directory = "/Volumes/DexDrive/Current Hunt/"
+directory = "/Volumes/DexDrive/Checked/snorlax/10/"
+# directory = "/Volumes/DexDrive/Checked/bulbasaur/1/"
 # directory = "/Volumes/DexDrive/temp/"
 
 bulb_colors = [[246, 176, 210]]
@@ -19,6 +20,7 @@ count = 0
 ranges = {}
 PIXEL_THRESHOLD = 20
 check_timestamps = True
+# TIMESTAMP_WINDOW = 42  # seconds
 TIMESTAMP_WINDOW = 30  # seconds
 
 
@@ -162,6 +164,6 @@ if end_warnings:
         print(w)
 
 # 1
-# 90762 - 153758
+# 90762 - 154817
 # 3
-# 109507 - 166280
+# 109507 - 167782
