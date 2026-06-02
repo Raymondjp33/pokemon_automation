@@ -49,6 +49,14 @@ class ControlPanelView extends StatelessWidget {
                         ),
                       ],
                     ),
+                    Row(
+                      children: [
+                        VideoInputWidget(
+                          video: state.video3,
+                          viewType: state.viewType3,
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ],

@@ -7,6 +7,7 @@ import '../../models/pokemon.model.dart';
 import '../../services/file_provider.dart';
 import '../../widgets/scrolling_widget.dart';
 import '../two_switch/components/switch_content.dart';
+import 'one_switch_state.dart';
 
 BorderSide containerBoarder({width = 5}) => BorderSide(
       color: Color(0xFF4C6CBF),
@@ -18,10 +19,32 @@ class OneSwitchView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    DisplayContent? screen2Content =
-        context.select((FileProvider state) => state.switch2Content);
-    List<PokemonModel> pokemon2 =
-        context.select((FileProvider state) => state.switch2Pokemon);
+    final switchIndex = context.read<OneSwitchState>().switchIndex;
+
+    DisplayContent? screenContent = context.select((FileProvider state) {
+      switch (switchIndex) {
+        case 1:
+          return state.switch1Content;
+        case 2:
+          return state.switch2Content;
+        case 3:
+          return state.switch3Content;
+        default:
+          return state.switch1Content;
+      }
+    });
+    List<PokemonModel> pokemon = context.select((FileProvider state) {
+      switch (switchIndex) {
+        case 1:
+          return state.switch1Pokemon;
+        case 2:
+          return state.switch2Pokemon;
+        case 3:
+          return state.switch3Pokemon;
+        default:
+          return state.switch1Pokemon;
+      }
+    });
 
     return Scaffold(
       body: Container(
@@ -73,8 +96,8 @@ class OneSwitchView extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         SwitchContent(
-                          screenContent: screen2Content,
-                          pokemon: pokemon2,
+                          screenContent: screenContent,
+                          pokemon: pokemon,
                         ),
                       ],
                     ),

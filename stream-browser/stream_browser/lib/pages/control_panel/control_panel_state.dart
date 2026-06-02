@@ -28,7 +28,12 @@ class ControlPanelState extends StateProvider<ControlPanel> {
   web.HTMLVideoElement? video2;
   String? viewType2;
 
+  web.HTMLVideoElement? video3;
+  String? viewType3;
+
   List<dynamic> videoDevices = [];
+
+  static int _viewTypeCounter = 0;
 
   Future<void> loadControlPanel() async {
     await getDevices();
@@ -56,7 +61,8 @@ class ControlPanelState extends StateProvider<ControlPanel> {
   Future<void> loadDevices() async {
     for (final device in videoDevices) {
       if (device.label != 'USB Video (534d:2109)' &&
-          device.label != 'USB3.0 Capture (345f:2130)') {
+          device.label != 'USB3.0 Capture (345f:2130)' &&
+          device.label != 'USB3 Video (345f:2131)') {
         continue;
       }
 
@@ -67,7 +73,7 @@ class ControlPanelState extends StateProvider<ControlPanel> {
           [
             jsify({
               'video': {
-                'deviceId': device.deviceId,
+                'deviceId': {'exact': device.deviceId},
                 "width": 1280,
                 "height": 720,
               },
@@ -83,16 +89,19 @@ class ControlPanelState extends StateProvider<ControlPanel> {
         ..style.objectFit = 'contain'
         ..srcObject = mediaStream;
 
-      final viewType = 'video-element-${DateTime.now().millisecondsSinceEpoch}';
+      final viewType = 'video-element-${_viewTypeCounter++}';
       ui_web.platformViewRegistry
           .registerViewFactory(viewType, (int viewId) => video);
 
-      if (device.label != 'USB Video (534d:2109)') {
-        video2 = video;
-        viewType2 = viewType;
-      } else {
+      if (device.label == 'USB Video (534d:2109)') {
         video1 = video;
         viewType1 = viewType;
+      } else if (device.label == 'USB3.0 Capture (345f:2130)') {
+        video2 = video;
+        viewType2 = viewType;
+      } else if (device.label == 'USB3 Video (345f:2131)') {
+        video3 = video;
+        viewType3 = viewType;
       }
     }
 
