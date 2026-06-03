@@ -10,8 +10,8 @@ check_both = True
 # check_both = False
 check_num = 3
 # directory = "/Volumes/DexDrive/Current Hunt/"
-directory = "/Volumes/DexDrive/Checked/snorlax/15 done/"
-# directory = "/Volumes/DexDrive/Checked/bulbasaur/5 done/"
+# directory = "/Volumes/DexDrive/Checked/snorlax/16 done/"
+directory = "/Volumes/DexDrive/Checked/bulbasaur/6 done/"
 # directory = "/Volumes/DexDrive/temp/"
 
 bulb_colors = [[246, 176, 210]]
