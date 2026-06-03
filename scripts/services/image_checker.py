@@ -10,8 +10,8 @@ check_both = True
 # check_both = False
 check_num = 3
 # directory = "/Volumes/DexDrive/Current Hunt/"
-directory = "/Volumes/DexDrive/Checked/snorlax/14 done/"
-# directory = "/Volumes/DexDrive/Checked/bulbasaur/4 done/"
+directory = "/Volumes/DexDrive/Checked/snorlax/15 done/"
+# directory = "/Volumes/DexDrive/Checked/bulbasaur/5 done/"
 # directory = "/Volumes/DexDrive/temp/"
 
 bulb_colors = [[246, 176, 210]]
@@ -163,6 +163,6 @@ if end_warnings:
         print(w)
 
 # 1
-# 90762 - 157105
+# 90762 - 158018
 # 3
-# 109507 - 170945
+# 109507 - 172201
