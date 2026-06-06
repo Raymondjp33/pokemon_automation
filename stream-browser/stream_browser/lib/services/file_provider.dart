@@ -5,6 +5,7 @@ import 'package:socket_io_client/socket_io_client.dart' as io;
 
 import '../models/display_content.model.dart';
 import '../models/pokemon.model.dart';
+import '../models/script_info.model.dart';
 import '../models/stats.model.dart';
 import '../models/stream_data.model.dart';
 import '../models/pokemon_data.model.dart';
@@ -31,8 +32,17 @@ class FileProvider with ChangeNotifier {
   num get switch3HuntId => switch3Content?.huntId ?? 1;
 
   final List<String> logs1 = [];
-
   final List<String> logs2 = [];
+
+  List<ScriptInfo> scripts = [];
+
+  Map<String, String> get scriptsByCategory {
+    final Map<String, String> map = {};
+    for (final s in scripts) {
+      map[s.name] = s.category;
+    }
+    return map;
+  }
 
   void addToLogs(String line, List<String> logs) {
     logs.add(line);
@@ -43,6 +53,21 @@ class FileProvider with ChangeNotifier {
 
   void emitProcess() {
     socket!.emit('start_process', {'file': 'process_test.py'});
+  }
+
+  void startScript(String name, {int? switchNum, int? startingBox}) {
+    final args = <String>[];
+    if (switchNum != null) args.addAll(['--switch_num', switchNum.toString()]);
+    if (startingBox != null) args.addAll(['--starting_box', startingBox.toString()]);
+    socket!.emit('manager_start', {'name': name, 'args': args});
+  }
+
+  void stopScript(String name) {
+    socket!.emit('manager_stop', {'name': name});
+  }
+
+  void sendButton(int switchNum, String button, {double duration = 0.1}) {
+    socket!.emit('send_button', {'switch_num': switchNum, 'button': button, 'duration': duration});
   }
 
   void connectSocket() {
@@ -86,9 +111,19 @@ class FileProvider with ChangeNotifier {
       }
     });
 
+    socket!.on('manager_status', (data) {
+      try {
+        scripts = (data['scripts'] as List)
+            .map((e) => ScriptInfo.fromJson(e as Map<String, dynamic>))
+            .toList();
+        notifyListeners();
+      } catch (e) {
+        print('Error with manager_status $e');
+      }
+    });
+
     socket!.on('process_output', (data) {
       addToLogs('Log: ${data['line']}', logs1);
-      // Update UI with log line
     });
 
     socket!.on('process_complete', (data) {

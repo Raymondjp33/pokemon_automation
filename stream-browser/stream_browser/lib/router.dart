@@ -15,7 +15,7 @@ class NavKeyService {
 
 enum ERoute {
   controlPanel(name: 'controlPanel', path: '/'),
-  oneSwitch(name: 'oneSwitch', path: '/oneSwitch'),
+  oneSwitch(name: 'oneSwitch', path: '/oneSwitch/:switchIndex'),
   twoSwitch(name: 'twoSwitch', path: '/twoSwitch'),
   threeSwitch(name: 'threeSwitch', path: '/threeSwitch'),
   showcasedSwitch(name: 'showcasedSwitch', path: '/showcasedSwitch'),
@@ -28,7 +28,7 @@ enum ERoute {
 
 final GoRouter router = GoRouter(
   navigatorKey: NavKeyService.globalNavigationKey,
-  initialLocation: ERoute.twoSwitch.path,
+  initialLocation: ERoute.controlPanel.path,
   restorationScopeId: 'router',
   routes: <RouteBase>[
     GoRoute(
@@ -42,7 +42,9 @@ final GoRouter router = GoRouter(
       name: ERoute.oneSwitch.name,
       path: ERoute.oneSwitch.path,
       builder: (BuildContext context, GoRouterState state) {
-        return OneSwitch();
+        final switchIndex =
+            int.tryParse(state.pathParameters['switchIndex'] ?? '1') ?? 1;
+        return OneSwitch(switchIndex: switchIndex);
       },
     ),
     GoRoute(

@@ -2,10 +2,13 @@ from __future__ import annotations
 
 import json
 import os
+import signal
 import sqlite3
+import subprocess
 import sys
 import time
 from dataclasses import asdict, dataclass
+from datetime import datetime
 from pathlib import Path
 
 import eventlet
@@ -17,14 +20,21 @@ eventlet.monkey_patch()
 from flask import Flask, send_from_directory  # noqa: E402
 from flask_socketio import SocketIO  # noqa: E402
 import redis  # noqa: E402
+import serial  # noqa: E402
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
+_PROJ_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(_PROJ_ROOT))
+sys.path.insert(0, str(_PROJ_ROOT / "scripts"))
+
+import manager as script_manager  # noqa: E402
 from services.common import (  # noqa: E402
     REDIS_CHANNEL,
     STREAM_DATA_PATH,
     CatchModel,
     HuntEncounterModel,
     _get_connection,
+    press,
+    get_switch_serial,
 )
 
 app = Flask(
@@ -299,6 +309,134 @@ def watch_file():
 
 
 # ---------------------------------------------------------------------------
+# Manager helpers
+# ---------------------------------------------------------------------------
+
+
+def _build_manager_status() -> list[dict]:
+    state = script_manager._clean_state(script_manager._load_state())
+    result = []
+    for name, info in sorted(script_manager.REGISTRY.items()):
+        entry = state.get(name)
+        result.append({
+            "name": name,
+            "description": info["description"],
+            "args_hint": info.get("args_hint", ""),
+            "running": entry is not None,
+            "pid": entry["pid"] if entry else None,
+            "started": entry["started"] if entry else None,
+        })
+    return result
+
+
+def _manager_start(name: str, args: list[str]) -> dict:
+    if name not in script_manager.REGISTRY:
+        return {"success": False, "error": f"Unknown script: {name}"}
+
+    state = script_manager._load_state()
+    entry = state.get(name)
+    if entry and script_manager._is_running(entry["pid"]):
+        return {"success": False, "error": f"'{name}' is already running (PID {entry['pid']})"}
+
+    script_manager.LOGS_DIR.mkdir(exist_ok=True)
+    log_path = script_manager.LOGS_DIR / f"{name.replace(':', '_')}.log"
+    script_path = script_manager.SCRIPTS_DIR / script_manager.REGISTRY[name]["path"]
+    cmd = [sys.executable, str(script_path)] + args
+
+    with log_path.open("a") as log_file:
+        log_file.write(f"\n{'='*60}\nStarted: {datetime.now().isoformat()}\nCmd: {' '.join(cmd)}\n{'='*60}\n")
+        log_file.flush()
+        proc = subprocess.Popen(
+            cmd,
+            cwd=str(script_manager.SCRIPTS_DIR),
+            stdout=log_file,
+            stderr=log_file,
+        )
+
+    state[name] = {
+        "pid": proc.pid,
+        "log": str(log_path),
+        "started": datetime.now().isoformat(),
+    }
+    script_manager._save_state(state)
+    return {"success": True, "pid": proc.pid}
+
+
+def _manager_stop(name: str) -> None:
+    state = script_manager._load_state()
+    names = list(state.keys()) if name == "all" else [name]
+
+    for n in names:
+        entry = state.get(n)
+        if not entry:
+            continue
+        try:
+            os.kill(entry["pid"], signal.SIGTERM)
+        except (ProcessLookupError, PermissionError):
+            pass
+        del state[n]
+
+    script_manager._save_state(state)
+
+
+# ---------------------------------------------------------------------------
+# Manager socket events
+# ---------------------------------------------------------------------------
+
+_last_manager_hash: str = ""
+
+
+@socketio.on("manager_list")
+def handle_manager_list():
+    socketio.emit("manager_status", {"scripts": _build_manager_status()})
+
+
+@socketio.on("manager_start")
+def handle_manager_start(data):
+    name = data.get("name", "")
+    args = data.get("args", [])
+    result = _manager_start(name, args)
+    if not result["success"]:
+        print(f"[manager_start] Error: {result['error']}")
+    socketio.emit("manager_status", {"scripts": _build_manager_status()})
+
+
+@socketio.on("manager_stop")
+def handle_manager_stop(data):
+    name = data.get("name", "")
+    _manager_stop(name)
+    socketio.emit("manager_status", {"scripts": _build_manager_status()})
+
+
+@socketio.on("send_button")
+def handle_send_button(data):
+    switch_num = data.get("switch_num", 1)
+    button = data.get("button", "A")
+    duration = float(data.get("duration", 0.1))
+    ser_str = get_switch_serial(switch_num)
+    try:
+        with serial.Serial(ser_str, 9600, timeout=1) as ser:
+            press(ser, button, duration=duration)
+        socketio.emit("button_result", {"success": True, "switch_num": switch_num, "button": button})
+    except Exception as e:
+        socketio.emit("button_result", {"success": False, "error": str(e), "switch_num": switch_num})
+
+
+def watch_manager():
+    global _last_manager_hash
+    while True:
+        try:
+            scripts = _build_manager_status()
+            h = str([(s["name"], s["running"], s["pid"]) for s in scripts])
+            if h != _last_manager_hash:
+                _last_manager_hash = h
+                socketio.emit("manager_status", {"scripts": scripts})
+        except Exception as e:
+            print(f"Error in watch_manager: {e}")
+        eventlet.sleep(3)
+
+
+# ---------------------------------------------------------------------------
 # Routes & socket events
 # ---------------------------------------------------------------------------
 
@@ -306,13 +444,13 @@ def watch_file():
 @socketio.on("init_connect")
 def handle_connect():
     try:
-        if not STREAM_DATA_PATH.exists():
-            return
-        with open(STREAM_DATA_PATH) as f:
-            stream_data = json.load(f)
-        print("[WebSocket] Emitting init connect")
-        socketio.emit("stream_data", stream_data)
-        emit_pokemon_data(full=True)
+        if STREAM_DATA_PATH.exists():
+            with open(STREAM_DATA_PATH) as f:
+                stream_data = json.load(f)
+            print("[WebSocket] Emitting init connect")
+            socketio.emit("stream_data", stream_data)
+            emit_pokemon_data(full=True)
+        socketio.emit("manager_status", {"scripts": _build_manager_status()})
     except Exception as e:
         print(f"Error in handle_connect: {e}")
 
@@ -331,4 +469,5 @@ def static_files(path):
 if __name__ == "__main__":
     socketio.start_background_task(target=redis_listener)
     socketio.start_background_task(target=watch_file)
+    socketio.start_background_task(target=watch_manager)
     socketio.run(app, host="0.0.0.0", port=5050)
