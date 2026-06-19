@@ -16,9 +16,18 @@ from services.common import (
     press,
     color_near,
     increment_counter,
+    randomized_rng_delay,
 )
 
 switch_num = 3
+
+# FRLG reseeds its RNG to 0 on every soft reset, so a rigidly-timed reset loop has
+# almost no variance and can get pinned to one narrow (sometimes shiny-less) band of
+# RNG frames. Idle a small random amount before triggering the encounter to restore
+# the human-like timing spread. Widen via rng_delay_min / rng_delay_max only if a
+# hunt runs a very long time with no shiny.
+RNG_DELAY_MIN = 0.0
+RNG_DELAY_MAX = 5.0
 
 
 def extract_encounter_text(vid: cv2.VideoCapture) -> str:
@@ -49,6 +58,8 @@ def reset_game(ser: serial.Serial):
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--switch_num")
+    parser.add_argument("--rng_min", type=float, default=RNG_DELAY_MIN)
+    parser.add_argument("--rng_max", type=float, default=RNG_DELAY_MAX)
     args = parser.parse_args()
 
     if args.switch_num:
@@ -65,6 +76,8 @@ def main() -> int:
         while True:
             start_time = time.time()
             reset_game(ser)
+
+            randomized_rng_delay(vid, switch_num, min_seconds=args.rng_min, max_seconds=args.rng_max)
 
             press(ser, "A", count=13, sleep_time=0.5)
             press(ser, "B", count=5, sleep_time=0.5)
@@ -104,7 +117,7 @@ def main() -> int:
             delay = t1 - t0
             print(f"dialog delay: {delay:.3f}s")
 
-            if (delay) > 4.2:
+            if (delay) > 4.5:
                 print("SHINY!!!")
                 press(ser, "C", duration=2)
                 press(ser, "H", duration=1)

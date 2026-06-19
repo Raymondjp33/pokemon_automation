@@ -7,10 +7,27 @@ import serial
 import redis
 import numpy
 
-from services.common import shh, increment_counter, getframe, press, make_vid, get_switch_serial, get_switch_vid_num
+from services.common import (
+    shh,
+    increment_counter,
+    getframe,
+    press,
+    make_vid,
+    get_switch_serial,
+    get_switch_vid_num,
+    randomized_rng_delay,
+)
 
 redis_client = redis.StrictRedis(host="localhost", port=6379, decode_responses=True)
 switch_num = 1
+
+# FRLG reseeds its RNG to 0 on every soft reset, so a rigidly-timed reset loop has
+# almost no variance and can get pinned to one narrow (sometimes shiny-less) band of
+# RNG frames. Idle a small random amount on the title screen (before navigating) to
+# restore the human-like timing spread. Widen via rng_delay_min / rng_delay_max only
+# if a hunt runs a very long time with no shiny.
+RNG_DELAY_MIN = 0.0
+RNG_DELAY_MAX = 5.0
 
 
 def check_if_shiny(frame):
@@ -31,6 +48,8 @@ def reset_game(ser: serial.Serial):
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--switch_num")
+    parser.add_argument("--rng_min", type=float, default=RNG_DELAY_MIN)
+    parser.add_argument("--rng_max", type=float, default=RNG_DELAY_MAX)
     args = parser.parse_args()
 
     if args.switch_num:
@@ -46,6 +65,11 @@ def main() -> int:
         while True:
             start_time = time.time()
             reset_game(ser)
+
+            # On the title/continue screen after the reset: idle a random amount so the
+            # starter's PID lands on a random RNG frame instead of a fixed band.
+            randomized_rng_delay(vid, switch_num, min_seconds=args.rng_min, max_seconds=args.rng_max)
+
             press(ser, "A", count=14, sleep_time=0.5)
             press(ser, "B", count=8, sleep_time=0.5)
             press(ser, "A", count=10, sleep_time=0.5)
