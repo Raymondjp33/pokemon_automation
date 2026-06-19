@@ -6,9 +6,13 @@ outdated/old_data_files
 
 # Files not needed to be tracked
 backend/*.json
+backend/ws_token.txt
 backend/my_pokemon.db
 backend/my_pokemon.db-shm
 backend/my_pokemon.db-wal
+
+# VOD markers
+logs/vod_markers.log
 
 scripts/configs/
 scripts/dynamax_adventures/den_config.json

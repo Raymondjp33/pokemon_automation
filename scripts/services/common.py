@@ -10,6 +10,7 @@ import cv2
 import numpy
 import serial
 import functools
+import random
 import tesserocr
 import sqlite3
 import json
@@ -25,14 +26,13 @@ REDIS_CHANNEL = "update_data"
 SHINY_CAUGHT_CHANNEL = "shiny_caught"
 REDIS_CLIENT = redis.StrictRedis(host="localhost", port=6379, decode_responses=True)
 
-SWITCH1_SERIAL = "/dev/tty.usbmodem14201"
-SWITCH2_SERIAL = "/dev/tty.usbserial-1410"
-SWITCH3_SERIAL = "/dev/tty.usbmodem1301"
+SWITCH1_SERIAL = "/dev/tty.usbserial-11420"
+SWITCH2_SERIAL = "/dev/tty.usbmodem11301"
+SWITCH3_SERIAL = "/dev/tty.usbmodem114101"
 
-SWITCH1_VID_NUM = 1
-SWITCH2_VID_NUM = 0
-
-SWITCH3_VID_NUM = 2
+SWITCH1_VID_NUM = 0
+SWITCH2_VID_NUM = 2
+SWITCH3_VID_NUM = 1
 
 
 def make_vid(switch_num) -> cv2.VideoCapture:
@@ -265,6 +265,46 @@ def wait_and_render(vid: cv2.VideoCapture, t: float) -> None:
     end = time.time() + t
     while time.time() < end:
         getframe(vid)
+
+
+def randomized_rng_delay(
+    vid: cv2.VideoCapture,
+    switch_num: int,
+    *,
+    min_seconds: float = 0.0,
+    max_seconds: float = 5.0,
+) -> float:
+    """Idle a *random* amount of real time (while the game keeps running) before the
+    encounter/PID is generated, to reintroduce timing variance on soft-reset hunts.
+
+    Gen-3 games (FireRed/LeafGreen, Ruby/Sapphire) reseed their RNG to 0 on every soft
+    reset, so the encounter's PID is a function of how many RNG frames elapse before it
+    is generated. A human mashing through the intro has a few seconds of natural variance,
+    which the fast RNG churn of the load/cutscene amplifies into a wide spread of frames —
+    that is why manual SR hunting works fine. A rigidly timed bot loop has almost no
+    variance, so it gets pinned to one narrow band of frames and rolls different natures
+    forever without a shiny if that band happens to contain none. A small random delay,
+    redrawn every reset, restores the human-like spread. (Modern games — BDSP/SwSh/SV —
+    don't reseed to 0, so this is a harmless no-op cost there.)
+
+    A few seconds is what real hunters rely on, so the default range is intentionally
+    small. If a hunt runs a very long time with no shiny (a stubborn, shiny-less band),
+    widen the range via the "rng_delay_min" / "rng_delay_max" control-panel params (live,
+    no restart) or --rng_max: wider = more frames covered = more reliable, slower resets.
+    """
+    lo = min_seconds
+    hi = max_seconds
+    try:
+        lo, hi = float(lo), float(hi)
+    except (TypeError, ValueError):
+        lo, hi = min_seconds, max_seconds
+    if hi < lo:
+        lo, hi = hi, lo
+
+    delay = random.uniform(lo, hi)
+    print(f"RNG decorrelation idle: {delay:.2f}s (range {lo:.1f}-{hi:.1f}s)")
+    wait_and_render(vid, delay)
+    return delay
 
 
 def await_pixel(
