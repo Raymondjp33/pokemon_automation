@@ -133,6 +133,7 @@ def main() -> int:
                 press(ser, "A", duration=1)
                 increment_counter(
                     switch_num=switch_num,
+                    pokemon_name=pokemon,
                     add_catch=True,
                     log_frame=log_frame,
                 )
@@ -140,6 +141,7 @@ def main() -> int:
 
             increment_counter(
                 switch_num=switch_num,
+                pokemon_name=pokemon,
                 log_frame=log_frame,
             )
 

@@ -488,8 +488,20 @@ def increment_counter(switch_num, pokemon_name=None, add_catch=False, log_frame=
     conn = _get_connection()
     cursor = conn.cursor()
 
-    hunt_row = get_hunt_row(switch_num, pokemon_name, cursor)
     hunt_id = get_hunt_id(switch_num)
+
+    # If no pokemon_name was provided but the hunt tracks exactly one pokemon,
+    # default to that pokemon so the encounter is attributed correctly.
+    if pokemon_name is None:
+        cursor.execute(
+            "SELECT DISTINCT pokemon_name FROM hunt_encounters WHERE hunt_id = ?",
+            (hunt_id,),
+        )
+        hunt_pokemon = cursor.fetchall()
+        if len(hunt_pokemon) == 1:
+            pokemon_name = hunt_pokemon[0][0]
+
+    hunt_row = get_hunt_row(switch_num, pokemon_name, cursor)
     hunt_encounters = -1
 
     if hunt_row:
